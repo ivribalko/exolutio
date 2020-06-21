@@ -1,5 +1,6 @@
 import 'package:evotexto/src/model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../common.dart';
 
@@ -37,12 +38,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLinkView(BuildContext context, Link e) {
+  Widget _buildLinkView(BuildContext context, Link link) {
     return _LinkView(
-      e,
+      link,
       () => Navigator.of(context).pushNamed(
         '/read',
-        arguments: e,
+        arguments: link,
       ),
     );
   }
@@ -56,9 +57,21 @@ class _LinkView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      title: Text(data.title),
+    return Consumer<Model>(
+      builder: (BuildContext context, Model model, __) {
+        return ListTile(
+          onTap: () {
+            model.setRead(data);
+            onTap();
+          },
+          title: Text(
+            data.title,
+            style: model.isRead(data)
+                ? TextStyle(color: Theme.of(context).disabledColor)
+                : null,
+          ),
+        );
+      },
     );
   }
 }

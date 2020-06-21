@@ -7,7 +7,7 @@ import 'read/screen.dart';
 class Evotexto extends StatelessWidget {
   const Evotexto(this.model, this.data);
 
-  final ArticleModel model;
+  final Model model;
   final List<Link> data;
 
   @override
