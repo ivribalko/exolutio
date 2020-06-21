@@ -17,18 +17,23 @@ class HomeScreen extends StatelessWidget {
           ),
           SliverList(
             delegate: SliverChildListDelegate(data
-                .map(
-                  (e) => _LinkView(
-                    e,
-                    () => Navigator.of(context).pushNamed(
-                      '/read',
-                      arguments: e,
-                    ),
-                  ),
-                )
+                .map((e) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: _buildLinkView(context, e),
+                    ))
                 .toList()),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLinkView(BuildContext context, Link e) {
+    return _LinkView(
+      e,
+      () => Navigator.of(context).pushNamed(
+        '/read',
+        arguments: e,
       ),
     );
   }
