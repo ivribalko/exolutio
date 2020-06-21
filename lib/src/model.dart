@@ -20,6 +20,7 @@ class ArticleModel extends ChangeNotifier {
 
   final SharedPreferences prefs;
   Set<String> _read;
+  Set<String> get read => _read;
 
   Future<List<Link>> get links => Client()
       .get(_Root)
@@ -31,7 +32,6 @@ class ArticleModel extends ChangeNotifier {
           .map((e) => Link(
                 e.attributes['href'],
                 e.text,
-                _read.contains(e.attributes['href']),
               ))
           .toList());
 
@@ -43,6 +43,8 @@ class ArticleModel extends ChangeNotifier {
             _getArticleText(value),
             'COMMENTS NOT IMPLEMENTED',
           ));
+
+  bool isRead(Link link) => _read.contains(link.url);
 
   void setRead(Link link) {
     _read.add(link.url);
@@ -58,11 +60,10 @@ class ArticleModel extends ChangeNotifier {
 }
 
 class Link {
-  Link(this.url, this.title, this.read);
+  Link(this.url, this.title);
 
   final String url;
   final String title;
-  final bool read;
 }
 
 class Article {
