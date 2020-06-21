@@ -18,7 +18,22 @@ class Evotexto extends StatelessWidget {
       darkTheme: ThemeData.dark(),
       routes: {
         '/': (context) => HomeScreen(data),
-        '/read': (context) => ArticleScreen(),
+        '/read': (context) => FutureBuilder(
+              future: model.article(ModalRoute.of(context).settings.arguments),
+              builder: (context, snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.done:
+                    if (snapshot.hasError) {
+                      return Center(child: Text(snapshot.error));
+                    } else {
+                      return ArticleScreen(snapshot.data);
+                    }
+                    break;
+                  default:
+                    return Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
       },
     );
   }
