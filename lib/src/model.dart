@@ -13,8 +13,14 @@ class ArticleModel {
 
   Future<List<Link>> get links => Future.value(
         <Link>[
-          Link('1182866', 'Письмо 1'),
-          Link('1184227', 'Письмо 2'),
+          Link(
+            '1182866',
+            'Письмо: "Никакой сексуальности, никакого подтекста"',
+          ),
+          Link(
+            '1184227',
+            'Письмо: "Его ОЗ существенно ниже"',
+          ),
         ],
       );
 
@@ -22,6 +28,7 @@ class ArticleModel {
       .get('${Root + link.id}.html')
       .then((value) => parse(value.body))
       .then((value) => Article(
+            link.title,
             _getArticleText(value),
             'COMMENTS NOT IMPLEMENTED',
           ));
@@ -41,8 +48,9 @@ class Link {
 }
 
 class Article {
-  Article(this.text, this.comments);
+  Article(this.title, this.text, this.comments);
 
+  final String title;
   final String text;
   final String comments;
 }

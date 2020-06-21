@@ -10,13 +10,26 @@ class ArticleScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              Text(data.text),
-              Text(data.comments),
-            ],
-          ),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              title: Text(data.title),
+              centerTitle: true,
+              floating: true,
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(data.text),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(data.comments),
+              ),
+            ),
+          ],
         ),
       ),
     );
