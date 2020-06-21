@@ -57,8 +57,8 @@ class _LinkView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ArticleModel>(
-      builder: (BuildContext context, ArticleModel value, Widget child) {
+    return Consumer<Model>(
+      builder: (BuildContext context, Model value, Widget child) {
         return ListTile(
           onTap: onTap,
           title: Text(

@@ -11,8 +11,8 @@ const List<String> _Contents = [
   'div.aentry-post__text.aentry-post__text--view',
 ];
 
-class ArticleModel extends ChangeNotifier {
-  ArticleModel(this.prefs) {
+class Model extends ChangeNotifier {
+  Model(this.prefs) {
     _read = prefs.getStringList(_readKey)?.toSet() ?? <String>[].toSet();
   }
 
