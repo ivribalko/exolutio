@@ -15,7 +15,7 @@ class Evotexto extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       home: Scaffold(
-        body: ArticleScreen(data.text),
+        body: ArticleScreen(data),
       ),
     );
   }
