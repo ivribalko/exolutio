@@ -8,6 +8,31 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      body: ListView.builder(
+        itemBuilder: (context, index) => _LinkView(
+          data[index],
+          () => Navigator.of(context).pushNamed(
+            '/read',
+            arguments: data[index],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LinkView extends StatelessWidget {
+  _LinkView(this.data, this.onTap);
+
+  final Link data;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Text(data.title),
+    );
   }
 }
