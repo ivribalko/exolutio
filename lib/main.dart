@@ -1,3 +1,4 @@
+import 'package:evotexto/src/article.dart';
 import 'package:evotexto/ui/evotexto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ void main() {
 
   runApp(
     FutureBuilder(
-      future: Future.delayed(Duration(seconds: 1)).then((_) => 'result'),
+      future: ArticleModel().data,
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
