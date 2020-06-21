@@ -1,5 +1,6 @@
 import 'package:evotexto/src/model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../common.dart';
 
@@ -56,14 +57,18 @@ class _LinkView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      title: Text(
-        data.title,
-        style: data.read
-            ? TextStyle(color: Theme.of(context).disabledColor)
-            : null,
-      ),
+    return Consumer<ArticleModel>(
+      builder: (BuildContext context, ArticleModel value, Widget child) {
+        return ListTile(
+          onTap: onTap,
+          title: Text(
+            data.title,
+            style: value.isRead(data)
+                ? TextStyle(color: Theme.of(context).disabledColor)
+                : null,
+          ),
+        );
+      },
     );
   }
 }
