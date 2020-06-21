@@ -35,6 +35,11 @@ class Evotexto extends StatelessWidget {
               },
             ),
       },
+      // https://github.com/Sub6Resources/flutter_html/issues/294#issuecomment-637318948
+      builder: (BuildContext context, Widget child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+        child: child,
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:evotexto/src/model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 import '../common.dart';
 
@@ -25,7 +26,7 @@ class ArticleScreen extends StatelessWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(data.text),
+                child: Html(data: data.text),
               ),
             ),
             SliverToBoxAdapter(
