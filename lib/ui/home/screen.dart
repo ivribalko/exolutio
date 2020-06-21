@@ -9,14 +9,26 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-        itemBuilder: (context, index) => _LinkView(
-          data[index],
-          () => Navigator.of(context).pushNamed(
-            '/read',
-            arguments: data[index],
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            title: Text('Эволюция'),
+            centerTitle: true,
           ),
-        ),
+          SliverList(
+            delegate: SliverChildListDelegate(data
+                .map(
+                  (e) => _LinkView(
+                    e,
+                    () => Navigator.of(context).pushNamed(
+                      '/read',
+                      arguments: e,
+                    ),
+                  ),
+                )
+                .toList()),
+          ),
+        ],
       ),
     );
   }
@@ -30,9 +42,9 @@ class _LinkView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ListTile(
       onTap: onTap,
-      child: Text(data.title),
+      title: Text(data.title),
     );
   }
 }
