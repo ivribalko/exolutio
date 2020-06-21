@@ -21,6 +21,7 @@ class ArticleModel {
           .map((e) => Link(
                 e.attributes['href'],
                 e.text,
+                false,
               ))
           .toList());
 
@@ -41,10 +42,11 @@ class ArticleModel {
 }
 
 class Link {
-  Link(this.url, this.title);
+  Link(this.url, this.title, this.read);
 
   final String url;
   final String title;
+  final bool read;
 }
 
 class Article {
