@@ -2,16 +2,18 @@ import 'package:evotexto/src/model.dart';
 import 'package:evotexto/ui/evotexto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (kDebugMode) {
     Wakelock.enable();
   }
 
-  final model = ArticleModel();
+  final prefs = await SharedPreferences.getInstance();
+  final model = ArticleModel(prefs);
 
   runApp(
     FutureBuilder(
