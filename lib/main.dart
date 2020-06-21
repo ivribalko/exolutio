@@ -14,12 +14,12 @@ void main() async {
   }
 
   final prefs = await SharedPreferences.getInstance();
-  final model = ArticleModel(prefs);
+  final model = Model(prefs);
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<ArticleModel>(create: (_) => model),
+        ChangeNotifierProvider<Model>(create: (_) => model),
       ],
       child: FutureBuilder(
         future: model.links,
