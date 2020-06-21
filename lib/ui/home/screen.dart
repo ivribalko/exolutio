@@ -1,6 +1,8 @@
 import 'package:evotexto/src/model.dart';
 import 'package:flutter/material.dart';
 
+import '../common.dart';
+
 class HomeScreen extends StatelessWidget {
   HomeScreen(this.data);
 
@@ -12,8 +14,13 @@ class HomeScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            title: Text('Эволюция'),
+            expandedHeight: AppBarHeight,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text('Эволюция'),
+              centerTitle: true,
+            ),
             centerTitle: true,
+            floating: true,
           ),
           SliverList(
             delegate: SliverChildListDelegate(data

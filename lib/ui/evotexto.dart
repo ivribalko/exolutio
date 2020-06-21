@@ -1,8 +1,8 @@
 import 'package:evotexto/src/model.dart';
 import 'package:flutter/material.dart';
 
-import 'article/screen.dart';
 import 'home/screen.dart';
+import 'read/screen.dart';
 
 class Evotexto extends StatelessWidget {
   const Evotexto(this.model, this.data);
