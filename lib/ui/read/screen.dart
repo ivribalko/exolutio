@@ -1,6 +1,8 @@
 import 'package:evotexto/src/model.dart';
 import 'package:flutter/material.dart';
 
+import '../common.dart';
+
 class ArticleScreen extends StatelessWidget {
   ArticleScreen(this.data);
 
@@ -13,7 +15,10 @@ class ArticleScreen extends StatelessWidget {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              title: Text(data.title),
+              expandedHeight: AppBarHeight,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text(data.title),
+              ),
               centerTitle: true,
               floating: true,
             ),
