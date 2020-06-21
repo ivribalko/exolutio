@@ -11,6 +11,13 @@ class ArticleModel {
   ];
   static const String Comments = 'div.acomments")';
 
+  Future<List<Link>> get links => Future.value(
+        <Link>[
+          Link('1182866', 'Письмо 1'),
+          Link('1184227', 'Письмо 2'),
+        ],
+      );
+
   Future<Article> get data => Client()
       .get(Root + Address)
       .then((value) => parse(value.body))
@@ -27,10 +34,9 @@ class ArticleModel {
 }
 
 class Link {
-  Link(this.id, this.link, this.title);
+  Link(this.id, this.title);
 
   final String id;
-  final String link;
   final String title;
 }
 
