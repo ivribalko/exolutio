@@ -11,16 +11,18 @@ void main() {
     Wakelock.enable();
   }
 
+  final model = ArticleModel();
+
   runApp(
     FutureBuilder(
-      future: ArticleModel().links,
+      future: model.links,
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             if (snapshot.hasError) {
               return Center(child: Text(snapshot.error));
             } else {
-              return Evotexto(snapshot.data);
+              return Evotexto(model, snapshot.data);
             }
             break;
           default:
