@@ -16,11 +16,13 @@ class HomeScreen extends StatelessWidget {
           SliverAppBar(
             expandedHeight: AppBarHeight,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text('Эволюция'),
+              title: Text(
+                'Эволюция:\nПисьма',
+                textAlign: TextAlign.center,
+              ),
               centerTitle: true,
             ),
             centerTitle: true,
-            floating: true,
           ),
           SliverList(
             delegate: SliverChildListDelegate(data
