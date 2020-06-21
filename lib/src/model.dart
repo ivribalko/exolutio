@@ -1,18 +1,28 @@
+import 'package:flutter/material.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ArticleModel {
-  static const String Root = 'https://evo-lutio.livejournal.com/';
-  static const String Address = '1182866.html'; // 1184227
-  static const List<String> Contents = [
-    'div.b-singlepost-bodywrapper',
-    'div.aentry-post__text.aentry-post__text--view',
-  ];
-  static const String Comments = 'div.acomments")';
+const String _Root = 'https://evo-lutio.livejournal.com/';
+
+const List<String> _Contents = [
+  'div.b-singlepost-bodywrapper',
+  'div.aentry-post__text.aentry-post__text--view',
+];
+
+class ArticleModel extends ChangeNotifier {
+  ArticleModel(this.prefs) {
+    _read = prefs.getStringList(_readKey)?.toSet() ?? <String>[].toSet();
+  }
+
+  static const String _readKey = 'articlesRead';
+
+  final SharedPreferences prefs;
+  Set<String> _read;
 
   Future<List<Link>> get links => Client()
-      .get(Root)
+      .get(_Root)
       .then((value) => parse(value.body))
       .then((value) => value.querySelectorAll('dt.entry-title'))
       .then((value) => value
@@ -21,7 +31,7 @@ class ArticleModel {
           .map((e) => Link(
                 e.attributes['href'],
                 e.text,
-                false,
+                _read.contains(e.attributes['href']),
               ))
           .toList());
 
@@ -34,8 +44,14 @@ class ArticleModel {
             'COMMENTS NOT IMPLEMENTED',
           ));
 
+  void setRead(Link link) {
+    _read.add(link.url);
+    prefs.setStringList(_readKey, _read.toList());
+    notifyListeners();
+  }
+
   String _getArticleText(Document value) {
-    return Contents.map(value.querySelector)
+    return _Contents.map(value.querySelector)
         .firstWhere((element) => element?.text?.isNotEmpty ?? false)
         .text;
   }

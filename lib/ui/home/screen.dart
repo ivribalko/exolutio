@@ -37,12 +37,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLinkView(BuildContext context, Link e) {
+  Widget _buildLinkView(BuildContext context, Link link) {
     return _LinkView(
-      e,
+      link,
       () => Navigator.of(context).pushNamed(
         '/read',
-        arguments: e,
+        arguments: link,
       ),
     );
   }
