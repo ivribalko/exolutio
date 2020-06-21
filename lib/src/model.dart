@@ -11,21 +11,21 @@ class ArticleModel {
   ];
   static const String Comments = 'div.acomments")';
 
-  Future<List<Link>> get links => Future.value(
-        <Link>[
-          Link(
-            '1182866',
-            'Письмо: "Никакой сексуальности, никакого подтекста"',
-          ),
-          Link(
-            '1184227',
-            'Письмо: "Его ОЗ существенно ниже"',
-          ),
-        ],
-      );
+  Future<List<Link>> get links => Client()
+      .get(Root)
+      .then((value) => parse(value.body))
+      .then((value) => value.querySelectorAll('dt.entry-title'))
+      .then((value) => value
+          .where((element) => element.text.contains('Письмо'))
+          .map((e) => e.children.first)
+          .map((e) => Link(
+                e.attributes['href'],
+                e.text,
+              ))
+          .toList());
 
   Future<Article> article(Link link) => Client()
-      .get('${Root + link.id}.html')
+      .get(link.url)
       .then((value) => parse(value.body))
       .then((value) => Article(
             link.title,
@@ -41,9 +41,9 @@ class ArticleModel {
 }
 
 class Link {
-  Link(this.id, this.title);
+  Link(this.url, this.title);
 
-  final String id;
+  final String url;
   final String title;
 }
 
