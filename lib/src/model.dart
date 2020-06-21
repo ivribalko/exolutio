@@ -18,8 +18,8 @@ class ArticleModel {
         ],
       );
 
-  Future<Article> get data => Client()
-      .get(Root + Address)
+  Future<Article> article(Link link) => Client()
+      .get('${Root + link.id}.html')
       .then((value) => parse(value.body))
       .then((value) => Article(
             _getArticleText(value),

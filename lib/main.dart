@@ -13,7 +13,7 @@ void main() {
 
   runApp(
     FutureBuilder(
-      future: ArticleModel().data,
+      future: ArticleModel().links,
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
