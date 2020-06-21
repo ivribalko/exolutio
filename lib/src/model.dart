@@ -26,11 +26,16 @@ class ArticleModel {
   }
 }
 
+class Link {
+  Link(this.id, this.link, this.title);
+
+  final String id;
+  final String link;
+  final String title;
+}
+
 class Article {
-  Article(
-    this.text,
-    this.comments,
-  );
+  Article(this.text, this.comments);
 
   final String text;
   final String comments;
