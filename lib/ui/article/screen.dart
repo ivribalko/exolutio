@@ -7,6 +7,10 @@ class ArticleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text(data));
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Text(data),
+      ),
+    );
   }
 }
