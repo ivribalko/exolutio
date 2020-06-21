@@ -12,7 +12,11 @@ class Evotexto extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Evotexto',
-      home: ArticleScreen(data.text),
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      home: Scaffold(
+        body: ArticleScreen(data.text),
+      ),
     );
   }
 }
