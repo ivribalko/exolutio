@@ -55,7 +55,7 @@ class Model extends ChangeNotifier {
   String _getArticleText(Document value) {
     return _Contents.map(value.querySelector)
         .firstWhere((element) => element?.text?.isNotEmpty ?? false)
-        .text;
+        .innerHtml;
   }
 }
 
