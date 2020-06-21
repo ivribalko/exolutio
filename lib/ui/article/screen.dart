@@ -1,4 +1,4 @@
-import 'package:evotexto/src/article.dart';
+import 'package:evotexto/src/model.dart';
 import 'package:flutter/material.dart';
 
 class ArticleScreen extends StatelessWidget {
