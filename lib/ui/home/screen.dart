@@ -58,7 +58,12 @@ class _LinkView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onTap,
-      title: Text(data.title),
+      title: Text(
+        data.title,
+        style: data.read
+            ? TextStyle(color: Theme.of(context).disabledColor)
+            : null,
+      ),
     );
   }
 }
