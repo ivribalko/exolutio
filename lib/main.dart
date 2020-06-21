@@ -1,4 +1,4 @@
-import 'package:evotexto/src/article.dart';
+import 'package:evotexto/src/model.dart';
 import 'package:evotexto/ui/evotexto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,16 +11,18 @@ void main() {
     Wakelock.enable();
   }
 
+  final model = ArticleModel();
+
   runApp(
     FutureBuilder(
-      future: ArticleModel().data,
+      future: model.links,
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             if (snapshot.hasError) {
               return Center(child: Text(snapshot.error));
             } else {
-              return Evotexto(snapshot.data);
+              return Evotexto(model, snapshot.data);
             }
             break;
           default:
