@@ -3,6 +3,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:throttling/throttling.dart';
 
 const String _Root = 'https://evo-lutio.livejournal.com/';
 
@@ -17,6 +18,10 @@ class Model extends ChangeNotifier {
   }
 
   static const String _readKey = 'articlesRead';
+
+  final _throttling = new Throttling(
+    duration: Duration(milliseconds: 500),
+  );
 
   final SharedPreferences prefs;
   Set<String> _read;
@@ -39,6 +44,7 @@ class Model extends ChangeNotifier {
       .get(link.url)
       .then((value) => parse(value.body))
       .then((value) => Article(
+            link.url,
             link.title,
             _getArticleText(value),
             '${link.url}#comments',
@@ -46,10 +52,28 @@ class Model extends ChangeNotifier {
 
   bool isRead(Link link) => _read.contains(link.url);
 
-  void setRead(Link link) {
+  void saveRead(Link link) {
     _read.add(link.url);
     prefs.setStringList(_readKey, _read.toList());
     notifyListeners();
+  }
+
+  double getPosition(Article article) {
+    if (prefs.containsKey(article.url)) {
+      return prefs.getDouble(article.url);
+    } else {
+      return 0.0;
+    }
+  }
+
+  void savePosition(Article article, double position) {
+    _throttling.throttle(() {
+      if (position <= 0) {
+        prefs.remove(article.url);
+      } else {
+        prefs.setDouble(article.url, position);
+      }
+    });
   }
 
   String _getArticleText(Document value) {
@@ -67,8 +91,9 @@ class Link {
 }
 
 class Article {
-  Article(this.title, this.text, this.commentsUrl);
+  Article(this.url, this.title, this.text, this.commentsUrl);
 
+  final String url;
   final String title;
   final String text;
   final String commentsUrl;
