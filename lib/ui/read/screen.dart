@@ -1,5 +1,8 @@
 import 'package:evotexto/src/model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../common.dart';
 
@@ -10,6 +13,7 @@ class ArticleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Style(fontSize: FontSize(20));
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
@@ -23,9 +27,14 @@ class ArticleScreen extends StatelessWidget {
               floating: true,
             ),
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(data.text),
+              child: Html(
+                onLinkTap: launch,
+                data: data.text,
+                style: {
+                  'p': style,
+                  'div': style,
+                  'article': style,
+                },
               ),
             ),
             SliverToBoxAdapter(
