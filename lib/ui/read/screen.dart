@@ -27,14 +27,19 @@ class _ArticleScreenState extends State<ArticleScreen> {
       initialScrollOffset: _model.getPosition(
         widget.data,
       ),
-    );
-    _scroll.addListener(() {
-      _model.savePosition(
-        widget.data,
-        _scroll.position.pixels,
-      );
-    });
+    )..addListener(() {
+        _model.savePosition(
+          widget.data,
+          _scroll.position.pixels,
+        );
+      });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
   }
 
   @override
