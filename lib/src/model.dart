@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const String _Root = 'https://evo-lutio.livejournal.com/';
@@ -14,6 +15,16 @@ const List<String> _Contents = [
 class Model extends ChangeNotifier {
   Model(this.prefs) {
     _read = prefs.getStringList(_readKey)?.toSet() ?? <String>[].toSet();
+
+    _savePosition
+        .throttle(
+          (event) => TimerStream(
+            true,
+            Duration(milliseconds: 500),
+          ),
+          trailing: true,
+        )
+        .listen((value) => value());
   }
 
   static const String _readKey = 'articlesRead';
@@ -21,6 +32,8 @@ class Model extends ChangeNotifier {
   final SharedPreferences prefs;
   Set<String> _read;
   Set<String> get read => _read;
+
+  final _savePosition = PublishSubject<Function>();
 
   Future<List<Link>> get links => Client()
       .get(_Root)
@@ -64,11 +77,13 @@ class Model extends ChangeNotifier {
   }
 
   void savePosition(Article article, double position) {
-    if (position <= 0) {
-      prefs.remove(article.url);
-    } else {
-      prefs.setDouble(article.url, position);
-    }
+    _savePosition.add(() {
+      if (position <= 0) {
+        prefs.remove(article.url);
+      } else {
+        prefs.setDouble(article.url, position);
+      }
+    });
   }
 
   String _getArticleText(Document value) {
