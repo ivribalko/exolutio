@@ -51,7 +51,6 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 title: Text(widget.data.title),
               ),
               centerTitle: true,
-              floating: true,
             ),
             SliverToBoxAdapter(
               child: Html(
