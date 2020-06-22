@@ -12,6 +12,7 @@ class ArticleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Style(fontSize: FontSize(20));
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
@@ -28,10 +29,9 @@ class ArticleScreen extends StatelessWidget {
               child: Html(
                 data: data.text,
                 style: {
-                  'p': Style(
-                    fontFamily: null,
-                    fontSize: FontSize(20),
-                  )
+                  'p': style,
+                  'div': style,
+                  'article': style,
                 },
               ),
             ),
