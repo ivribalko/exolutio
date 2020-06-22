@@ -61,7 +61,11 @@ class Model extends ChangeNotifier {
   }
 
   void savePosition(Article article, double position) {
-    prefs.setDouble(article.url, position);
+    if (position <= 0) {
+      prefs.remove(article.url);
+    } else {
+      prefs.setDouble(article.url, position);
+    }
   }
 
   String _getArticleText(Document value) {
