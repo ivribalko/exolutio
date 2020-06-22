@@ -3,7 +3,6 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:throttling/throttling.dart';
 
 const String _Root = 'https://evo-lutio.livejournal.com/';
 
@@ -18,10 +17,6 @@ class Model extends ChangeNotifier {
   }
 
   static const String _readKey = 'articlesRead';
-
-  final _throttling = new Throttling(
-    duration: Duration(milliseconds: 500),
-  );
 
   final SharedPreferences prefs;
   Set<String> _read;
@@ -67,13 +62,11 @@ class Model extends ChangeNotifier {
   }
 
   void savePosition(Article article, double position) {
-    _throttling.throttle(() {
-      if (position <= 0) {
-        prefs.remove(article.url);
-      } else {
-        prefs.setDouble(article.url, position);
-      }
-    });
+    if (position <= 0) {
+      prefs.remove(article.url);
+    } else {
+      prefs.setDouble(article.url, position);
+    }
   }
 
   String _getArticleText(Document value) {
