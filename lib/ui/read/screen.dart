@@ -40,7 +40,13 @@ class ArticleScreen extends StatelessWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(data.comments),
+                child: Container(
+                  height: 50,
+                  child: RaisedButton(
+                    onPressed: () => launch(data.commentsUrl),
+                    child: Text('Комментарии'),
+                  ),
+                ),
               ),
             ),
           ],
