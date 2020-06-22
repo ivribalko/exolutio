@@ -48,9 +48,11 @@ class Model extends ChangeNotifier {
   bool isRead(Link link) => _read.contains(link.url);
 
   void saveRead(Link link) {
-    _read.add(link.url);
-    prefs.setStringList(_readKey, _read.toList());
-    notifyListeners();
+    if (!_read.contains(link.url)) {
+      _read.add(link.url);
+      prefs.setStringList(_readKey, _read.toList());
+      notifyListeners();
+    }
   }
 
   double getPosition(Article article) {
