@@ -39,6 +39,7 @@ class Model extends ChangeNotifier {
       .get(link.url)
       .then((value) => parse(value.body))
       .then((value) => Article(
+            link.url,
             link.title,
             _getArticleText(value),
             '${link.url}#comments',
@@ -46,10 +47,21 @@ class Model extends ChangeNotifier {
 
   bool isRead(Link link) => _read.contains(link.url);
 
-  void setRead(Link link) {
+  void saveRead(Link link) {
     _read.add(link.url);
     prefs.setStringList(_readKey, _read.toList());
     notifyListeners();
+  }
+
+  double getPosition(Article article) {
+    if (prefs.containsKey(article.url)) {
+      return prefs.getDouble(article.url);
+    }
+    return 0.0;
+  }
+
+  void savePosition(Article article, double position) {
+    prefs.setDouble(article.url, position);
   }
 
   String _getArticleText(Document value) {
@@ -67,8 +79,9 @@ class Link {
 }
 
 class Article {
-  Article(this.title, this.text, this.commentsUrl);
+  Article(this.url, this.title, this.text, this.commentsUrl);
 
+  final String url;
   final String title;
   final String text;
   final String commentsUrl;
