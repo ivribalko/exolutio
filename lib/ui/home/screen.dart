@@ -57,7 +57,7 @@ class _LinkView extends StatelessWidget {
       builder: (BuildContext context, Model model, __) {
         return ListTile(
           onTap: () {
-            model.setRead(data);
+            model.saveRead(data);
             onTap();
           },
           title: Text(
