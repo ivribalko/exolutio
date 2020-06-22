@@ -41,7 +41,7 @@ class Model extends ChangeNotifier {
       .then((value) => Article(
             link.title,
             _getArticleText(value),
-            'COMMENTS NOT IMPLEMENTED',
+            '${link.url}#comments',
           ));
 
   bool isRead(Link link) => _read.contains(link.url);
@@ -67,9 +67,9 @@ class Link {
 }
 
 class Article {
-  Article(this.title, this.text, this.comments);
+  Article(this.title, this.text, this.commentsUrl);
 
   final String title;
   final String text;
-  final String comments;
+  final String commentsUrl;
 }
