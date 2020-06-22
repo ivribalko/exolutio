@@ -26,12 +26,8 @@ class HomeScreen extends StatelessWidget {
             centerTitle: true,
           ),
           SliverList(
-            delegate: SliverChildListDelegate(data
-                .map((e) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: _buildLinkView(context, e),
-                    ))
-                .toList()),
+            delegate: SliverChildListDelegate(
+                data.map((e) => _buildLinkView(context, e)).toList()),
           ),
         ],
       ),
