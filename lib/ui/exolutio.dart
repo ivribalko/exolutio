@@ -1,12 +1,12 @@
-import 'package:evotexto/src/model.dart';
+import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'home/screen.dart';
 import 'read/screen.dart';
 
-class Evotexto extends StatelessWidget {
-  const Evotexto(this.model, this.data);
+class Exolutio extends StatelessWidget {
+  const Exolutio(this.model, this.data);
 
   final Model model;
   final List<Link> data;
@@ -14,7 +14,7 @@ class Evotexto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Evotexto',
+      title: 'Exolutio',
       theme: ThemeData.light().copyWith(
         textTheme: GoogleFonts.robotoCondensedTextTheme(
           ThemeData.light().textTheme,

@@ -1,5 +1,5 @@
-import 'package:evotexto/src/model.dart';
-import 'package:evotexto/ui/evotexto.dart';
+import 'package:exolutio/src/model.dart';
+import 'package:exolutio/ui/exolutio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -33,7 +33,7 @@ void main() async {
               if (snapshot.hasError) {
                 return Center(child: Text(snapshot.error));
               } else {
-                return Evotexto(locator<Model>(), snapshot.data);
+                return Exolutio(locator<Model>(), snapshot.data);
               }
               break;
             default:

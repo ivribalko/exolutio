@@ -1,4 +1,4 @@
-package com.example.evotexto
+package com.example.exolutio
 
 import io.flutter.embedding.android.FlutterActivity
 

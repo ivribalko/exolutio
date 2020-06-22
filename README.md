@@ -1,4 +1,4 @@
-# evotexto
+# exolutio
 
 Show comments with citation inside LiveJournal articles.
 

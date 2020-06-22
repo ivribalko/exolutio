@@ -1,4 +1,4 @@
-import 'package:evotexto/src/model.dart';
+import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
