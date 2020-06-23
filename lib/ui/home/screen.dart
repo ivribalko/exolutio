@@ -15,6 +15,11 @@ class HomeScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
+            leading: FlatButton.icon(
+              onPressed: null,
+              icon: Icon(Icons.mail),
+              label: Container(),
+            ),
             expandedHeight: AppBarHeight,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
