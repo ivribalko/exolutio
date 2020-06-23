@@ -26,7 +26,7 @@ class Exolutio extends StatelessWidget {
         ),
       ),
       routes: {
-        '/': (context) => HomeScreen(data),
+        '/': (context) => HomeScreen(),
         '/read': (context) => FutureBuilder(
               future: model.article(ModalRoute.of(context).settings.arguments),
               builder: (context, snapshot) {

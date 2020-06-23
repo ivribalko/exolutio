@@ -6,45 +6,60 @@ import '../../main.dart';
 import '../common.dart';
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen(this.data);
-
-  final List<Link> data;
   final model = locator<Model>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            leading: FlatButton.icon(
-              onPressed: () => model.mail = true,
-              icon: Icon(model.mail ? Icons.mail : Icons.mail_outline),
+      body: Selector<Model, bool>(
+        selector: (_, Model model) => model.mail,
+        builder: (_, bool mail, __) {
+          return _buildCustomScrollView(context);
+        },
+      ),
+    );
+  }
+
+  CustomScrollView _buildCustomScrollView(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          leading: FlatButton.icon(
+            onPressed: () => model.mail = true,
+            icon: Icon(model.mail ? Icons.mail : Icons.mail_outline),
+            label: Container(),
+          ),
+          actions: <Widget>[
+            FlatButton.icon(
+              onPressed: () => model.mail = false,
+              icon: Icon(model.mail ? Icons.info_outline : Icons.info),
               label: Container(),
             ),
-            actions: <Widget>[
-              FlatButton.icon(
-                onPressed: () => model.mail = false,
-                icon: Icon(model.mail ? Icons.info_outline : Icons.info),
-                label: Container(),
-              ),
-            ],
-            expandedHeight: AppBarHeight,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Эволюция:\n${model.mail ? 'Письма' : 'Прочее'}',
-                textAlign: TextAlign.center,
-              ),
-              centerTitle: true,
+          ],
+          expandedHeight: AppBarHeight,
+          flexibleSpace: FlexibleSpaceBar(
+            title: Text(
+              'Эволюция:\n${model.mail ? 'Письма' : 'Прочее'}',
+              textAlign: TextAlign.center,
             ),
             centerTitle: true,
           ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-                data.map((e) => _buildLinkView(context, e)).toList()),
+          centerTitle: true,
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            height: 300,
+            child: Center(child: CircularProgressIndicator()),
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildList(BuildContext context, List<Link> data) {
+    return SliverList(
+      delegate: SliverChildListDelegate(
+          data.map((e) => _buildLinkView(context, e)).toList()),
     );
   }
 

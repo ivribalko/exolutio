@@ -25,25 +25,20 @@ void main() async {
       providers: [
         ChangeNotifierProvider<Model>(create: (_) => locator<Model>()),
       ],
-      child: Selector<Model, bool>(
-        selector: (_, Model model) => model.mail,
-        builder: (_, bool mail, __) {
-          return FutureBuilder(
-            future: mail ? locator<Model>().letters : locator<Model>().others,
-            builder: (context, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.done:
-                  if (snapshot.hasError) {
-                    return Center(child: Text(snapshot.error));
-                  } else {
-                    return Exolutio(locator<Model>(), snapshot.data);
-                  }
-                  break;
-                default:
-                  return Center(child: CircularProgressIndicator());
+      child: FutureBuilder(
+        future: locator<Model>().letters,
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              if (snapshot.hasError) {
+                return Center(child: Text(snapshot.error));
+              } else {
+                return Exolutio(locator<Model>(), snapshot.data);
               }
-            },
-          );
+              break;
+            default:
+              return Center(child: CircularProgressIndicator());
+          }
         },
       ),
     ),
