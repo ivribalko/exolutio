@@ -16,9 +16,9 @@ class HomeScreen extends StatelessWidget {
         builder: (_, bool mail, __) {
           return CustomScrollView(
             slivers: [
-              _buildSliverAppBar(),
+              _buildSliverAppBar(mail),
               StreamBuilder<List<Link>>(
-                stream: _filteredArticles(),
+                stream: _filteredArticles(mail),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return _buildList(context, snapshot.data);
@@ -34,24 +34,24 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  SliverAppBar _buildSliverAppBar() {
+  SliverAppBar _buildSliverAppBar(bool mail) {
     return SliverAppBar(
       leading: FlatButton.icon(
         onPressed: () => _model.mail = true,
-        icon: Icon(_model.mail ? Icons.mail : Icons.mail_outline),
+        icon: Icon(mail ? Icons.mail : Icons.mail_outline),
         label: Container(),
       ),
       actions: <Widget>[
         FlatButton.icon(
           onPressed: () => _model.mail = false,
-          icon: Icon(_model.mail ? Icons.info_outline : Icons.info),
+          icon: Icon(mail ? Icons.info_outline : Icons.info),
           label: Container(),
         ),
       ],
       expandedHeight: AppBarHeight,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          'Эволюция:\n${_model.mail ? 'Письма' : 'Прочее'}',
+          'Эволюция:\n${mail ? 'Письма' : 'Прочее'}',
           textAlign: TextAlign.center,
         ),
         centerTitle: true,
@@ -60,8 +60,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Stream<List<Link>> _filteredArticles() {
-    return _model.mail ? _model.letters.asStream() : _model.others.asStream();
+  Stream<List<Link>> _filteredArticles(bool mail) {
+    return mail ? _model.letters.asStream() : _model.others.asStream();
   }
 
   Widget _buildLoading() {
