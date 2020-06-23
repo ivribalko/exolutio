@@ -39,7 +39,10 @@ class Model extends ChangeNotifier {
       .then((value) => parse(value.body))
       .then((value) => value.querySelectorAll('dt.entry-title'));
 
-  Future<List<Link>> get all => _articles((e) => true);
+  bool _mail = true;
+  bool get mail => _mail;
+
+  Future<List<Link>> get others => _articles((e) => !e.text.contains('Письмо'));
 
   Future<List<Link>> get letters => _articles((e) => e.text.contains('Письмо'));
 
