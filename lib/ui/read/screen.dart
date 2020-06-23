@@ -8,9 +8,9 @@ import '../../main.dart';
 import '../common.dart';
 
 class ArticleScreen extends StatefulWidget {
-  ArticleScreen(this.data);
+  ArticleScreen(this.context);
 
-  final Article data;
+  final context;
 
   @override
   _ArticleScreenState createState() => _ArticleScreenState();
@@ -19,17 +19,30 @@ class ArticleScreen extends StatefulWidget {
 class _ArticleScreenState extends State<ArticleScreen> {
   final _model = locator<Model>();
 
+  double get _currentPosition => _scroll.position.pixels;
+
+  Article _data;
+  String _title;
+  ScrollController _scroll;
+
   double _jumpedFrom;
   bool get _jumped => _jumpedFrom != null;
-  bool get _reachedJumpStart => _currentPosition() >= _jumpedFrom;
-
-  ScrollController _scroll;
+  bool get _reachedJumpStart => _currentPosition >= _jumpedFrom;
 
   @override
   void initState() {
+    var arguments = _getScreenArguments(widget.context);
+    _articleAsFuture(arguments[1]).then(_initState);
+    _title = arguments[0];
+    super.initState();
+  }
+
+  void _initState(Article value) {
+    _data = value;
+
     _scroll = ScrollController(
       initialScrollOffset: _model.getPosition(
-        widget.data,
+        _data,
       ),
     )..addListener(() {
         if (_jumped && !_reachedJumpStart) {
@@ -37,11 +50,12 @@ class _ArticleScreenState extends State<ArticleScreen> {
         }
         _setNotJumped(animate: false);
         _model.savePosition(
-          widget.data,
-          _currentPosition(),
+          _data,
+          _currentPosition,
         );
       });
-    super.initState();
+
+    setState(() {});
   }
 
   @override
@@ -52,7 +66,6 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Style(fontSize: FontSize(20));
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: _jumped ? _setNotJumped : _setJumped,
@@ -62,38 +75,52 @@ class _ArticleScreenState extends State<ArticleScreen> {
         child: CustomScrollView(
           controller: _scroll,
           slivers: [
-            SliverAppBar(
-              expandedHeight: AppBarHeight,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(widget.data.title),
-              ),
-              centerTitle: true,
-            ),
-            SliverToBoxAdapter(
-              child: Html(
-                onLinkTap: launch,
-                data: widget.data.text,
-                style: {
-                  'p': style,
-                  'div': style,
-                  'article': style,
-                },
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: 50,
-                  child: RaisedButton(
-                    onPressed: () => launch(widget.data.commentsUrl),
-                    child: Text('Комментарии'),
-                  ),
-                ),
-              ),
-            ),
+            _buildAppBar(),
+            if (_data != null) _buildHtml(),
+            if (_data != null) _buildComments(),
+            if (_data == null) SliverProgressIndicator(),
           ],
         ),
+      ),
+    );
+  }
+
+  SliverAppBar _buildAppBar() {
+    return SliverAppBar(
+      expandedHeight: AppBarHeight,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(_title),
+      ),
+      centerTitle: true,
+    );
+  }
+
+  SliverToBoxAdapter _buildComments() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          height: 50,
+          child: RaisedButton(
+            onPressed: () => launch(_data.commentsUrl),
+            child: Text('Комментарии'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  SliverToBoxAdapter _buildHtml() {
+    final style = Style(fontSize: FontSize(20));
+    return SliverToBoxAdapter(
+      child: Html(
+        onLinkTap: launch,
+        data: _data.text,
+        style: {
+          'p': style,
+          'div': style,
+          'article': style,
+        },
       ),
     );
   }
@@ -103,7 +130,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
       _animateTo(0);
 
       setState(() {
-        _jumpedFrom = _currentPosition();
+        _jumpedFrom = _currentPosition;
       });
     }
   }
@@ -128,7 +155,16 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  double _currentPosition() {
-    return _scroll.position.pixels;
+  List _getScreenArguments(BuildContext context) {
+    return ModalRoute.of(context).settings.arguments as List;
+  }
+
+  Future<Article> _articleAsFuture(Link argument) {
+    var futureOr = _model.article(argument);
+    if (futureOr is Article) {
+      return Future.value(futureOr);
+    } else {
+      return futureOr;
+    }
   }
 }
