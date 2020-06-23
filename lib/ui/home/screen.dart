@@ -17,11 +17,13 @@ class HomeScreen extends StatelessWidget {
           return CustomScrollView(
             slivers: [
               _buildSliverAppBar(mail),
-              StreamBuilder<List<Link>>(
-                stream: _filteredArticles(mail),
+              FutureBuilder<List<Link>>(
+                future: mail ? _model.letters : _model.others,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return _buildList(context, snapshot.data);
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text(snapshot.error));
                   } else {
                     return _buildLoading();
                   }
@@ -58,10 +60,6 @@ class HomeScreen extends StatelessWidget {
       ),
       centerTitle: true,
     );
-  }
-
-  Stream<List<Link>> _filteredArticles(bool mail) {
-    return mail ? _model.letters.asStream() : _model.others.asStream();
   }
 
   Widget _buildLoading() {

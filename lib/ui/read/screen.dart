@@ -17,7 +17,7 @@ class ArticleScreen extends StatefulWidget {
 }
 
 class _ArticleScreenState extends State<ArticleScreen> {
-  final Model _model = locator<Model>();
+  final _model = locator<Model>();
 
   double _jumpedFrom;
   bool get _jumped => _jumpedFrom != null;
