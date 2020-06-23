@@ -14,12 +14,12 @@ class Exolutio extends StatelessWidget {
     return MaterialApp(
       title: 'Exolutio',
       theme: ThemeData.light().copyWith(
-        textTheme: GoogleFonts.robotoCondensedTextTheme(
+        textTheme: GoogleFonts.robotoTextTheme(
           ThemeData.light().textTheme,
         ),
       ),
       darkTheme: ThemeData.dark().copyWith(
-        textTheme: GoogleFonts.robotoCondensedTextTheme(
+        textTheme: GoogleFonts.robotoTextTheme(
           ThemeData.dark().textTheme,
         ),
       ),
