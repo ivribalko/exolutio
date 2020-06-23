@@ -19,6 +19,10 @@ class ArticleScreen extends StatefulWidget {
 class _ArticleScreenState extends State<ArticleScreen> {
   final Model _model = locator<Model>();
 
+  double _jumpedFrom;
+  bool get _jumped => _jumpedFrom != null;
+  bool get _reachedJumpStart => _currentPosition() >= _jumpedFrom;
+
   ScrollController _scroll;
 
   @override
@@ -28,9 +32,13 @@ class _ArticleScreenState extends State<ArticleScreen> {
         widget.data,
       ),
     )..addListener(() {
+        if (_jumped && !_reachedJumpStart) {
+          return;
+        }
+        _setNotJumped(animate: false);
         _model.savePosition(
           widget.data,
-          _scroll.position.pixels,
+          _currentPosition(),
         );
       });
     super.initState();
@@ -46,6 +54,10 @@ class _ArticleScreenState extends State<ArticleScreen> {
   Widget build(BuildContext context) {
     final style = Style(fontSize: FontSize(20));
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: _jumped ? _setNotJumped : _setJumped,
+        child: Icon(_jumped ? Icons.arrow_downward : Icons.arrow_upward),
+      ),
       body: SafeArea(
         child: CustomScrollView(
           controller: _scroll,
@@ -84,5 +96,39 @@ class _ArticleScreenState extends State<ArticleScreen> {
         ),
       ),
     );
+  }
+
+  void _setJumped() {
+    if (!_jumped) {
+      _animateTo(0);
+
+      setState(() {
+        _jumpedFrom = _currentPosition();
+      });
+    }
+  }
+
+  void _setNotJumped({bool animate = true}) {
+    if (_jumped) {
+      if (animate) {
+        _animateTo(_jumpedFrom);
+      }
+
+      setState(() {
+        _jumpedFrom = null;
+      });
+    }
+  }
+
+  void _animateTo(double position) {
+    _scroll.animateTo(
+      position,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOutExpo,
+    );
+  }
+
+  double _currentPosition() {
+    return _scroll.position.pixels;
   }
 }
