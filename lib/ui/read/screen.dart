@@ -12,7 +12,6 @@ class ArticleScreen extends StatefulWidget {
 
   final String title;
   final Future<Article> future;
-  Article data;
 
   @override
   _ArticleScreenState createState() => _ArticleScreenState();
@@ -25,6 +24,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
   bool get _jumped => _jumpedFrom != null;
   bool get _reachedJumpStart => _currentPosition() >= _jumpedFrom;
 
+  Article _data;
   ScrollController _scroll;
 
   @override
@@ -34,11 +34,11 @@ class _ArticleScreenState extends State<ArticleScreen> {
   }
 
   void _initState(Article value) {
-    widget.data = value;
+    _data = value;
 
     _scroll = ScrollController(
       initialScrollOffset: _model.getPosition(
-        widget.data,
+        _data,
       ),
     )..addListener(() {
         if (_jumped && !_reachedJumpStart) {
@@ -46,7 +46,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
         }
         _setNotJumped(animate: false);
         _model.savePosition(
-          widget.data,
+          _data,
           _currentPosition(),
         );
       });
@@ -64,7 +64,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
   Widget build(BuildContext context) {
     final style = Style(fontSize: FontSize(20));
     final slivers = <Widget>[_buildAppBar()];
-    if (widget.data != null) {
+    if (_data != null) {
       slivers.add(_buildHtml(style));
       slivers.add(_buildComments());
     } else {
@@ -101,7 +101,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
         child: Container(
           height: 50,
           child: RaisedButton(
-            onPressed: () => launch(widget.data.commentsUrl),
+            onPressed: () => launch(_data.commentsUrl),
             child: Text('Комментарии'),
           ),
         ),
@@ -113,7 +113,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
     return SliverToBoxAdapter(
       child: Html(
         onLinkTap: launch,
-        data: widget.data.text,
+        data: _data.text,
         style: {
           'p': style,
           'div': style,
