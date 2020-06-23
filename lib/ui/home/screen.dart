@@ -15,6 +15,9 @@ class HomeScreen extends StatelessWidget {
         selector: (_, Model model) => model.mail,
         builder: (_, bool mail, __) {
           return CustomScrollView(
+            physics: AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
             slivers: [
               _buildSliverAppBar(mail),
               FutureBuilder<List<Link>>(
@@ -72,12 +75,18 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildList(BuildContext context, List<Link> data) {
-    return SliverList(
-      delegate: SliverChildListDelegate(data
-          .map(
-            (e) => _buildLinkView(context, e),
-          )
-          .toList()),
+    return SliverPadding(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      sliver: SliverList(
+        delegate: SliverChildListDelegate(data
+            .map(
+              (e) => Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: _buildLinkView(context, e),
+              ),
+            )
+            .toList()),
+      ),
     );
   }
 
@@ -103,15 +112,18 @@ class _LinkView extends StatelessWidget {
     return Consumer<Model>(
       builder: (BuildContext context, Model model, __) {
         return ListTile(
+          dense: true,
           onTap: () {
             model.saveRead(data);
             onTap();
           },
           title: Text(
             data.title,
-            style: model.isRead(data)
-                ? TextStyle(color: Theme.of(context).disabledColor)
-                : null,
+            style: TextStyle(
+              color:
+                  model.isRead(data) ? Theme.of(context).disabledColor : null,
+              fontSize: 20,
+            ),
           ),
         );
       },
