@@ -26,7 +26,7 @@ void main() async {
         ChangeNotifierProvider<Model>(create: (_) => locator<Model>()),
       ],
       child: FutureBuilder(
-        future: locator<Model>().links,
+        future: locator<Model>().all,
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:

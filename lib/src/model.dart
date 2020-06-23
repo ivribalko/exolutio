@@ -34,19 +34,14 @@ class Model extends ChangeNotifier {
   Set<String> get read => _read;
 
   final _savePosition = PublishSubject<Function>();
-
-  Future<List<Link>> get links => Client()
+  final _firstPage = Client()
       .get(_Root)
       .then((value) => parse(value.body))
-      .then((value) => value.querySelectorAll('dt.entry-title'))
-      .then((value) => value
-          .where((element) => element.text.contains('Письмо'))
-          .map((e) => e.children.first)
-          .map((e) => Link(
-                e.attributes['href'],
-                e.text,
-              ))
-          .toList());
+      .then((value) => value.querySelectorAll('dt.entry-title'));
+
+  Future<List<Link>> get all => _articles((e) => true);
+
+  Future<List<Link>> get letters => _articles((e) => e.text.contains('Письмо'));
 
   Future<Article> article(Link link) => Client()
       .get(link.url)
@@ -85,6 +80,16 @@ class Model extends ChangeNotifier {
       }
     });
   }
+
+  Future<List<Link>> _articles(bool test(element)) =>
+      _firstPage.then((value) => value
+          .where(test)
+          .map((e) => e.children.first)
+          .map((e) => Link(
+                e.attributes['href'],
+                e.text,
+              ))
+          .toList());
 
   String _getArticleText(Document value) {
     return _Contents.map(value.querySelector)
