@@ -2,12 +2,14 @@ import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../main.dart';
 import '../common.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen(this.data);
 
   final List<Link> data;
+  final model = locator<Model>();
 
   @override
   Widget build(BuildContext context) {
@@ -16,14 +18,21 @@ class HomeScreen extends StatelessWidget {
         slivers: [
           SliverAppBar(
             leading: FlatButton.icon(
-              onPressed: null,
-              icon: Icon(Icons.mail),
+              onPressed: () => model.mail = true,
+              icon: Icon(model.mail ? Icons.mail : Icons.mail_outline),
               label: Container(),
             ),
+            actions: <Widget>[
+              FlatButton.icon(
+                onPressed: () => model.mail = false,
+                icon: Icon(model.mail ? Icons.info_outline : Icons.info),
+                label: Container(),
+              ),
+            ],
             expandedHeight: AppBarHeight,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Эволюция:\nПисьма',
+                'Эволюция:\n${model.mail ? 'Письма' : 'Прочее'}',
                 textAlign: TextAlign.center,
               ),
               centerTitle: true,

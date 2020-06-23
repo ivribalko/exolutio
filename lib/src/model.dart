@@ -41,10 +41,16 @@ class Model extends ChangeNotifier {
 
   bool _mail = true;
   bool get mail => _mail;
+  set mail(bool on) {
+    if (_mail != on) {
+      _mail = on;
+      notifyListeners();
+    }
+  }
 
-  Future<List<Link>> get others => _articles((e) => !e.text.contains('Письмо'));
+  Future<List<Link>> get letters => _articles(_isLetter);
 
-  Future<List<Link>> get letters => _articles((e) => e.text.contains('Письмо'));
+  Future<List<Link>> get others => _articles((e) => !_isLetter(e));
 
   Future<Article> article(Link link) => Client()
       .get(link.url)
@@ -83,6 +89,8 @@ class Model extends ChangeNotifier {
       }
     });
   }
+
+  bool _isLetter(e) => e.text.contains('Письмо:');
 
   Future<List<Link>> _articles(bool test(element)) =>
       _firstPage.then((value) => value
