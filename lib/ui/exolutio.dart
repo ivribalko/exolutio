@@ -1,6 +1,5 @@
 import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../main.dart';
 import 'home/screen.dart';
@@ -13,15 +12,13 @@ class Exolutio extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Exolutio',
-      theme: ThemeData.light().copyWith(
-        textTheme: GoogleFonts.robotoTextTheme(
-          ThemeData.light().textTheme,
-        ),
+      theme: ThemeData(
+        brightness: Brightness.light,
+        fontFamily: 'Roboto',
       ),
-      darkTheme: ThemeData.dark().copyWith(
-        textTheme: GoogleFonts.robotoTextTheme(
-          ThemeData.dark().textTheme,
-        ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        fontFamily: 'Roboto',
       ),
       routes: {
         '/': (context) => HomeScreen(),

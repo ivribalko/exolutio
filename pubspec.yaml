@@ -30,6 +30,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Bold.ttf
+        - asset: fonts/Roboto-Italic.ttf
 
 flutter_launcher_name:
   name: "Exolutio"
