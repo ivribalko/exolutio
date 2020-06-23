@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
                   } else if (snapshot.hasError) {
                     return Center(child: Text(snapshot.error));
                   } else {
-                    return _buildLoading();
+                    return SliverProgressIndicator();
                   }
                 },
               ),
@@ -65,15 +65,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLoading() {
-    return SliverToBoxAdapter(
-      child: Container(
-        height: 300,
-        child: Center(child: CircularProgressIndicator()),
-      ),
-    );
-  }
-
   Widget _buildList(BuildContext context, List<Link> data) {
     return SliverPadding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -95,7 +86,7 @@ class HomeScreen extends StatelessWidget {
       link,
       () => Navigator.of(context).pushNamed(
         '/read',
-        arguments: link,
+        arguments: [link.title, link],
       ),
     );
   }
