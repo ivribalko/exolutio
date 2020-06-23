@@ -20,12 +20,12 @@ class ArticleScreen extends StatefulWidget {
 class _ArticleScreenState extends State<ArticleScreen> {
   final _model = locator<Model>();
 
+  Article _data;
+  ScrollController _scroll;
+
   double _jumpedFrom;
   bool get _jumped => _jumpedFrom != null;
   bool get _reachedJumpStart => _currentPosition() >= _jumpedFrom;
-
-  Article _data;
-  ScrollController _scroll;
 
   @override
   void initState() {

@@ -86,7 +86,7 @@ class HomeScreen extends StatelessWidget {
       link,
       () => Navigator.of(context).pushNamed(
         '/read',
-        arguments: link,
+        arguments: [link.title, link],
       ),
     );
   }
