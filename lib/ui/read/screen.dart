@@ -19,41 +19,37 @@ class ArticleScreen extends StatefulWidget {
 class _ArticleScreenState extends State<ArticleScreen> {
   final _model = locator<Model>();
 
-  double get _currentPosition => _scroll.position.pixels;
-
   Article _data;
   String _title;
-  ScrollController _scroll;
+  final ScrollController _scroll = ScrollController();
 
   double _jumpedFrom;
   bool get _jumped => _jumpedFrom != null;
-  bool get _reachedJumpStart => _currentPosition >= _jumpedFrom;
+  double get _currentPosition => _scroll.offset;
 
   @override
   void initState() {
     var arguments = _getScreenArguments(widget.context);
     _articleAsFuture(arguments[1]).then(_initState);
     _title = arguments[0];
+
+    _scroll.addListener(() {
+      if (_jumped && _currentPosition < _jumpedFrom) {
+        return;
+      }
+      _setNotJumped(animate: false);
+      _model.savePosition(
+        _data,
+        _currentPosition,
+      );
+    });
+
     super.initState();
   }
 
   void _initState(Article value) {
     _data = value;
-
-    _scroll = ScrollController(
-      initialScrollOffset: _model.getPosition(
-        _data,
-      ),
-    )..addListener(() {
-        if (_jumped && !_reachedJumpStart) {
-          return;
-        }
-        _setNotJumped(animate: false);
-        _model.savePosition(
-          _data,
-          _currentPosition,
-        );
-      });
+    _animateTo(_model.getPosition(_data));
 
     setState(() {});
   }
@@ -72,13 +68,23 @@ class _ArticleScreenState extends State<ArticleScreen> {
         child: Icon(_jumped ? Icons.arrow_downward : Icons.arrow_upward),
       ),
       body: SafeArea(
-        child: CustomScrollView(
-          controller: _scroll,
-          slivers: [
-            _buildAppBar(),
-            if (_data != null) _buildHtml(),
-            if (_data != null) _buildComments(),
-            if (_data == null) SliverProgressIndicator(),
+        child: Stack(
+          children: <Widget>[
+            CustomScrollView(
+              controller: _scroll,
+              slivers: [
+                _buildAppBar(),
+                if (_data != null) _buildHtml(),
+                if (_data != null) _buildComments(),
+                if (_data == null) SliverProgressIndicator(),
+              ],
+            ),
+            Column(
+              children: <Widget>[
+                Spacer(),
+                _Progress(this),
+              ],
+            ),
           ],
         ),
       ),
@@ -165,6 +171,38 @@ class _ArticleScreenState extends State<ArticleScreen> {
       return Future.value(futureOr);
     } else {
       return futureOr;
+    }
+  }
+}
+
+class _Progress extends StatefulWidget {
+  final _ArticleScreenState reading;
+
+  _Progress(this.reading);
+
+  @override
+  _ProgressState createState() => _ProgressState();
+}
+
+class _ProgressState extends State<_Progress> {
+  @override
+  void initState() {
+    widget.reading._scroll.addListener(() => setState(() {}));
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.reading._data == null) {
+      return LinearProgressIndicator();
+    }
+
+    var position = widget.reading._scroll.position;
+    var value = position.pixels / position.maxScrollExtent;
+    if (value.isInfinite || value.isNaN) {
+      return LinearProgressIndicator();
+    } else {
+      return LinearProgressIndicator(value: value);
     }
   }
 }
