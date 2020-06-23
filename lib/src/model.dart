@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
@@ -26,6 +28,7 @@ class Model extends ChangeNotifier {
   }
 
   final SharedPreferences prefs;
+  final _cache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
   final _firstPage = Client()
       .get(_Root)
@@ -45,15 +48,18 @@ class Model extends ChangeNotifier {
 
   Future<List<Link>> get others => _articles(_isNotLetter);
 
-  Future<Article> article(Link link) => Client()
-      .get(link.url)
-      .then((value) => parse(value.body))
-      .then((value) => Article(
-            link.url,
-            link.title,
-            _getArticleText(value),
-            '${link.url}#comments',
-          ));
+  FutureOr<Article> article(Link link) =>
+      _cache[link.url] ??
+      Client()
+          .get(link.url)
+          .then((value) => parse(value.body))
+          .then((value) => Article(
+                link.url,
+                link.title,
+                _getArticleText(value),
+                '${link.url}#comments',
+              ))
+          .then((value) => _cache[link.url] = value);
 
   bool isRead(Link link) => prefs.containsKey(link.url);
 
