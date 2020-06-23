@@ -25,22 +25,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider<Model>(create: (_) => locator<Model>()),
       ],
-      child: FutureBuilder(
-        future: locator<Model>().letters,
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              if (snapshot.hasError) {
-                return Center(child: Text(snapshot.error));
-              } else {
-                return Exolutio(locator<Model>(), snapshot.data);
-              }
-              break;
-            default:
-              return Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
+      child: Exolutio(),
     ),
   );
 }

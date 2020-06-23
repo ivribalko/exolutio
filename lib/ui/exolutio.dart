@@ -2,14 +2,12 @@ import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../main.dart';
 import 'home/screen.dart';
 import 'read/screen.dart';
 
 class Exolutio extends StatelessWidget {
-  const Exolutio(this.model, this.data);
-
-  final Model model;
-  final List<Link> data;
+  final _model = locator<Model>();
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +26,14 @@ class Exolutio extends StatelessWidget {
       routes: {
         '/': (context) => HomeScreen(),
         '/read': (context) => FutureBuilder(
-              future: model.article(ModalRoute.of(context).settings.arguments),
+              future: _model.article(ModalRoute.of(context).settings.arguments),
               builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.done:
-                    if (snapshot.hasError) {
-                      return Center(child: Text(snapshot.error));
-                    } else {
-                      return ArticleScreen(snapshot.data);
-                    }
-                    break;
-                  default:
-                    return Center(child: CircularProgressIndicator());
+                if (snapshot.hasData) {
+                  return ArticleScreen(snapshot.data);
+                } else if (snapshot.hasError) {
+                  return Center(child: Text(snapshot.error));
+                } else {
+                  return Center(child: CircularProgressIndicator());
                 }
               },
             ),
