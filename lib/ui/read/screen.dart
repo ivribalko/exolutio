@@ -62,14 +62,6 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Style(fontSize: FontSize(20));
-    final slivers = <Widget>[_buildAppBar()];
-    if (_data != null) {
-      slivers.add(_buildHtml(style));
-      slivers.add(_buildComments());
-    } else {
-      slivers.add(SliverProgressIndicator());
-    }
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: _jumped ? _setNotJumped : _setJumped,
@@ -78,7 +70,12 @@ class _ArticleScreenState extends State<ArticleScreen> {
       body: SafeArea(
         child: CustomScrollView(
           controller: _scroll,
-          slivers: slivers,
+          slivers: [
+            _buildAppBar(),
+            if (_data != null) _buildHtml(),
+            if (_data != null) _buildComments(),
+            if (_data == null) SliverProgressIndicator(),
+          ],
         ),
       ),
     );
@@ -109,7 +106,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  SliverToBoxAdapter _buildHtml(Style style) {
+  SliverToBoxAdapter _buildHtml() {
+    final style = Style(fontSize: FontSize(20));
     return SliverToBoxAdapter(
       child: Html(
         onLinkTap: launch,
