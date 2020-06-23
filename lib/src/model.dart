@@ -50,7 +50,7 @@ class Model extends ChangeNotifier {
 
   Future<List<Link>> get letters => _articles(_isLetter);
 
-  Future<List<Link>> get others => _articles((e) => !_isLetter(e));
+  Future<List<Link>> get others => _articles(_isNotLetter);
 
   Future<Article> article(Link link) => Client()
       .get(link.url)
@@ -90,6 +90,7 @@ class Model extends ChangeNotifier {
     });
   }
 
+  bool _isNotLetter(e) => !_isLetter(e);
   bool _isLetter(e) => e.text.contains('Письмо:');
 
   Future<List<Link>> _articles(bool test(element)) =>
