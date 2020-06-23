@@ -2,35 +2,84 @@ import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../main.dart';
 import '../common.dart';
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen(this.data);
-
-  final List<Link> data;
+  final _model = locator<Model>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: AppBarHeight,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Эволюция:\nПисьма',
-                textAlign: TextAlign.center,
+      body: Selector<Model, bool>(
+        selector: (_, Model model) => model.mail,
+        builder: (_, bool mail, __) {
+          return CustomScrollView(
+            slivers: [
+              _buildSliverAppBar(mail),
+              StreamBuilder<List<Link>>(
+                stream: _filteredArticles(mail),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return _buildList(context, snapshot.data);
+                  } else {
+                    return _buildLoading();
+                  }
+                },
               ),
-              centerTitle: true,
-            ),
-            centerTitle: true,
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-                data.map((e) => _buildLinkView(context, e)).toList()),
-          ),
-        ],
+            ],
+          );
+        },
       ),
+    );
+  }
+
+  SliverAppBar _buildSliverAppBar(bool mail) {
+    return SliverAppBar(
+      leading: FlatButton.icon(
+        onPressed: () => _model.mail = true,
+        icon: Icon(mail ? Icons.mail : Icons.mail_outline),
+        label: Container(),
+      ),
+      actions: <Widget>[
+        FlatButton.icon(
+          onPressed: () => _model.mail = false,
+          icon: Icon(mail ? Icons.info_outline : Icons.info),
+          label: Container(),
+        ),
+      ],
+      expandedHeight: AppBarHeight,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          'Эволюция:\n${mail ? 'Письма' : 'Прочее'}',
+          textAlign: TextAlign.center,
+        ),
+        centerTitle: true,
+      ),
+      centerTitle: true,
+    );
+  }
+
+  Stream<List<Link>> _filteredArticles(bool mail) {
+    return mail ? _model.letters.asStream() : _model.others.asStream();
+  }
+
+  Widget _buildLoading() {
+    return SliverToBoxAdapter(
+      child: Container(
+        height: 300,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+
+  Widget _buildList(BuildContext context, List<Link> data) {
+    return SliverList(
+      delegate: SliverChildListDelegate(data
+          .map(
+            (e) => _buildLinkView(context, e),
+          )
+          .toList()),
     );
   }
 

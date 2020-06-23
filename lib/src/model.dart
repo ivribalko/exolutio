@@ -34,19 +34,23 @@ class Model extends ChangeNotifier {
   Set<String> get read => _read;
 
   final _savePosition = PublishSubject<Function>();
-
-  Future<List<Link>> get links => Client()
+  final _firstPage = Client()
       .get(_Root)
       .then((value) => parse(value.body))
-      .then((value) => value.querySelectorAll('dt.entry-title'))
-      .then((value) => value
-          .where((element) => element.text.contains('Письмо'))
-          .map((e) => e.children.first)
-          .map((e) => Link(
-                e.attributes['href'],
-                e.text,
-              ))
-          .toList());
+      .then((value) => value.querySelectorAll('dt.entry-title'));
+
+  bool _mail = true;
+  bool get mail => _mail;
+  set mail(bool on) {
+    if (_mail != on) {
+      _mail = on;
+      notifyListeners();
+    }
+  }
+
+  Future<List<Link>> get letters => _articles(_isLetter);
+
+  Future<List<Link>> get others => _articles(_isNotLetter);
 
   Future<Article> article(Link link) => Client()
       .get(link.url)
@@ -85,6 +89,20 @@ class Model extends ChangeNotifier {
       }
     });
   }
+
+  bool _isNotLetter(e) => !_isLetter(e);
+  bool _isLetter(e) => e.text.contains('Письмо:');
+
+  Future<List<Link>> _articles(bool test(element)) =>
+      _firstPage.then((value) => value
+          .where(test)
+          .map((e) => e.children.first)
+          .where((element) => element.text.isNotEmpty)
+          .map((e) => Link(
+                e.attributes['href'],
+                e.text,
+              ))
+          .toList());
 
   String _getArticleText(Document value) {
     return _Contents.map(value.querySelector)
