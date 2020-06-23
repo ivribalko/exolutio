@@ -8,10 +8,9 @@ import '../../main.dart';
 import '../common.dart';
 
 class ArticleScreen extends StatefulWidget {
-  ArticleScreen(this.title, this.future);
+  ArticleScreen(this.context);
 
-  final String title;
-  final Future<Article> future;
+  final context;
 
   @override
   _ArticleScreenState createState() => _ArticleScreenState();
@@ -20,16 +19,21 @@ class ArticleScreen extends StatefulWidget {
 class _ArticleScreenState extends State<ArticleScreen> {
   final _model = locator<Model>();
 
+  double get _currentPosition => _scroll.position.pixels;
+
   Article _data;
+  String _title;
   ScrollController _scroll;
 
   double _jumpedFrom;
   bool get _jumped => _jumpedFrom != null;
-  bool get _reachedJumpStart => _currentPosition() >= _jumpedFrom;
+  bool get _reachedJumpStart => _currentPosition >= _jumpedFrom;
 
   @override
   void initState() {
-    widget.future.then(_initState);
+    var arguments = _getScreenArguments(widget.context);
+    _articleAsFuture(arguments[1]).then(_initState);
+    _title = arguments[0];
     super.initState();
   }
 
@@ -47,7 +51,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
         _setNotJumped(animate: false);
         _model.savePosition(
           _data,
-          _currentPosition(),
+          _currentPosition,
         );
       });
 
@@ -85,7 +89,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
     return SliverAppBar(
       expandedHeight: AppBarHeight,
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(widget.title),
+        title: Text(_title),
       ),
       centerTitle: true,
     );
@@ -126,7 +130,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
       _animateTo(0);
 
       setState(() {
-        _jumpedFrom = _currentPosition();
+        _jumpedFrom = _currentPosition;
       });
     }
   }
@@ -151,7 +155,16 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  double _currentPosition() {
-    return _scroll.position.pixels;
+  List _getScreenArguments(BuildContext context) {
+    return ModalRoute.of(context).settings.arguments as List;
+  }
+
+  Future<Article> _articleAsFuture(Link argument) {
+    var futureOr = _model.article(argument);
+    if (futureOr is Article) {
+      return Future.value(futureOr);
+    } else {
+      return futureOr;
+    }
   }
 }
