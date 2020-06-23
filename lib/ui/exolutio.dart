@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +25,7 @@ class Exolutio extends StatelessWidget {
       routes: {
         '/': (context) => HomeScreen(),
         '/read': (context) => FutureBuilder(
-              future: _model.article(ModalRoute.of(context).settings.arguments),
+              future: _articleAsFuture(context),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return ArticleScreen(snapshot.data);
@@ -41,5 +43,14 @@ class Exolutio extends StatelessWidget {
         child: child,
       ),
     );
+  }
+
+  Future<Article> _articleAsFuture(BuildContext context) {
+    var futureOr = _model.article(ModalRoute.of(context).settings.arguments);
+    if (futureOr is Article) {
+      return Future.value(futureOr);
+    } else {
+      return futureOr;
+    }
   }
 }
