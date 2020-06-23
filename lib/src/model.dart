@@ -97,6 +97,7 @@ class Model extends ChangeNotifier {
       _firstPage.then((value) => value
           .where(test)
           .map((e) => e.children.first)
+          .where((element) => element.text.isNotEmpty)
           .map((e) => Link(
                 e.attributes['href'],
                 e.text,
