@@ -109,19 +109,16 @@ class _LinkView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Model>(
-      builder: (BuildContext context, Model model, __) {
+    return Selector<Model, bool>(
+      selector: (_, model) => model.isRead(data),
+      builder: (BuildContext context, bool isRead, __) {
         return ListTile(
           dense: true,
-          onTap: () {
-            model.saveRead(data);
-            onTap();
-          },
+          onTap: onTap,
           title: Text(
             data.title,
             style: TextStyle(
-              color:
-                  model.isRead(data) ? Theme.of(context).disabledColor : null,
+              color: isRead ? Theme.of(context).disabledColor : null,
               fontSize: 20,
             ),
           ),

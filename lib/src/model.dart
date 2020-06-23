@@ -14,8 +14,6 @@ const List<String> _Contents = [
 
 class Model extends ChangeNotifier {
   Model(this.prefs) {
-    _read = prefs.getStringList(_readKey)?.toSet() ?? <String>[].toSet();
-
     _savePosition
         .throttle(
           (event) => TimerStream(
@@ -27,12 +25,7 @@ class Model extends ChangeNotifier {
         .listen((value) => value());
   }
 
-  static const String _readKey = 'articlesRead';
-
   final SharedPreferences prefs;
-  Set<String> _read;
-  Set<String> get read => _read;
-
   final _savePosition = PublishSubject<Function>();
   final _firstPage = Client()
       .get(_Root)
@@ -62,15 +55,7 @@ class Model extends ChangeNotifier {
             '${link.url}#comments',
           ));
 
-  bool isRead(Link link) => _read.contains(link.url);
-
-  void saveRead(Link link) {
-    if (!_read.contains(link.url)) {
-      _read.add(link.url);
-      prefs.setStringList(_readKey, _read.toList());
-      notifyListeners();
-    }
-  }
+  bool isRead(Link link) => prefs.containsKey(link.url);
 
   double getPosition(Article article) {
     if (prefs.containsKey(article.url)) {
@@ -87,6 +72,7 @@ class Model extends ChangeNotifier {
       } else {
         prefs.setDouble(article.url, position);
       }
+      notifyListeners();
     });
   }
 
