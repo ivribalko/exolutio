@@ -8,9 +8,11 @@ import '../../main.dart';
 import '../common.dart';
 
 class ArticleScreen extends StatefulWidget {
-  ArticleScreen(this.data);
+  ArticleScreen(this.title, this.future);
 
-  final Article data;
+  final String title;
+  final Future<Article> future;
+  Article data;
 
   @override
   _ArticleScreenState createState() => _ArticleScreenState();
@@ -27,6 +29,13 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   @override
   void initState() {
+    widget.future.then(_initState);
+    super.initState();
+  }
+
+  void _initState(Article value) {
+    widget.data = value;
+
     _scroll = ScrollController(
       initialScrollOffset: _model.getPosition(
         widget.data,
@@ -41,7 +50,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
           _currentPosition(),
         );
       });
-    super.initState();
+
+    setState(() {});
   }
 
   @override
@@ -53,6 +63,13 @@ class _ArticleScreenState extends State<ArticleScreen> {
   @override
   Widget build(BuildContext context) {
     final style = Style(fontSize: FontSize(20));
+    final slivers = <Widget>[_buildAppBar()];
+    if (widget.data != null) {
+      slivers.add(_buildHtml(style));
+      slivers.add(_buildComments());
+    } else {
+      slivers.add(SliverProgressIndicator());
+    }
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: _jumped ? _setNotJumped : _setJumped,
@@ -61,39 +78,47 @@ class _ArticleScreenState extends State<ArticleScreen> {
       body: SafeArea(
         child: CustomScrollView(
           controller: _scroll,
-          slivers: [
-            SliverAppBar(
-              expandedHeight: AppBarHeight,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(widget.data.title),
-              ),
-              centerTitle: true,
-            ),
-            SliverToBoxAdapter(
-              child: Html(
-                onLinkTap: launch,
-                data: widget.data.text,
-                style: {
-                  'p': style,
-                  'div': style,
-                  'article': style,
-                },
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: 50,
-                  child: RaisedButton(
-                    onPressed: () => launch(widget.data.commentsUrl),
-                    child: Text('Комментарии'),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          slivers: slivers,
         ),
+      ),
+    );
+  }
+
+  SliverAppBar _buildAppBar() {
+    return SliverAppBar(
+      expandedHeight: AppBarHeight,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(widget.title),
+      ),
+      centerTitle: true,
+    );
+  }
+
+  SliverToBoxAdapter _buildComments() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          height: 50,
+          child: RaisedButton(
+            onPressed: () => launch(widget.data.commentsUrl),
+            child: Text('Комментарии'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  SliverToBoxAdapter _buildHtml(Style style) {
+    return SliverToBoxAdapter(
+      child: Html(
+        onLinkTap: launch,
+        data: widget.data.text,
+        style: {
+          'p': style,
+          'div': style,
+          'article': style,
+        },
       ),
     );
   }

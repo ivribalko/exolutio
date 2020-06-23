@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
                   } else if (snapshot.hasError) {
                     return Center(child: Text(snapshot.error));
                   } else {
-                    return _buildLoading();
+                    return SliverProgressIndicator();
                   }
                 },
               ),
@@ -62,15 +62,6 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
       ),
       centerTitle: true,
-    );
-  }
-
-  Widget _buildLoading() {
-    return SliverToBoxAdapter(
-      child: Container(
-        height: 300,
-        child: Center(child: CircularProgressIndicator()),
-      ),
     );
   }
 

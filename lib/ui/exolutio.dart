@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 
@@ -24,18 +22,7 @@ class Exolutio extends StatelessWidget {
       ),
       routes: {
         '/': (context) => HomeScreen(),
-        '/read': (context) => FutureBuilder(
-              future: _articleAsFuture(context),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return ArticleScreen(snapshot.data);
-                } else if (snapshot.hasError) {
-                  return Center(child: Text(snapshot.error));
-                } else {
-                  return Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
+        '/read': (context) => ArticleScreen('TBD', _articleAsFuture(context)),
       },
       // https://github.com/Sub6Resources/flutter_html/issues/294#issuecomment-637318948
       builder: (BuildContext context, Widget child) => MediaQuery(
