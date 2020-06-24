@@ -78,6 +78,11 @@ class Model extends ChangeNotifier {
     _page(_pagesCache.length).then((value) => notifyListeners());
   }
 
+  void refresh() {
+    _pagesCache.clear();
+    loadMore();
+  }
+
   bool isRead(Link link) => prefs.containsKey(link.url);
 
   double getPosition(Article article) {
