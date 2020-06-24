@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:html/dom.dart';
+import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
 import 'package:rxdart/rxdart.dart';
@@ -28,12 +28,9 @@ class Model extends ChangeNotifier {
   }
 
   final SharedPreferences prefs;
-  final _cache = Map<String, Article>();
+  final _articlesCache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
-  final _firstPage = Client()
-      .get(_Root)
-      .then((value) => parse(value.body))
-      .then((value) => value.querySelectorAll('dt.entry-title'));
+  final _pagesCache = <List<dom.Element>>[];
 
   bool _mail = true;
   bool get mail => _mail;
@@ -44,12 +41,28 @@ class Model extends ChangeNotifier {
     }
   }
 
-  Future<List<Link>> get letters => _articles(_isLetter);
+  List<Link> get letters => _articles(_isLetter);
 
-  Future<List<Link>> get others => _articles(_isNotLetter);
+  List<Link> get others => _articles(_isNotLetter);
+
+  Future<List<dom.Element>> _page(int index) {
+    if (_pagesCache.length > index) {
+      return Future.value(_pagesCache[index]);
+    } else {
+      return _loadPage(index).then((e) {
+        _pagesCache.add(e);
+        return e;
+      });
+    }
+  }
+
+  Future<List<dom.Element>> _loadPage(int index) => Client()
+      .get(_Root + '?skip=${index * 50}')
+      .then((value) => parse(value.body))
+      .then((value) => value.querySelectorAll('dt.entry-title'));
 
   FutureOr<Article> article(Link link) =>
-      _cache[link.url] ??
+      _articlesCache[link.url] ??
       Client()
           .get(link.url)
           .then((value) => parse(value.body))
@@ -59,7 +72,16 @@ class Model extends ChangeNotifier {
                 _getArticleText(value),
                 '${link.url}#comments',
               ))
-          .then((value) => _cache[link.url] = value);
+          .then((value) => _articlesCache[link.url] = value);
+
+  void loadMore() {
+    _page(_pagesCache.length).then((value) => notifyListeners());
+  }
+
+  void refresh() {
+    _pagesCache.clear();
+    loadMore();
+  }
 
   bool isRead(Link link) => prefs.containsKey(link.url);
 
@@ -85,8 +107,13 @@ class Model extends ChangeNotifier {
   bool _isNotLetter(e) => !_isLetter(e);
   bool _isLetter(e) => e.text.contains('Письмо:');
 
-  Future<List<Link>> _articles(bool test(element)) =>
-      _firstPage.then((value) => value
+  List<Link> _articles(bool test(element)) => _pagesCache.isEmpty
+      ? []
+      : _pagesCache
+          .reduce((value, element) {
+            value.addAll(element);
+            return value;
+          })
           .where(test)
           .map((e) => e.children.first)
           .where((element) => element.text.isNotEmpty)
@@ -94,9 +121,9 @@ class Model extends ChangeNotifier {
                 e.attributes['href'],
                 e.text,
               ))
-          .toList());
+          .toList();
 
-  String _getArticleText(Document value) {
+  String _getArticleText(dom.Document value) {
     return _Contents.map(value.querySelector)
         .firstWhere((element) => element?.text?.isNotEmpty ?? false)
         .innerHtml;
