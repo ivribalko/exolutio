@@ -8,33 +8,22 @@ import '../common.dart';
 
 class HomeScreen extends StatelessWidget {
   final _model = locator<Model>();
-  final _refreshController = RefreshController(initialRefresh: false);
+  final _refresh = RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Selector<Model, bool>(
-        selector: (_, Model model) => model.mail,
-        builder: (_, bool mail, __) {
+      body: Consumer<Model>(
+        builder: (_, Model model, __) {
+          _refresh.loadComplete();
           return _buildRefresher(
             child: CustomScrollView(
               physics: AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics(),
               ),
               slivers: [
-                _buildSliverAppBar(mail),
-                FutureBuilder<List<Link>>(
-                  future: mail ? _model.letters : _model.others,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return _buildList(context, snapshot.data);
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text(snapshot.error));
-                    } else {
-                      return SliverProgressIndicator();
-                    }
-                  },
-                ),
+                _buildSliverAppBar(model.mail),
+                _buildList(context, model.mail ? model.letters : model.others),
               ],
             ),
           );
@@ -71,32 +60,10 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildRefresher({Widget child}) {
     return SmartRefresher(
-      controller: _refreshController,
+      controller: _refresh,
       enablePullUp: true,
-      enablePullDown: true,
-      onRefresh: () {},
-      onLoading: () {},
-      header: WaterDropHeader(),
-      footer: CustomFooter(
-        builder: (BuildContext context, LoadStatus mode) {
-          Widget body;
-          if (mode == LoadStatus.idle) {
-            body = Text("pull up load");
-          } else if (mode == LoadStatus.loading) {
-            body = CircularProgressIndicator();
-          } else if (mode == LoadStatus.failed) {
-            body = Text("Load Failed!Click retry!");
-          } else if (mode == LoadStatus.canLoading) {
-            body = Text("release to load more");
-          } else {
-            body = Text("No more Data");
-          }
-          return Container(
-            height: 55.0,
-            child: Center(child: body),
-          );
-        },
-      ),
+      onLoading: _model.loadMore,
+      footer: ClassicFooter(),
       child: child,
     );
   }
