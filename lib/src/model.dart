@@ -30,7 +30,7 @@ class Model extends ChangeNotifier {
   final SharedPreferences prefs;
   final _articlesCache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
-  final _pagesCache = [];
+  final _pagesCache = <List<dom.Element>>[];
 
   bool _mail = true;
   bool get mail => _mail;
@@ -41,9 +41,9 @@ class Model extends ChangeNotifier {
     }
   }
 
-  Future<List<Link>> get letters => _articles(_isLetter);
+  List<Link> get letters => _articles(_isLetter);
 
-  Future<List<Link>> get others => _articles(_isNotLetter);
+  List<Link> get others => _articles(_isNotLetter);
 
   Future<List<dom.Element>> _page(int index) {
     if (_pagesCache.length > index) {
@@ -74,6 +74,10 @@ class Model extends ChangeNotifier {
               ))
           .then((value) => _articlesCache[link.url] = value);
 
+  void loadMore() {
+    _page(_pagesCache.length).then((value) => notifyListeners());
+  }
+
   bool isRead(Link link) => prefs.containsKey(link.url);
 
   double getPosition(Article article) {
@@ -98,8 +102,13 @@ class Model extends ChangeNotifier {
   bool _isNotLetter(e) => !_isLetter(e);
   bool _isLetter(e) => e.text.contains('Письмо:');
 
-  Future<List<Link>> _articles(bool test(element)) =>
-      _page(0).then((value) => value
+  List<Link> _articles(bool test(element)) => _pagesCache.isEmpty
+      ? []
+      : _pagesCache
+          .reduce((value, element) {
+            value.addAll(element);
+            return value;
+          })
           .where(test)
           .map((e) => e.children.first)
           .where((element) => element.text.isNotEmpty)
@@ -107,7 +116,7 @@ class Model extends ChangeNotifier {
                 e.attributes['href'],
                 e.text,
               ))
-          .toList());
+          .toList();
 
   String _getArticleText(dom.Document value) {
     return _Contents.map(value.querySelector)
