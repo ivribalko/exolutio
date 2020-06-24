@@ -16,6 +16,7 @@ class HomeScreen extends StatelessWidget {
       body: Consumer<Model>(
         builder: (_, Model model, __) {
           _refresh.loadComplete();
+          _refresh.refreshCompleted();
           return _buildRefresher(
             child: CustomScrollView(
               physics: AlwaysScrollableScrollPhysics(
@@ -62,7 +63,10 @@ class HomeScreen extends StatelessWidget {
     return SmartRefresher(
       controller: _refresh,
       enablePullUp: true,
+      enablePullDown: true,
+      onRefresh: _model.refresh,
       onLoading: _model.loadMore,
+      header: MaterialClassicHeader(),
       footer: ClassicFooter(),
       child: child,
     );
