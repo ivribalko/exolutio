@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../main.dart';
-import '../common.dart';
 
 class HomeScreen extends StatelessWidget {
   final _model = locator<Model>();
@@ -19,6 +18,11 @@ class HomeScreen extends StatelessWidget {
           headerSliverBuilder: (context, value) {
             return [
               SliverAppBar(
+                title: Text(
+                  'Эволюция: ${true ? 'Письма' : 'Прочее'}',
+                  textAlign: TextAlign.center,
+                ),
+                centerTitle: true,
                 bottom: TabBar(
                   tabs: [
                     Tab(icon: Icon(Icons.mail)),
@@ -58,32 +62,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  SliverAppBar _buildSliverAppBar(bool mail) {
-    return SliverAppBar(
-      leading: FlatButton.icon(
-        onPressed: () => _model.mail = true,
-        icon: Icon(mail ? Icons.mail : Icons.mail_outline),
-        label: Container(),
-      ),
-      actions: <Widget>[
-        FlatButton.icon(
-          onPressed: () => _model.mail = false,
-          icon: Icon(mail ? Icons.info_outline : Icons.info),
-          label: Container(),
-        ),
-      ],
-      expandedHeight: AppBarHeight,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          'Эволюция:\n${mail ? 'Письма' : 'Прочее'}',
-          textAlign: TextAlign.center,
-        ),
-        centerTitle: true,
-      ),
-      centerTitle: true,
-    );
-  }
-
   Widget _buildRefresher({Widget child}) {
     return SmartRefresher(
       controller: _refresh,
@@ -91,7 +69,7 @@ class HomeScreen extends StatelessWidget {
       enablePullDown: true,
       onRefresh: _model.refresh,
       onLoading: _model.loadMore,
-      header: MaterialClassicHeader(),
+      header: ClassicHeader(),
       footer: ClassicFooter(),
       child: child,
     );
