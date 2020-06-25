@@ -77,12 +77,16 @@ class Model extends ChangeNotifier {
               ))
           .then((value) => _articlesCache[link.url] = value);
 
+  bool get any => _pagesCache.isNotEmpty;
+
   void loadMore() {
     _page(_pagesCache.length).then((value) => notifyListeners());
   }
 
   void refresh() {
+    _articlesCache.clear();
     _pagesCache.clear();
+    notifyListeners();
     loadMore();
   }
 
