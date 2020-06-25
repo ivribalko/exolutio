@@ -14,6 +14,11 @@ const List<String> _Contents = [
   'div.aentry-post__text.aentry-post__text--view',
 ];
 
+enum Tag {
+  letters,
+  others,
+}
+
 class Model extends ChangeNotifier {
   Model(this.prefs) {
     _savePosition
@@ -41,9 +46,16 @@ class Model extends ChangeNotifier {
     }
   }
 
-  List<Link> get letters => _articles(_isLetter);
-
-  List<Link> get others => _articles(_isNotLetter);
+  List<Link> operator [](Tag tag) {
+    switch (tag) {
+      case Tag.letters:
+        return _articles(_isLetter);
+      case Tag.others:
+        return _articles(_isNotLetter);
+      default:
+        throw UnimplementedError();
+    }
+  }
 
   Future<List<dom.Element>> _page(int index) {
     if (_pagesCache.length > index) {
