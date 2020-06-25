@@ -13,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _model = locator<Model>();
-  final _refresh = RefreshController(initialRefresh: true);
+  final _refresh = RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +55,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Consumer<Model> _buildTab(BuildContext context, Tag tag) {
     return Consumer<Model>(
       builder: (_, Model model, __) {
-        if (model.any) {
-          SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-            _refresh.loadComplete();
-            _refresh.refreshCompleted();
-          });
+        if (!model.any) {
+          _model.loadMore();
+          return Center(
+            child: CircularProgressIndicator(),
+          );
         }
+        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          _refresh.loadComplete();
+          _refresh.refreshCompleted();
+        });
         return _buildRefresher(
           child: CustomScrollView(
             physics: AlwaysScrollableScrollPhysics(

@@ -86,7 +86,6 @@ class Model extends ChangeNotifier {
   void refresh() {
     _articlesCache.clear();
     _pagesCache.clear();
-    notifyListeners();
     loadMore();
   }
 
