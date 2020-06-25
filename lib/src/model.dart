@@ -14,6 +14,11 @@ const List<String> _Contents = [
   'div.aentry-post__text.aentry-post__text--view',
 ];
 
+enum Tag {
+  letters,
+  others,
+}
+
 class Model extends ChangeNotifier {
   Model(this.prefs) {
     _savePosition
@@ -32,18 +37,16 @@ class Model extends ChangeNotifier {
   final _savePosition = PublishSubject<Function>();
   final _pagesCache = <List<dom.Element>>[];
 
-  bool _mail = true;
-  bool get mail => _mail;
-  set mail(bool on) {
-    if (_mail != on) {
-      _mail = on;
-      notifyListeners();
+  List<Link> operator [](Tag tag) {
+    switch (tag) {
+      case Tag.letters:
+        return _articles(_isLetter);
+      case Tag.others:
+        return _articles(_isNotLetter);
+      default:
+        throw UnimplementedError();
     }
   }
-
-  List<Link> get letters => _articles(_isLetter);
-
-  List<Link> get others => _articles(_isNotLetter);
 
   Future<List<dom.Element>> _page(int index) {
     if (_pagesCache.length > index) {
@@ -74,11 +77,14 @@ class Model extends ChangeNotifier {
               ))
           .then((value) => _articlesCache[link.url] = value);
 
+  bool get any => _pagesCache.isNotEmpty;
+
   void loadMore() {
     _page(_pagesCache.length).then((value) => notifyListeners());
   }
 
   void refresh() {
+    _articlesCache.clear();
     _pagesCache.clear();
     loadMore();
   }

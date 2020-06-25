@@ -1,61 +1,81 @@
 import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../main.dart';
-import '../common.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final _model = locator<Model>();
   final _refresh = RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<Model>(
-        builder: (_, Model model, __) {
-          _refresh.loadComplete();
-          _refresh.refreshCompleted();
-          return _buildRefresher(
-            child: CustomScrollView(
-              physics: AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
+      body: DefaultTabController(
+        length: 2,
+        child: NestedScrollView(
+          headerSliverBuilder: (context, value) {
+            return [
+              SliverAppBar(
+                title: Text(
+                  'Эволюция',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.headline4.fontSize,
+                  ),
+                ),
+                centerTitle: true,
+                bottom: TabBar(
+                  tabs: [
+                    Tab(icon: Icon(Icons.mail)),
+                    Tab(icon: Icon(Icons.info)),
+                  ],
+                ),
               ),
-              slivers: [
-                _buildSliverAppBar(model.mail),
-                _buildList(context, model.mail ? model.letters : model.others),
-              ],
-            ),
-          );
-        },
+            ];
+          },
+          body: TabBarView(
+            children: [
+              _buildTab(context, Tag.letters),
+              _buildTab(context, Tag.others),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  SliverAppBar _buildSliverAppBar(bool mail) {
-    return SliverAppBar(
-      leading: FlatButton.icon(
-        onPressed: () => _model.mail = true,
-        icon: Icon(mail ? Icons.mail : Icons.mail_outline),
-        label: Container(),
-      ),
-      actions: <Widget>[
-        FlatButton.icon(
-          onPressed: () => _model.mail = false,
-          icon: Icon(mail ? Icons.info_outline : Icons.info),
-          label: Container(),
-        ),
-      ],
-      expandedHeight: AppBarHeight,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          'Эволюция:\n${mail ? 'Письма' : 'Прочее'}',
-          textAlign: TextAlign.center,
-        ),
-        centerTitle: true,
-      ),
-      centerTitle: true,
+  Consumer<Model> _buildTab(BuildContext context, Tag tag) {
+    return Consumer<Model>(
+      builder: (_, Model model, __) {
+        if (!model.any) {
+          _model.loadMore();
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          _refresh.loadComplete();
+          _refresh.refreshCompleted();
+        });
+        return _buildRefresher(
+          child: CustomScrollView(
+            physics: AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
+              _buildList(context, model[tag]),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -66,7 +86,7 @@ class HomeScreen extends StatelessWidget {
       enablePullDown: true,
       onRefresh: _model.refresh,
       onLoading: _model.loadMore,
-      header: MaterialClassicHeader(),
+      header: ClassicHeader(),
       footer: ClassicFooter(),
       child: child,
     );
@@ -117,7 +137,7 @@ class _LinkView extends StatelessWidget {
             data.title,
             style: TextStyle(
               color: isRead ? Theme.of(context).disabledColor : null,
-              fontSize: 20,
+              fontSize: Theme.of(context).textTheme.headline6.fontSize,
             ),
           ),
         );
