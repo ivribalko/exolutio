@@ -6,9 +6,14 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../main.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final _model = locator<Model>();
-  final _refresh = RefreshController(initialRefresh: false);
+  final _refresh = RefreshController(initialRefresh: true);
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +55,12 @@ class HomeScreen extends StatelessWidget {
   Consumer<Model> _buildTab(BuildContext context, Tag tag) {
     return Consumer<Model>(
       builder: (_, Model model, __) {
-        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-          _refresh.loadComplete();
-          _refresh.refreshCompleted();
-        });
+        if (model.any) {
+          SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+            _refresh.loadComplete();
+            _refresh.refreshCompleted();
+          });
+        }
         return _buildRefresher(
           child: CustomScrollView(
             physics: AlwaysScrollableScrollPhysics(
