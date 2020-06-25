@@ -1,5 +1,6 @@
 import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -46,8 +47,10 @@ class HomeScreen extends StatelessWidget {
   Consumer<Model> _buildTab(BuildContext context, Tag tag) {
     return Consumer<Model>(
       builder: (_, Model model, __) {
-        _refresh.loadComplete();
-        _refresh.refreshCompleted();
+        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          _refresh.loadComplete();
+          _refresh.refreshCompleted();
+        });
         return _buildRefresher(
           child: CustomScrollView(
             physics: AlwaysScrollableScrollPhysics(
