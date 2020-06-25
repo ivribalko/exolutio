@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const double AppBarHeight = 120;
+const double AppBarHeight = 100;
 
 class SliverProgressIndicator extends StatelessWidget {
   const SliverProgressIndicator({

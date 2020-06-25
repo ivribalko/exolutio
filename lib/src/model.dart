@@ -37,15 +37,6 @@ class Model extends ChangeNotifier {
   final _savePosition = PublishSubject<Function>();
   final _pagesCache = <List<dom.Element>>[];
 
-  bool _mail = true;
-  bool get mail => _mail;
-  set mail(bool on) {
-    if (_mail != on) {
-      _mail = on;
-      notifyListeners();
-    }
-  }
-
   List<Link> operator [](Tag tag) {
     switch (tag) {
       case Tag.letters:
