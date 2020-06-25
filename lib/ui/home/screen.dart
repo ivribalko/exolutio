@@ -13,23 +13,48 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<Model>(
-        builder: (_, Model model, __) {
-          _refresh.loadComplete();
-          _refresh.refreshCompleted();
-          return _buildRefresher(
-            child: CustomScrollView(
-              physics: AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
+      body: DefaultTabController(
+        length: 2,
+        child: NestedScrollView(
+          headerSliverBuilder: (context, value) {
+            return [
+              SliverAppBar(
+                bottom: TabBar(
+                  tabs: [
+                    Tab(icon: Icon(Icons.mail)),
+                    Tab(icon: Icon(Icons.info)),
+                  ],
+                ),
               ),
-              slivers: [
-                _buildSliverAppBar(model.mail),
-                _buildList(context, model.mail ? model.letters : model.others),
-              ],
-            ),
-          );
-        },
+            ];
+          },
+          body: TabBarView(
+            children: [
+              _buildTab(context, Tag.letters),
+              _buildTab(context, Tag.others),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  Consumer<Model> _buildTab(BuildContext context, Tag tag) {
+    return Consumer<Model>(
+      builder: (_, Model model, __) {
+        _refresh.loadComplete();
+        _refresh.refreshCompleted();
+        return _buildRefresher(
+          child: CustomScrollView(
+            physics: AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
+              _buildList(context, model[tag]),
+            ],
+          ),
+        );
+      },
     );
   }
 
