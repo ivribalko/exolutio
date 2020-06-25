@@ -20,8 +20,11 @@ class HomeScreen extends StatelessWidget {
             return [
               SliverAppBar(
                 title: Text(
-                  'Эволюция: ${true ? 'Письма' : 'Прочее'}',
+                  'Эволюция',
                   textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.headline4.fontSize,
+                  ),
                 ),
                 centerTitle: true,
                 bottom: TabBar(
@@ -123,7 +126,7 @@ class _LinkView extends StatelessWidget {
             data.title,
             style: TextStyle(
               color: isRead ? Theme.of(context).disabledColor : null,
-              fontSize: 20,
+              fontSize: Theme.of(context).textTheme.headline6.fontSize,
             ),
           ),
         );
