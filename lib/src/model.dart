@@ -37,9 +37,9 @@ class Model extends ChangeNotifier {
   }
 
   final SharedPreferences prefs;
+  final _articlePagesCache = <List<dom.Element>>[];
   final _articlesCache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
-  final _pagesCache = <List<dom.Element>>[];
 
   List<Link> operator [](Tag tag) {
     switch (tag) {
@@ -53,11 +53,11 @@ class Model extends ChangeNotifier {
   }
 
   Future<List<dom.Element>> _page(int index) {
-    if (_pagesCache.length > index) {
-      return Future.value(_pagesCache[index]);
+    if (_articlePagesCache.length > index) {
+      return Future.value(_articlePagesCache[index]);
     } else {
       return _loadPage(index).then((e) {
-        _pagesCache.add(e);
+        _articlePagesCache.add(e);
         return e;
       });
     }
@@ -76,15 +76,15 @@ class Model extends ChangeNotifier {
           .then((value) => _getArticle(link, value))
           .then((value) => _articlesCache[link.url] = value);
 
-  bool get any => _pagesCache.isNotEmpty;
+  bool get any => _articlePagesCache.isNotEmpty;
 
   void loadMore() {
-    _page(_pagesCache.length).then((value) => notifyListeners());
+    _page(_articlePagesCache.length).then((value) => notifyListeners());
   }
 
   void refresh() {
     _articlesCache.clear();
-    _pagesCache.clear();
+    _articlePagesCache.clear();
     loadMore();
   }
 
@@ -112,9 +112,9 @@ class Model extends ChangeNotifier {
   bool _isNotLetter(e) => !_isLetter(e);
   bool _isLetter(e) => e.text.contains('Письмо:');
 
-  List<Link> _articles(bool test(element)) => _pagesCache.isEmpty
+  List<Link> _articles(bool test(element)) => _articlePagesCache.isEmpty
       ? []
-      : _pagesCache
+      : _articlePagesCache
           .reduce((value, element) {
             value.addAll(element);
             return value;
