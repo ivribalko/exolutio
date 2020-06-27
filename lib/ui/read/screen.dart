@@ -101,17 +101,16 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  SliverToBoxAdapter _buildComments() {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          height: 50,
-          child: RaisedButton(
-            onPressed: () => launch(_data.commentsUrl),
-            child: Text('Комментарии'),
-          ),
-        ),
+  Widget _buildComments() {
+    return SliverList(
+      delegate: SliverChildListDelegate(
+        _data.comments
+            .map(
+              (e) => Card(
+                child: Text(e),
+              ),
+            )
+            .toList(),
       ),
     );
   }
