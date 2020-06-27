@@ -23,7 +23,10 @@ enum Tag {
 }
 
 class Model extends ChangeNotifier {
-  Model(this.prefs) {
+  Model(
+    this.loader,
+    this.prefs,
+  ) {
     _savePosition
         .throttle(
           (event) => TimerStream(
@@ -35,6 +38,7 @@ class Model extends ChangeNotifier {
         .listen((value) => value());
   }
 
+  final Loader loader;
   final SharedPreferences prefs;
   final _articlePagesCache = <List<dom.Element>>[];
   final _articlesCache = Map<String, Article>();
@@ -62,14 +66,14 @@ class Model extends ChangeNotifier {
     }
   }
 
-  Future<List<dom.Element>> _loadPage(int index) => Loader()
+  Future<List<dom.Element>> _loadPage(int index) => loader
       .page(index)
       .then(parse)
       .then((value) => value.querySelectorAll('dt.entry-title'));
 
   FutureOr<Article> article(Link link) =>
       _articlesCache[link.url] ??
-      Loader()
+      loader
           .body(link.url)
           .then(parse)
           .then((value) => _getArticle(link, value))
