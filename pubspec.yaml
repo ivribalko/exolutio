@@ -26,6 +26,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   logging: ^0.11.4
+  mockito: ^4.1.1
   pedantic: ^1.9.0
   wakelock: ^0.1.4+1
 
