@@ -73,13 +73,7 @@ class Model extends ChangeNotifier {
       Client()
           .get(link.url)
           .then((value) => parse(value.body))
-          .then((value) => Article(
-                link.url,
-                link.title,
-                _getArticleText(value),
-                _getComments(value),
-                '${link.url}#comments',
-              ))
+          .then((value) => _getArticle(link, value))
           .then((value) => _articlesCache[link.url] = value);
 
   bool get any => _pagesCache.isNotEmpty;
@@ -134,16 +128,36 @@ class Model extends ChangeNotifier {
               ))
           .toList();
 
+  Article _getArticle(Link link, dom.Document value) {
+    final commentsHtml = _getCommentsHtml(value);
+    return Article(
+      link.url,
+      link.title,
+      _getArticleText(value),
+      _getComments(commentsHtml, []),
+      commentsHtml,
+      '${link.url}#comments',
+    );
+  }
+
   String _getArticleText(dom.Document value) {
     return _ContentDiv.map(value.querySelector)
         .firstWhere((element) => element?.text?.isNotEmpty ?? false)
         .innerHtml;
   }
 
-  List<dom.Element> _getComments(dom.Document value) {
+  List<dom.Element> _getCommentsHtml(dom.Document value) {
     return _CommentsDiv.map(value.querySelector)
         .firstWhere((element) => element?.text?.isNotEmpty ?? false)
         .children;
+  }
+
+  List<String> _getComments(List<dom.Element> value, List<String> list) {
+    for (final child in value) {
+      list.add(child.innerHtml);
+      _getComments(child.children, list);
+    }
+    return list;
   }
 }
 
@@ -160,12 +174,14 @@ class Article {
     this.title,
     this.text,
     this.comments,
+    this.commentsHtml,
     this.commentsUrl,
   );
 
   final String url;
   final String title;
   final String text;
-  final List<dom.Element> comments;
-  final String commentsUrl;
+  final List<String> comments;
+  final List<dom.Element> commentsHtml;
+  final String commentsUrl; // TODO remove?
 }
