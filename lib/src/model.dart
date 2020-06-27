@@ -3,11 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
-import 'package:http/http.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String _Root = 'https://evo-lutio.livejournal.com/';
+import 'loader.dart';
 
 const List<String> _ContentDiv = [
   'div.b-singlepost-bodywrapper',
@@ -63,16 +62,16 @@ class Model extends ChangeNotifier {
     }
   }
 
-  Future<List<dom.Element>> _loadPage(int index) => Client()
-      .get(_Root + '?skip=${index * 50}')
-      .then((value) => parse(value.body))
+  Future<List<dom.Element>> _loadPage(int index) => Loader()
+      .page(index)
+      .then(parse)
       .then((value) => value.querySelectorAll('dt.entry-title'));
 
   FutureOr<Article> article(Link link) =>
       _articlesCache[link.url] ??
-      Client()
-          .get(link.url)
-          .then((value) => parse(value.body))
+      Loader()
+          .body(link.url)
+          .then(parse)
           .then((value) => _getArticle(link, value))
           .then((value) => _articlesCache[link.url] = value);
 
