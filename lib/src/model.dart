@@ -9,9 +9,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const String _Root = 'https://evo-lutio.livejournal.com/';
 
-const List<String> _Contents = [
+const List<String> _ContentDiv = [
   'div.b-singlepost-bodywrapper',
   'div.aentry-post__text.aentry-post__text--view',
+];
+
+const List<String> _CommentsDiv = [
+  '#comments',
 ];
 
 enum Tag {
@@ -73,6 +77,7 @@ class Model extends ChangeNotifier {
                 link.url,
                 link.title,
                 _getArticleText(value),
+                _getComments(value),
                 '${link.url}#comments',
               ))
           .then((value) => _articlesCache[link.url] = value);
@@ -130,9 +135,15 @@ class Model extends ChangeNotifier {
           .toList();
 
   String _getArticleText(dom.Document value) {
-    return _Contents.map(value.querySelector)
+    return _ContentDiv.map(value.querySelector)
         .firstWhere((element) => element?.text?.isNotEmpty ?? false)
         .innerHtml;
+  }
+
+  List<dom.Element> _getComments(dom.Document value) {
+    return _CommentsDiv.map(value.querySelector)
+        .firstWhere((element) => element?.text?.isNotEmpty ?? false)
+        .children;
   }
 }
 
@@ -144,10 +155,17 @@ class Link {
 }
 
 class Article {
-  Article(this.url, this.title, this.text, this.commentsUrl);
+  Article(
+    this.url,
+    this.title,
+    this.text,
+    this.comments,
+    this.commentsUrl,
+  );
 
   final String url;
   final String title;
   final String text;
+  final List<dom.Element> comments;
   final String commentsUrl;
 }
