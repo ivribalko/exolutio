@@ -36,6 +36,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
     _articleAsFuture(arguments[1]).then(_initStateWithData);
     _title = arguments[0];
     _jumper = _Jumper(this);
+    _jumper.mode.listen((value) => setState(() {}));
     _jumper.position.listen(_animateTo);
 
     _scroll.addListener(() {
@@ -168,8 +169,6 @@ class _ArticleScreenState extends State<ArticleScreen> {
         curve: Curves.easeOutExpo,
       );
     }
-
-    setState(() {});
   }
 
   List _getScreenArguments(BuildContext context) {
@@ -229,11 +228,13 @@ class _Jumper {
   bool _jumpedUp;
   double _jumpedFrom;
   final _ArticleScreenState reading;
+  final mode = PublishSubject<JumpMode>();
   final position = PublishSubject<double>();
 
   _Jumper(this.reading);
 
   void dispose() {
+    mode.close();
     position.close();
   }
 
@@ -246,10 +247,11 @@ class _Jumper {
   }
 
   JumpMode _mode = JumpMode.none;
-  set _modeSetter(JumpMode mode) {
-    _mode = mode;
+  set _modeSetter(JumpMode event) {
+    _mode = event;
+    mode.add(event);
 
-    switch (mode) {
+    switch (event) {
       case JumpMode.none:
         position.add(null);
         break;
@@ -263,7 +265,7 @@ class _Jumper {
         position.add(_jumpedFrom);
         break;
       default:
-        throw UnsupportedError(mode.toString());
+        throw UnsupportedError(event.toString());
     }
   }
 
