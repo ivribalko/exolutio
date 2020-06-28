@@ -1,3 +1,4 @@
+import 'package:exolutio/src/loader.dart';
 import 'package:exolutio/src/model.dart';
 import 'package:exolutio/ui/exolutio.dart';
 import 'package:flutter/foundation.dart';
@@ -18,7 +19,7 @@ void main() async {
 
   final prefs = await SharedPreferences.getInstance();
 
-  locator.registerSingleton(Model(prefs));
+  locator.registerSingleton(Model(Loader(), prefs));
 
   runApp(
     MultiProvider(

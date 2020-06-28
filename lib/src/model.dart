@@ -137,7 +137,7 @@ class Model extends ChangeNotifier {
       link.url,
       link.title,
       _getArticleText(value),
-      _getComments(value),
+      _getComments(value).where((e) => e?.isNotEmpty ?? false).toList(),
       _getCommentsHtml(value),
       '${link.url}#comments',
     );
@@ -157,19 +157,19 @@ class Model extends ChangeNotifier {
 
   List<String> _getComments(dom.Document value) {
     const commentsSource = 'Site.page = ';
-    var all = value.body
+    final script = value.body
         .querySelectorAll('script')
-        .firstWhere((e) => e.innerHtml.contains(commentsSource));
+        .firstWhere((e) => e.innerHtml.contains(commentsSource))
+        .nodes
+        .first
+        .text;
 
-    var notall = all.nodes.first.text;
+    final start = script.indexOf(commentsSource) + 'Site.page = '.length;
+    final temp = script.substring(start, script.length - 1);
+    final end = temp.indexOf('Site.');
 
-    var start = notall.indexOf(commentsSource) + 'Site.page = '.length;
-
-    var json = notall.substring(start, notall.length - 1);
-
-    json = json.substring(0, json.indexOf('Site.')).trim().replaceAll(';', '');
-
-    Map<String, dynamic> user = jsonDecode(json);
+    final json = temp.substring(0, end).trim().replaceAll(';', '');
+    final user = jsonDecode(json);
 
     return user['comments'].map((e) => e['article']).cast<String>().toList();
   }
