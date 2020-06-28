@@ -154,6 +154,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
         data: _data.text,
         style: {
           'article': Style(fontSize: FontSize(20)),
+          'span.quote': Style(
+              fontSize: FontSize(20), color: Theme.of(context).accentColor),
         },
       ),
     );
