@@ -101,17 +101,36 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  SliverToBoxAdapter _buildComments() {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          height: 50,
-          child: RaisedButton(
-            onPressed: () => launch(_data.commentsUrl),
-            child: Text('Комментарии'),
-          ),
-        ),
+  Widget _buildComments() {
+    return SliverList(
+      delegate: SliverChildListDelegate(
+        _data.comments
+            .map(
+              (e) => Card(
+                color: e.dname == 'evo_lutio'
+                    ? Colors.blueAccent.withAlpha(125)
+                    : null,
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      e.dname,
+                      style: TextStyle(
+                        color: Theme.of(context).disabledColor,
+                        shadows: <Shadow>[
+                          Shadow(
+                            offset: Offset(0.0, 1.0),
+                            blurRadius: 3.0,
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Html(data: e.article),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
       ),
     );
   }

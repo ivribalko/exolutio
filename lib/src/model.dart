@@ -1,17 +1,22 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:exolutio/src/comment.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
-import 'package:http/http.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String _Root = 'https://evo-lutio.livejournal.com/';
+import 'loader.dart';
 
-const List<String> _Contents = [
+const List<String> _ContentDiv = [
   'div.b-singlepost-bodywrapper',
   'div.aentry-post__text.aentry-post__text--view',
+];
+
+const List<String> _CommentsDiv = [
+  '#comments',
 ];
 
 enum Tag {
@@ -20,7 +25,10 @@ enum Tag {
 }
 
 class Model extends ChangeNotifier {
-  Model(this.prefs) {
+  Model(
+    this.loader,
+    this.prefs,
+  ) {
     _savePosition
         .throttle(
           (event) => TimerStream(
@@ -32,10 +40,11 @@ class Model extends ChangeNotifier {
         .listen((value) => value());
   }
 
+  final Loader loader;
   final SharedPreferences prefs;
+  final _articlePagesCache = <List<dom.Element>>[];
   final _articlesCache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
-  final _pagesCache = <List<dom.Element>>[];
 
   List<Link> operator [](Tag tag) {
     switch (tag) {
@@ -49,43 +58,38 @@ class Model extends ChangeNotifier {
   }
 
   Future<List<dom.Element>> _page(int index) {
-    if (_pagesCache.length > index) {
-      return Future.value(_pagesCache[index]);
+    if (_articlePagesCache.length > index) {
+      return Future.value(_articlePagesCache[index]);
     } else {
       return _loadPage(index).then((e) {
-        _pagesCache.add(e);
+        _articlePagesCache.add(e);
         return e;
       });
     }
   }
 
-  Future<List<dom.Element>> _loadPage(int index) => Client()
-      .get(_Root + '?skip=${index * 50}')
-      .then((value) => parse(value.body))
+  Future<List<dom.Element>> _loadPage(int index) => loader
+      .page(index)
+      .then(parse)
       .then((value) => value.querySelectorAll('dt.entry-title'));
 
   FutureOr<Article> article(Link link) =>
       _articlesCache[link.url] ??
-      Client()
-          .get(link.url)
-          .then((value) => parse(value.body))
-          .then((value) => Article(
-                link.url,
-                link.title,
-                _getArticleText(value),
-                '${link.url}#comments',
-              ))
+      loader
+          .body(link.url)
+          .then(parse)
+          .then((value) => _getArticle(link, value))
           .then((value) => _articlesCache[link.url] = value);
 
-  bool get any => _pagesCache.isNotEmpty;
+  bool get any => _articlePagesCache.isNotEmpty;
 
   void loadMore() {
-    _page(_pagesCache.length).then((value) => notifyListeners());
+    _page(_articlePagesCache.length).then((value) => notifyListeners());
   }
 
   void refresh() {
     _articlesCache.clear();
-    _pagesCache.clear();
+    _articlePagesCache.clear();
     loadMore();
   }
 
@@ -113,9 +117,9 @@ class Model extends ChangeNotifier {
   bool _isNotLetter(e) => !_isLetter(e);
   bool _isLetter(e) => e.text.contains('Письмо:');
 
-  List<Link> _articles(bool test(element)) => _pagesCache.isEmpty
+  List<Link> _articles(bool test(element)) => _articlePagesCache.isEmpty
       ? []
-      : _pagesCache
+      : _articlePagesCache
           .reduce((value, element) {
             value.addAll(element);
             return value;
@@ -129,10 +133,38 @@ class Model extends ChangeNotifier {
               ))
           .toList();
 
+  Article _getArticle(Link link, dom.Document value) {
+    return Article(
+      link.url,
+      link.title,
+      _getArticleText(value),
+      _getComments(value).where((e) => e.article?.isNotEmpty ?? false).toList(),
+    );
+  }
+
   String _getArticleText(dom.Document value) {
-    return _Contents.map(value.querySelector)
+    return _ContentDiv.map(value.querySelector)
         .firstWhere((element) => element?.text?.isNotEmpty ?? false)
         .innerHtml;
+  }
+
+  List<Comment> _getComments(dom.Document value) {
+    const commentsSource = 'Site.page = ';
+    final script = value.body
+        .querySelectorAll('script')
+        .firstWhere((e) => e.innerHtml.contains(commentsSource))
+        .nodes
+        .first
+        .text;
+
+    final start = script.indexOf(commentsSource) + 'Site.page = '.length;
+    final temp = script.substring(start, script.length - 1);
+    final end = temp.indexOf('Site.');
+
+    final json = temp.substring(0, end).trim().replaceAll(';', '');
+    final user = jsonDecode(json);
+
+    return user['comments'].map((e) => Comment.map(e)).cast<Comment>().toList();
   }
 }
 
@@ -144,10 +176,15 @@ class Link {
 }
 
 class Article {
-  Article(this.url, this.title, this.text, this.commentsUrl);
+  Article(
+    this.url,
+    this.title,
+    this.text,
+    this.comments,
+  );
 
   final String url;
   final String title;
   final String text;
-  final String commentsUrl;
+  final List<Comment> comments;
 }
