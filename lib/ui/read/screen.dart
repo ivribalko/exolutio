@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../main.dart';
 import '../common.dart';
+
+const _jumpDuration = Duration(milliseconds: 300);
 
 class ArticleScreen extends StatefulWidget {
   ArticleScreen(this.context);
@@ -21,7 +24,7 @@ class ArticleScreen extends StatefulWidget {
 
 class _ArticleScreenState extends State<ArticleScreen> {
   final _model = locator<Model>();
-  final _scroll = ScrollController();
+  final _scroll = AutoScrollController();
   _Jumper _jumper;
 
   Article _data;
@@ -65,7 +68,12 @@ class _ArticleScreenState extends State<ArticleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: _jumper.jumped ? _jumper.setBacked : _jumper.setJumped,
+//        onPressed: _jumper.jumped ? _jumper.setBacked : _jumper.setJumped,
+        onPressed: () => _scroll.scrollToIndex(
+          0,
+          duration: _jumpDuration,
+          preferPosition: AutoScrollPosition.begin,
+        ),
         child: Icon(_jumper.jumped ? Icons.arrow_downward : Icons.arrow_upward),
       ),
       body: SafeArea(
@@ -107,27 +115,32 @@ class _ArticleScreenState extends State<ArticleScreen> {
       delegate: SliverChildListDelegate(
         _data.comments
             .map(
-              (e) => Card(
-                color: e.dname == 'evo_lutio'
-                    ? Colors.blueAccent.withAlpha(125)
-                    : null,
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      e.dname,
-                      style: TextStyle(
-                        color: Theme.of(context).disabledColor,
-                        shadows: <Shadow>[
-                          Shadow(
-                            offset: Offset(0.0, 1.0),
-                            blurRadius: 3.0,
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
-                        ],
+              (e) => AutoScrollTag(
+                index: _data.comments.indexOf(e),
+                controller: _scroll,
+                key: ValueKey(_data.comments.indexOf(e)),
+                child: Card(
+                  color: e.dname == 'evo_lutio'
+                      ? Colors.blueAccent.withAlpha(125)
+                      : null,
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        e.dname,
+                        style: TextStyle(
+                          color: Theme.of(context).disabledColor,
+                          shadows: <Shadow>[
+                            Shadow(
+                              offset: Offset(0.0, 1.0),
+                              blurRadius: 3.0,
+                              color: Color.fromARGB(255, 0, 0, 0),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Html(data: e.article),
-                  ],
+                      Html(data: e.article),
+                    ],
+                  ),
                 ),
               ),
             )
@@ -155,7 +168,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
     if (position != null) {
       _scroll.animateTo(
         position,
-        duration: Duration(milliseconds: 300),
+        duration: _jumpDuration,
         curve: Curves.easeOutExpo,
       );
     }
