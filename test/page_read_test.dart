@@ -23,7 +23,7 @@ void main() {
         ).readAsString());
 
     when(loader.body(any)).thenAnswer((_) => File(
-          'test/evo-lutio.livejournal.com__1186633.html',
+          'test/evo-lutio.livejournal.com__1180335.html',
         ).readAsString());
 
     updated = StreamController();
@@ -35,17 +35,12 @@ void main() {
     model.dispose();
   });
 
-  test('first comment text', () async {
+  test('comment inside article', () async {
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
-    expect(
-        article.comments[0],
-        equals('Автор боится «посереть», и со временем меняет декорации на всё '
-            'менее и менее солидные: в альбоме до 25 более-менее приличной '
-            'одежды больше всего, а в после 30 такой уже практически нет. И '
-            'все удивляется, почему солидные мужчины не хотят знакомиться.'));
+    expect(article.text.contains('<span class="quote">'), isTrue);
   });
 }
