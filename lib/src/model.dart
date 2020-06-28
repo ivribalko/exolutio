@@ -33,8 +33,8 @@ class Model extends ChangeNotifier {
 
   final Loader loader;
   final SharedPreferences prefs;
-  final _articlePagesCache = <List<dom.Element>>[];
-  final _articlesCache = Map<String, Article>();
+  final _articlePageCache = <List<dom.Element>>[];
+  final _articleCache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
 
   List<Link> operator [](Tag tag) {
@@ -49,13 +49,10 @@ class Model extends ChangeNotifier {
   }
 
   Future<List<dom.Element>> _page(int index) {
-    if (_articlePagesCache.length > index) {
-      return Future.value(_articlePagesCache[index]);
+    if (_articlePageCache.length > index) {
+      return Future.value(_articlePageCache[index]);
     } else {
-      return _loadPage(index).then((e) {
-        _articlePagesCache.add(e);
-        return e;
-      });
+      return _loadPage(index).then(_cachePage);
     }
   }
 
@@ -64,23 +61,28 @@ class Model extends ChangeNotifier {
       .then(parse)
       .then((value) => value.querySelectorAll('dt.entry-title'));
 
+  List<dom.Element> _cachePage(List<dom.Element> e) {
+    _articlePageCache.add(e);
+    return e;
+  }
+
   FutureOr<Article> article(Link link) =>
-      _articlesCache[link.url] ??
+      _articleCache[link.url] ??
       loader
           .body(link.url)
           .then(parse)
           .then((value) => _getArticle(link, value))
-          .then((value) => _articlesCache[link.url] = value);
+          .then((value) => _articleCache[link.url] = value);
 
-  bool get any => _articlePagesCache.isNotEmpty;
+  bool get any => _articlePageCache.isNotEmpty;
 
   void loadMore() {
-    _page(_articlePagesCache.length).then((value) => notifyListeners());
+    _page(_articlePageCache.length).then((value) => notifyListeners());
   }
 
   void refresh() {
-    _articlesCache.clear();
-    _articlePagesCache.clear();
+    _articleCache.clear();
+    _articlePageCache.clear();
     loadMore();
   }
 
@@ -108,9 +110,9 @@ class Model extends ChangeNotifier {
   bool _isNotLetter(e) => !_isLetter(e);
   bool _isLetter(e) => e.text.contains('Письмо:');
 
-  List<Link> _articles(bool test(element)) => _articlePagesCache.isEmpty
+  List<Link> _articles(bool test(element)) => _articlePageCache.isEmpty
       ? []
-      : _articlePagesCache
+      : _articlePageCache
           .reduce((value, element) {
             value.addAll(element);
             return value;
