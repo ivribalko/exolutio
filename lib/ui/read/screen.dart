@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../main.dart';
 import '../common.dart';
 
+const _fontSize = 17.0;
 const _jumpDuration = Duration(milliseconds: 300);
 
 class ArticleScreen extends StatefulWidget {
@@ -126,25 +127,29 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 controller: _scroll,
                 key: ValueKey(_data.comments.indexOf(e)),
                 child: Card(
-                  color: e.dname == 'evo_lutio'
-                      ? Colors.blueAccent.withAlpha(125)
-                      : null,
+                  elevation: 3,
+                  color: e.dname == e.poster ? _authorColor : null,
                   child: Column(
                     children: <Widget>[
                       Text(
                         e.dname,
                         style: TextStyle(
-                          color: Theme.of(context).disabledColor,
+                          color: e.dname == e.poster
+                              ? Colors.white
+                              : Theme.of(context).disabledColor,
                           shadows: <Shadow>[
                             Shadow(
                               offset: Offset(0.0, 1.0),
-                              blurRadius: 3.0,
+                              blurRadius: 2.0,
                               color: Color.fromARGB(255, 0, 0, 0),
                             ),
                           ],
                         ),
                       ),
-                      Html(data: e.article),
+                      Html(
+                        data: '<article>${e.article}</article>',
+                        style: e.dname == e.poster ? _authorStyle : _htmlStyle,
+                      ),
                     ],
                   ),
                 ),
@@ -160,14 +165,26 @@ class _ArticleScreenState extends State<ArticleScreen> {
       child: Html(
         onLinkTap: _onLinkTap,
         data: _data.text,
-        style: {
-          'article': Style(fontSize: FontSize(20)),
-          'a.quote': Style(
-              fontSize: FontSize(20), color: Theme.of(context).accentColor),
-        },
+        style: _htmlStyle,
       ),
     );
   }
+
+  Map<String, Style> get _htmlStyle => {
+        'article': Style(fontSize: FontSize(_fontSize)),
+        '.quote': Style(fontSize: FontSize(_fontSize), color: _accentColor),
+      };
+
+  Map<String, Style> get _authorStyle => {
+        'article': Style(fontSize: FontSize(_fontSize), color: Colors.white),
+        '.quote': Style(fontSize: FontSize(_fontSize), color: _accentColor),
+      };
+
+  Color get _authorColor => Theme.of(context).brightness == Brightness.dark
+      ? _accentColor.withAlpha(100)
+      : _accentColor;
+
+  Color get _accentColor => Theme.of(context).accentColor;
 
   void _onLinkTap(String url) {
     if (url.startsWith(CommentLink)) {
