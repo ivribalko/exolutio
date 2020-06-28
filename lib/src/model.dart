@@ -143,7 +143,7 @@ class Model extends ChangeNotifier {
 
     for (final comment in comments) {
       for (final element in _quotes(comment, article)) {
-        final from = element.text.replaceAll('"', ''); // TODO surrounding
+        final from = element.text.trim().unsurround('"').unsurround('...');
         final link = '$CommentLink${comments.indexOf(comment)}';
         final to = '<a class="quote" href=$link>$from</a>';
         article = article.replaceFirst(from, to);
@@ -203,4 +203,17 @@ class Article {
   final String title;
   final String text;
   final List<Comment> comments;
+}
+
+extension _Unsurround on String {
+  String unsurround(String remove) {
+    String result = this;
+    if (result.startsWith(remove)) {
+      result = result.substring(remove.length);
+    }
+    if (result.endsWith(remove)) {
+      result = result.substring(0, result.length - remove.length);
+    }
+    return result;
+  }
 }
