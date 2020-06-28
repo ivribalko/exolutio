@@ -148,15 +148,12 @@ class _ArticleScreenState extends State<ArticleScreen> {
   }
 
   Widget _buildHtml() {
-    final style = Style(fontSize: FontSize(20));
     return SliverToBoxAdapter(
       child: Html(
         onLinkTap: launch,
         data: _data.text,
         style: {
-          'p': style,
-          'div': style,
-          'article': style,
+          'article': Style(fontSize: FontSize(20)),
         },
       ),
     );
@@ -289,7 +286,8 @@ class _Jumper {
       duration: _jumpDuration,
       preferPosition: AutoScrollPosition.begin,
     );
-    reading.setState(() {});
+    // ignore: invalid_use_of_protected_member
+    reading.setState(() {}); // TODO
   }
 
   void setBacked() {

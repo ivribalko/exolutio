@@ -129,12 +129,19 @@ class Model extends ChangeNotifier {
       link.url,
       link.title,
       _getArticleText(value),
-      _getComments(value).where((e) => e.article?.isNotEmpty ?? false).toList(),
+      _getUndynamicComments(value),
     );
   }
 
   String _getArticleText(dom.Document value) {
     return value.querySelector('article.b-singlepost-body').outerHtml;
+  }
+
+  // if where() directly in _getComments it doesn't work TODO
+  List<Comment> _getUndynamicComments(dom.Document value) {
+    return _getComments(value)
+        .where((e) => e.article?.isNotEmpty ?? false)
+        .toList();
   }
 
   List<Comment> _getComments(dom.Document value) {
