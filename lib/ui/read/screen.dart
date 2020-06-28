@@ -107,7 +107,27 @@ class _ArticleScreenState extends State<ArticleScreen> {
         _data.comments
             .map(
               (e) => Card(
-                child: Html(data: e.article),
+                color: e.dname == 'evo_lutio'
+                    ? Colors.blueAccent.withAlpha(125)
+                    : null,
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      e.dname,
+                      style: TextStyle(
+                        color: Theme.of(context).disabledColor,
+                        shadows: <Shadow>[
+                          Shadow(
+                            offset: Offset(0.0, 1.0),
+                            blurRadius: 3.0,
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Html(data: e.article),
+                  ],
+                ),
               ),
             )
             .toList(),
