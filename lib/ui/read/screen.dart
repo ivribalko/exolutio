@@ -68,12 +68,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-//        onPressed: _jumper.jumped ? _jumper.setBacked : _jumper.setJumped,
-        onPressed: () => _scroll.scrollToIndex(
-          0,
-          duration: _jumpDuration,
-          preferPosition: AutoScrollPosition.begin,
-        ),
+        onPressed:
+            _jumper.jumped ? _jumper.setBacked : _jumper.setJumpedComment,
         child: Icon(_jumper.jumped ? Icons.arrow_downward : Icons.arrow_upward),
       ),
       body: SafeArea(
@@ -225,10 +221,12 @@ class _ProgressState extends State<_Progress> {
 enum JumpMode {
   none,
   start,
+  comment,
   back,
 }
 
 class _Jumper {
+  bool _jumpedUp;
   double _jumpedFrom;
   final _ArticleScreenState reading;
   final position = PublishSubject<double>();
@@ -242,7 +240,9 @@ class _Jumper {
   bool get jumped => _mode != JumpMode.none;
 
   bool get returned {
-    return reading._scroll.offset >= _jumpedFrom;
+    return _jumpedUp
+        ? reading._scroll.offset >= _jumpedFrom
+        : reading._scroll.offset <= _jumpedFrom;
   }
 
   JumpMode _mode = JumpMode.none;
@@ -256,6 +256,9 @@ class _Jumper {
       case JumpMode.start:
         position.add(0);
         break;
+      case JumpMode.comment:
+        // controlled by plugin
+        break;
       case JumpMode.back:
         position.add(_jumpedFrom);
         break;
@@ -264,11 +267,22 @@ class _Jumper {
     }
   }
 
-  void setJumped() {
-    if (!jumped) {
-      _jumpedFrom = reading._scroll.offset;
-      _modeSetter = JumpMode.start;
-    }
+  void setJumpedStart() {
+    _jumpedUp = true;
+    _jumpedFrom = reading._scroll.offset;
+    _modeSetter = JumpMode.start;
+  }
+
+  void setJumpedComment() {
+    _jumpedUp = false;
+    _jumpedFrom = reading._scroll.offset;
+    _modeSetter = JumpMode.comment;
+    reading._scroll.scrollToIndex(
+      0,
+      duration: _jumpDuration,
+      preferPosition: AutoScrollPosition.begin,
+    );
+    reading.setState(() {});
   }
 
   void setBacked() {
@@ -280,6 +294,7 @@ class _Jumper {
 
   void clear() {
     if (jumped) {
+      _jumpedUp = null;
       _jumpedFrom = null;
       _modeSetter = JumpMode.none;
     }
