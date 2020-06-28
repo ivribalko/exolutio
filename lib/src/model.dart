@@ -15,6 +15,8 @@ enum Tag {
   others,
 }
 
+const String CommentLink = "comment:";
+
 class Model extends ChangeNotifier {
   Model(
     this.loader,
@@ -141,8 +143,9 @@ class Model extends ChangeNotifier {
 
     for (final comment in comments) {
       for (final element in _quotes(comment, article)) {
-        final from = element.text.replaceAll('"', '');
-        final to = '<span class="quote">$from</span>';
+        final from = element.text.replaceAll('"', ''); // TODO surrounding
+        final link = '$CommentLink${comments.indexOf(comment)}';
+        final to = '<a class="quote" href=$link>$from</a>';
         article = article.replaceFirst(from, to);
       }
     }

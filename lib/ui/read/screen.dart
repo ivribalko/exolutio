@@ -69,8 +69,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed:
-            _jumper.jumped ? _jumper.setBacked : _jumper.setJumpedComment,
+        onPressed: _jumper.jumped ? _jumper.setBacked : _jumper.setJumpedStart,
         child: Icon(_jumper.jumped ? Icons.arrow_downward : Icons.arrow_upward),
       ),
       body: SafeArea(
@@ -150,15 +149,24 @@ class _ArticleScreenState extends State<ArticleScreen> {
   Widget _buildHtml() {
     return SliverToBoxAdapter(
       child: Html(
-        onLinkTap: launch,
+        onLinkTap: _onLinkTap,
         data: _data.text,
         style: {
           'article': Style(fontSize: FontSize(20)),
-          'span.quote': Style(
+          'a.quote': Style(
               fontSize: FontSize(20), color: Theme.of(context).accentColor),
         },
       ),
     );
+  }
+
+  void _onLinkTap(String url) {
+    if (url.startsWith(CommentLink)) {
+      final index = url.substring(CommentLink.length);
+      _jumper.setJumpedComment(int.parse(index));
+    } else {
+      launch(url);
+    }
   }
 
   Widget _buildFloatingMargin() {
@@ -279,12 +287,12 @@ class _Jumper {
     _modeSetter = JumpMode.start;
   }
 
-  void setJumpedComment() {
+  void setJumpedComment(int index) {
     _jumpedUp = false;
     _jumpedFrom = reading._scroll.offset;
     _modeSetter = JumpMode.comment;
     reading._scroll.scrollToIndex(
-      0,
+      index,
       duration: _jumpDuration,
       preferPosition: AutoScrollPosition.begin,
     );
