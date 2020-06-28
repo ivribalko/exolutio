@@ -42,7 +42,7 @@ void main() {
     final article = await model.article(link);
 
     expect(
-        article.comments[0],
+        article.comments[0].article,
         equals('Автор боится «посереть», и со временем меняет декорации на всё '
             'менее и менее солидные: в альбоме до 25 более-менее приличной '
             'одежды больше всего, а в после 30 такой уже практически нет. И '
