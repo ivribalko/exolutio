@@ -35,25 +35,12 @@ void main() {
     model.dispose();
   });
 
-  test('first comment text', () async {
+  test('comment inside article', () async {
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
-    expect(
-        article.comments[0].article,
-        equals('Предыдущее письмо автора: <a href=\'https://evo-lutio.'
-            'livejournal.com/903296.html\'>https://evo-lutio.livejournal'
-            '.com/903296.html</a> '));
-  });
-
-  test('comments count', () async {
-    model.loadMore();
-    await updated.stream.first;
-    final link = model[Tag.letters].first;
-    final article = await model.article(link);
-
-    expect(article.comments.length, equals(20));
+    expect(article.text.contains('<span class="quote">'), isTrue);
   });
 }

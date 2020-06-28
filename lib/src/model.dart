@@ -135,23 +135,21 @@ class Model extends ChangeNotifier {
   }
 
   String _getArticleText(dom.Document value, List<Comment> comments) {
-    var html = value.querySelector('article.b-singlepost-body').outerHtml;
+    var article = value.querySelector('article.b-singlepost-body').outerHtml;
 
-    comments.map((e) {
-      var indexes = _quotes(e, html);
-      if (indexes?.isNotEmpty ?? false) {}
+    for (final comment in comments) {
+      for (final element in _quotes(comment, article)) {
+        final from = element.text.replaceAll('"', '');
+        final to = '<span class="quote">$from</span>';
+        article = article.replaceFirst(from, to);
+      }
+    }
 
-      return e;
-    });
-
-    return html;
+    return article;
   }
 
-  List<int> _quotes(Comment comment, String articleHtml) {
-    return parse(comment.article)
-        .querySelectorAll('i')
-        .map((e) => e.text)
-        .map(articleHtml.indexOf);
+  List<dom.Element> _quotes(Comment comment, String article) {
+    return parse(comment.article).querySelectorAll('i');
   }
 
   // if where() directly in _getComments it doesn't work TODO
