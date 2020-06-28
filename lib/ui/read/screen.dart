@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../main.dart';
@@ -18,44 +21,42 @@ class ArticleScreen extends StatefulWidget {
 
 class _ArticleScreenState extends State<ArticleScreen> {
   final _model = locator<Model>();
+  final _scroll = ScrollController();
+  _Jumper _jumper;
 
   Article _data;
   String _title;
-  final ScrollController _scroll = ScrollController();
-
-  double _jumpedFrom;
-  bool get _jumped => _jumpedFrom != null;
-  double get _currentPosition => _scroll.offset;
 
   @override
   void initState() {
     var arguments = _getScreenArguments(widget.context);
-    _articleAsFuture(arguments[1]).then(_initState);
+    _articleAsFuture(arguments[1]).then(_initStateWithData);
     _title = arguments[0];
+    _jumper = _Jumper(this);
+    _jumper.position.listen(_animateTo);
 
     _scroll.addListener(() {
-      if (_jumped && _currentPosition < _jumpedFrom) {
-        return;
+      if (!_jumper.jumped || _jumper.returned) {
+        _jumper.clear();
+        _model.savePosition(
+          _data,
+          _scroll.offset,
+        );
       }
-      _setNotJumped(animate: false);
-      _model.savePosition(
-        _data,
-        _currentPosition,
-      );
     });
 
     super.initState();
   }
 
-  void _initState(Article value) {
+  void _initStateWithData(Article value) {
     _data = value;
     _animateTo(_model.getPosition(_data));
-
     setState(() {});
   }
 
   @override
   void dispose() {
+    _jumper.dispose();
     _scroll.dispose();
     super.dispose();
   }
@@ -64,8 +65,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: _jumped ? _setNotJumped : _setJumped,
-        child: Icon(_jumped ? Icons.arrow_downward : Icons.arrow_upward),
+        onPressed: _jumper.jumped ? _jumper.setBacked : _jumper.setJumped,
+        child: Icon(_jumper.jumped ? Icons.arrow_downward : Icons.arrow_upward),
       ),
       body: SafeArea(
         child: Stack(
@@ -150,34 +151,16 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  void _setJumped() {
-    if (!_jumped) {
-      _animateTo(0);
-
-      setState(() {
-        _jumpedFrom = _currentPosition;
-      });
-    }
-  }
-
-  void _setNotJumped({bool animate = true}) {
-    if (_jumped) {
-      if (animate) {
-        _animateTo(_jumpedFrom);
-      }
-
-      setState(() {
-        _jumpedFrom = null;
-      });
-    }
-  }
-
   void _animateTo(double position) {
-    _scroll.animateTo(
-      position,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeOutExpo,
-    );
+    if (position != null) {
+      _scroll.animateTo(
+        position,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOutExpo,
+      );
+    }
+
+    setState(() {});
   }
 
   List _getScreenArguments(BuildContext context) {
@@ -222,6 +205,70 @@ class _ProgressState extends State<_Progress> {
       return LinearProgressIndicator();
     } else {
       return LinearProgressIndicator(value: value);
+    }
+  }
+}
+
+enum JumpMode {
+  none,
+  start,
+  back,
+}
+
+class _Jumper {
+  double _jumpedFrom;
+  final _ArticleScreenState reading;
+  final position = PublishSubject<double>();
+
+  _Jumper(this.reading);
+
+  void dispose() {
+    position.close();
+  }
+
+  bool get jumped => _mode != JumpMode.none;
+
+  bool get returned {
+    return reading._scroll.offset >= _jumpedFrom;
+  }
+
+  JumpMode _mode = JumpMode.none;
+  set _modeSetter(JumpMode mode) {
+    _mode = mode;
+
+    switch (mode) {
+      case JumpMode.none:
+        position.add(null);
+        break;
+      case JumpMode.start:
+        position.add(0);
+        break;
+      case JumpMode.back:
+        position.add(_jumpedFrom);
+        break;
+      default:
+        throw UnsupportedError(mode.toString());
+    }
+  }
+
+  void setJumped() {
+    if (!jumped) {
+      _jumpedFrom = reading._scroll.offset;
+      _modeSetter = JumpMode.start;
+    }
+  }
+
+  void setBacked() {
+    if (jumped) {
+      _modeSetter = JumpMode.back;
+      clear();
+    }
+  }
+
+  void clear() {
+    if (jumped) {
+      _jumpedFrom = null;
+      _modeSetter = JumpMode.none;
     }
   }
 }
