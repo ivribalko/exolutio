@@ -35,12 +35,17 @@ void main() {
     model.dispose();
   });
 
-  test('comments count', () async {
+  test('first comment text', () async {
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
-    expect(article.comments.length, equals(48));
+    expect(
+        article.comments[0],
+        equals('Автор боится «посереть», и со временем меняет декорации на всё '
+            'менее и менее солидные: в альбоме до 25 более-менее приличной '
+            'одежды больше всего, а в после 30 такой уже практически нет. И '
+            'все удивляется, почему солидные мужчины не хотят знакомиться.'));
   });
 }
