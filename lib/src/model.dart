@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
@@ -132,13 +133,12 @@ class Model extends ChangeNotifier {
           .toList();
 
   Article _getArticle(Link link, dom.Document value) {
-    final commentsHtml = _getCommentsHtml(value);
     return Article(
       link.url,
       link.title,
       _getArticleText(value),
-      _getComments(commentsHtml, []),
-      commentsHtml,
+      _getComments(value),
+      _getCommentsHtml(value),
       '${link.url}#comments',
     );
   }
@@ -155,12 +155,23 @@ class Model extends ChangeNotifier {
         .children;
   }
 
-  List<String> _getComments(List<dom.Element> value, List<String> list) {
-    for (final child in value) {
-      list.add(child.innerHtml);
-      _getComments(child.children, list);
-    }
-    return list;
+  List<String> _getComments(dom.Document value) {
+    const commentsSource = 'Site.page = ';
+    var all = value.body
+        .querySelectorAll('script')
+        .firstWhere((e) => e.innerHtml.contains(commentsSource));
+
+    var notall = all.nodes.first.text;
+
+    var start = notall.indexOf(commentsSource) + 'Site.page = '.length;
+
+    var json = notall.substring(start, notall.length - 1);
+
+    json = json.substring(0, json.indexOf('Site.')).trim().replaceAll(';', '');
+
+    Map<String, dynamic> user = jsonDecode(json);
+
+    return user['comments'].map((e) => e['article']).cast<String>().toList();
   }
 }
 
