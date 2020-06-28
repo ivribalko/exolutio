@@ -10,15 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'loader.dart';
 
-const List<String> _ContentDiv = [
-  'div.b-singlepost-bodywrapper',
-  'div.aentry-post__text.aentry-post__text--view',
-];
-
-const List<String> _CommentsDiv = [
-  '#comments',
-];
-
 enum Tag {
   letters,
   others,
@@ -143,9 +134,7 @@ class Model extends ChangeNotifier {
   }
 
   String _getArticleText(dom.Document value) {
-    return _ContentDiv.map(value.querySelector)
-        .firstWhere((element) => element?.text?.isNotEmpty ?? false)
-        .innerHtml;
+    return value.querySelector('article.b-singlepost-body').outerHtml;
   }
 
   List<Comment> _getComments(dom.Document value) {
