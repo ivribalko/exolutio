@@ -23,7 +23,7 @@ void main() {
         ).readAsString());
 
     when(loader.body(any)).thenAnswer((_) => File(
-          'test/evo-lutio.livejournal.com_1185261.html',
+          'test/evo-lutio.livejournal.com__1186633.html',
         ).readAsString());
 
     updated = StreamController();
@@ -35,12 +35,12 @@ void main() {
     model.dispose();
   });
 
-  test('comments count is 42', () async {
+  test('comments count', () async {
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
-    expect(article.comments.length, equals(42));
+    expect(article.comments.length, equals(48));
   });
 }
