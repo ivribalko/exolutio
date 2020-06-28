@@ -125,16 +125,33 @@ class Model extends ChangeNotifier {
           .toList();
 
   Article _getArticle(Link link, dom.Document value) {
+    final comments = _getUndynamicComments(value);
     return Article(
       link.url,
       link.title,
-      _getArticleText(value),
-      _getUndynamicComments(value),
+      _getArticleText(value, comments),
+      comments,
     );
   }
 
-  String _getArticleText(dom.Document value) {
-    return value.querySelector('article.b-singlepost-body').outerHtml;
+  String _getArticleText(dom.Document value, List<Comment> comments) {
+    var html = value.querySelector('article.b-singlepost-body').outerHtml;
+
+    comments.map((e) {
+      var indexes = _quotes(e, html);
+      if (indexes?.isNotEmpty ?? false) {}
+
+      return e;
+    });
+
+    return html;
+  }
+
+  List<int> _quotes(Comment comment, String articleHtml) {
+    return parse(comment.article)
+        .querySelectorAll('i')
+        .map((e) => e.text)
+        .map(articleHtml.indexOf);
   }
 
   // if where() directly in _getComments it doesn't work TODO
