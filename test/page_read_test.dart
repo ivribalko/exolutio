@@ -23,7 +23,7 @@ void main() {
         ).readAsString());
 
     when(loader.body(any)).thenAnswer((_) => File(
-          'test/evo-lutio.livejournal.com__1186633.html',
+          'test/evo-lutio.livejournal.com__1180335.html',
         ).readAsString());
 
     updated = StreamController();
@@ -43,9 +43,17 @@ void main() {
 
     expect(
         article.comments[0].article,
-        equals('Автор боится «посереть», и со временем меняет декорации на всё '
-            'менее и менее солидные: в альбоме до 25 более-менее приличной '
-            'одежды больше всего, а в после 30 такой уже практически нет. И '
-            'все удивляется, почему солидные мужчины не хотят знакомиться.'));
+        equals('Предыдущее письмо автора: <a href=\'https://evo-lutio.'
+            'livejournal.com/903296.html\'>https://evo-lutio.livejournal'
+            '.com/903296.html</a> '));
+  });
+
+  test('comments count', () async {
+    model.loadMore();
+    await updated.stream.first;
+    final link = model[Tag.letters].first;
+    final article = await model.article(link);
+
+    expect(article.comments.length, equals(20));
   });
 }
