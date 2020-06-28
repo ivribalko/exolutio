@@ -107,7 +107,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
         _data.comments
             .map(
               (e) => Card(
-                child: Html(data: e),
+                child: Html(data: e.article),
               ),
             )
             .toList(),
