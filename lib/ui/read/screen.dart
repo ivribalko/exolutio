@@ -248,7 +248,7 @@ class _ProgressState extends State<_Progress> {
     var position = widget.reading._scroll.position;
     var value = position.pixels / position.maxScrollExtent;
     if (value.isInfinite || value.isNaN) {
-      return LinearProgressIndicator();
+      return LinearProgressIndicator(value: 0.0);
     } else {
       return LinearProgressIndicator(value: value);
     }
