@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:exolutio/src/comment.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
@@ -137,9 +138,7 @@ class Model extends ChangeNotifier {
       link.url,
       link.title,
       _getArticleText(value),
-      _getComments(value).where((e) => e?.isNotEmpty ?? false).toList(),
-      _getCommentsHtml(value),
-      '${link.url}#comments',
+      _getComments(value).where((e) => e.article?.isNotEmpty ?? false).toList(),
     );
   }
 
@@ -149,13 +148,7 @@ class Model extends ChangeNotifier {
         .innerHtml;
   }
 
-  List<dom.Element> _getCommentsHtml(dom.Document value) {
-    return _CommentsDiv.map(value.querySelector)
-        .firstWhere((element) => element?.text?.isNotEmpty ?? false)
-        .children;
-  }
-
-  List<String> _getComments(dom.Document value) {
+  List<Comment> _getComments(dom.Document value) {
     const commentsSource = 'Site.page = ';
     final script = value.body
         .querySelectorAll('script')
@@ -171,7 +164,7 @@ class Model extends ChangeNotifier {
     final json = temp.substring(0, end).trim().replaceAll(';', '');
     final user = jsonDecode(json);
 
-    return user['comments'].map((e) => e['article']).cast<String>().toList();
+    return user['comments'].map((e) => Comment.map(e)).cast<Comment>().toList();
   }
 }
 
@@ -188,14 +181,10 @@ class Article {
     this.title,
     this.text,
     this.comments,
-    this.commentsHtml,
-    this.commentsUrl,
   );
 
   final String url;
   final String title;
   final String text;
-  final List<String> comments;
-  final List<dom.Element> commentsHtml;
-  final String commentsUrl; // TODO remove?
+  final List<Comment> comments;
 }
