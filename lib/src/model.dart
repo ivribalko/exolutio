@@ -94,7 +94,7 @@ class Model extends ChangeNotifier {
     if (prefs.containsKey(article.url)) {
       return prefs.getDouble(article.url);
     } else {
-      return 0.0;
+      return null;
     }
   }
 
