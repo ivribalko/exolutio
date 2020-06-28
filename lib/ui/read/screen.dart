@@ -1,11 +1,18 @@
+import 'dart:async';
+
 import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../main.dart';
 import '../common.dart';
+
+const _fontSize = 17.0;
+const _jumpDuration = Duration(milliseconds: 300);
 
 class ArticleScreen extends StatefulWidget {
   ArticleScreen(this.context);
@@ -18,44 +25,43 @@ class ArticleScreen extends StatefulWidget {
 
 class _ArticleScreenState extends State<ArticleScreen> {
   final _model = locator<Model>();
+  final _scroll = AutoScrollController();
+  _Jumper _jumper;
 
   Article _data;
   String _title;
-  final ScrollController _scroll = ScrollController();
-
-  double _jumpedFrom;
-  bool get _jumped => _jumpedFrom != null;
-  double get _currentPosition => _scroll.offset;
 
   @override
   void initState() {
     var arguments = _getScreenArguments(widget.context);
-    _articleAsFuture(arguments[1]).then(_initState);
+    _articleAsFuture(arguments[1]).then(_initStateWithData);
     _title = arguments[0];
+    _jumper = _Jumper(this);
+    _jumper.mode.listen((value) => setState(() {}));
+    _jumper.position.listen(_animateTo);
 
     _scroll.addListener(() {
-      if (_jumped && _currentPosition < _jumpedFrom) {
-        return;
+      if (!_jumper.jumped || _jumper.returned) {
+        _jumper.clear();
+        _model.savePosition(
+          _data,
+          _scroll.offset,
+        );
       }
-      _setNotJumped(animate: false);
-      _model.savePosition(
-        _data,
-        _currentPosition,
-      );
     });
 
     super.initState();
   }
 
-  void _initState(Article value) {
+  void _initStateWithData(Article value) {
     _data = value;
     _animateTo(_model.getPosition(_data));
-
     setState(() {});
   }
 
   @override
   void dispose() {
+    _jumper.dispose();
     _scroll.dispose();
     super.dispose();
   }
@@ -64,8 +70,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: _jumped ? _setNotJumped : _setJumped,
-        child: Icon(_jumped ? Icons.arrow_downward : Icons.arrow_upward),
+        onPressed: _jumper.jumped ? _jumper.setBacked : _jumper.setJumpedStart,
+        child: Icon(_floatingIcon),
       ),
       body: SafeArea(
         child: Stack(
@@ -76,6 +82,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 _buildAppBar(),
                 if (_data != null) _buildHtml(),
                 if (_data != null) _buildComments(),
+                if (_data != null) _buildFloatingMargin(),
                 if (_data == null) SliverProgressIndicator(),
               ],
             ),
@@ -89,6 +96,15 @@ class _ArticleScreenState extends State<ArticleScreen> {
         ),
       ),
     );
+  }
+
+  IconData get _floatingIcon {
+    switch (_jumper.mode.value) {
+      case JumpMode.start:
+        return Icons.arrow_downward;
+      default:
+        return Icons.arrow_upward;
+    }
   }
 
   SliverAppBar _buildAppBar() {
@@ -106,27 +122,36 @@ class _ArticleScreenState extends State<ArticleScreen> {
       delegate: SliverChildListDelegate(
         _data.comments
             .map(
-              (e) => Card(
-                color: e.dname == 'evo_lutio'
-                    ? Colors.blueAccent.withAlpha(125)
-                    : null,
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      e.dname,
-                      style: TextStyle(
-                        color: Theme.of(context).disabledColor,
-                        shadows: <Shadow>[
-                          Shadow(
-                            offset: Offset(0.0, 1.0),
-                            blurRadius: 3.0,
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
-                        ],
+              (e) => AutoScrollTag(
+                index: _data.comments.indexOf(e),
+                controller: _scroll,
+                key: ValueKey(_data.comments.indexOf(e)),
+                child: Card(
+                  elevation: 3,
+                  color: e.dname == e.poster ? _authorColor : null,
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        e.dname,
+                        style: TextStyle(
+                          color: e.dname == e.poster
+                              ? Colors.white
+                              : Theme.of(context).disabledColor,
+                          shadows: <Shadow>[
+                            Shadow(
+                              offset: Offset(0.0, 1.0),
+                              blurRadius: 2.0,
+                              color: Color.fromARGB(255, 0, 0, 0),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Html(data: e.article),
-                  ],
+                      Html(
+                        data: '<article>${e.article}</article>',
+                        style: e.dname == e.poster ? _authorStyle : _htmlStyle,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             )
@@ -135,49 +160,53 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  SliverToBoxAdapter _buildHtml() {
-    final style = Style(fontSize: FontSize(20));
+  Widget _buildHtml() {
     return SliverToBoxAdapter(
       child: Html(
-        onLinkTap: launch,
+        onLinkTap: _onLinkTap,
         data: _data.text,
-        style: {
-          'p': style,
-          'div': style,
-          'article': style,
-        },
+        style: _htmlStyle,
       ),
     );
   }
 
-  void _setJumped() {
-    if (!_jumped) {
-      _animateTo(0);
+  Map<String, Style> get _htmlStyle => {
+        'article': Style(fontSize: FontSize(_fontSize)),
+        '.quote': Style(fontSize: FontSize(_fontSize), color: _accentColor),
+      };
 
-      setState(() {
-        _jumpedFrom = _currentPosition;
-      });
+  Map<String, Style> get _authorStyle => {
+        'article': Style(fontSize: FontSize(_fontSize), color: Colors.white),
+        '.quote': Style(fontSize: FontSize(_fontSize), color: _accentColor),
+      };
+
+  Color get _authorColor => Theme.of(context).brightness == Brightness.dark
+      ? _accentColor.withAlpha(100)
+      : _accentColor;
+
+  Color get _accentColor => Theme.of(context).accentColor;
+
+  void _onLinkTap(String url) {
+    if (url.startsWith(CommentLink)) {
+      final index = url.substring(CommentLink.length);
+      _jumper.setJumpedComment(int.parse(index));
+    } else {
+      launch(url);
     }
   }
 
-  void _setNotJumped({bool animate = true}) {
-    if (_jumped) {
-      if (animate) {
-        _animateTo(_jumpedFrom);
-      }
-
-      setState(() {
-        _jumpedFrom = null;
-      });
-    }
+  Widget _buildFloatingMargin() {
+    return SliverToBoxAdapter(child: Container(height: 80));
   }
 
   void _animateTo(double position) {
-    _scroll.animateTo(
-      position,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeOutExpo,
-    );
+    if (position != null) {
+      _scroll.animateTo(
+        position,
+        duration: _jumpDuration,
+        curve: Curves.easeOutExpo,
+      );
+    }
   }
 
   List _getScreenArguments(BuildContext context) {
@@ -222,6 +251,90 @@ class _ProgressState extends State<_Progress> {
       return LinearProgressIndicator();
     } else {
       return LinearProgressIndicator(value: value);
+    }
+  }
+}
+
+enum JumpMode {
+  none,
+  start,
+  comment,
+  back,
+}
+
+class _Jumper {
+  bool _jumpedUp;
+  double _jumpedFrom;
+  final _ArticleScreenState reading;
+  final mode = BehaviorSubject<JumpMode>()..add(JumpMode.none);
+  final position = PublishSubject<double>();
+
+  _Jumper(this.reading);
+
+  void dispose() {
+    mode.close();
+    position.close();
+  }
+
+  bool get jumped => mode.value != JumpMode.none;
+
+  bool get returned {
+    return _jumpedUp
+        ? reading._scroll.offset >= _jumpedFrom
+        : reading._scroll.offset <= _jumpedFrom;
+  }
+
+  set _modeSetter(JumpMode event) {
+    mode.add(event);
+    switch (event) {
+      case JumpMode.none:
+        position.add(null);
+        break;
+      case JumpMode.start:
+        position.add(0);
+        break;
+      case JumpMode.comment:
+        // controlled by plugin
+        break;
+      case JumpMode.back:
+        position.add(_jumpedFrom);
+        break;
+      default:
+        throw UnsupportedError(event.toString());
+    }
+  }
+
+  void setJumpedStart() {
+    _jumpedUp = true;
+    _jumpedFrom = reading._scroll.offset;
+    _modeSetter = JumpMode.start;
+  }
+
+  void setJumpedComment(int index) {
+    _jumpedUp = false;
+    _jumpedFrom = reading._scroll.offset;
+    _modeSetter = JumpMode.comment;
+    reading._scroll.scrollToIndex(
+      index,
+      duration: _jumpDuration,
+      preferPosition: AutoScrollPosition.begin,
+    );
+    // ignore: invalid_use_of_protected_member
+    reading.setState(() {}); // TODO
+  }
+
+  void setBacked() {
+    if (jumped) {
+      _modeSetter = JumpMode.back;
+      clear();
+    }
+  }
+
+  void clear() {
+    if (jumped) {
+      _jumpedUp = null;
+      _jumpedFrom = null;
+      _modeSetter = JumpMode.none;
     }
   }
 }

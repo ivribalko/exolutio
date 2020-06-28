@@ -10,19 +10,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'loader.dart';
 
-const List<String> _ContentDiv = [
-  'div.b-singlepost-bodywrapper',
-  'div.aentry-post__text.aentry-post__text--view',
-];
-
-const List<String> _CommentsDiv = [
-  '#comments',
-];
-
 enum Tag {
   letters,
   others,
 }
+
+const String CommentLink = "comment:";
 
 class Model extends ChangeNotifier {
   Model(
@@ -42,8 +35,8 @@ class Model extends ChangeNotifier {
 
   final Loader loader;
   final SharedPreferences prefs;
-  final _articlePagesCache = <List<dom.Element>>[];
-  final _articlesCache = Map<String, Article>();
+  final _articlePageCache = <List<dom.Element>>[];
+  final _articleCache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
 
   List<Link> operator [](Tag tag) {
@@ -58,13 +51,10 @@ class Model extends ChangeNotifier {
   }
 
   Future<List<dom.Element>> _page(int index) {
-    if (_articlePagesCache.length > index) {
-      return Future.value(_articlePagesCache[index]);
+    if (_articlePageCache.length > index) {
+      return Future.value(_articlePageCache[index]);
     } else {
-      return _loadPage(index).then((e) {
-        _articlePagesCache.add(e);
-        return e;
-      });
+      return _loadPage(index).then(_cachePage);
     }
   }
 
@@ -73,23 +63,28 @@ class Model extends ChangeNotifier {
       .then(parse)
       .then((value) => value.querySelectorAll('dt.entry-title'));
 
+  List<dom.Element> _cachePage(List<dom.Element> e) {
+    _articlePageCache.add(e);
+    return e;
+  }
+
   FutureOr<Article> article(Link link) =>
-      _articlesCache[link.url] ??
+      _articleCache[link.url] ??
       loader
           .body(link.url)
           .then(parse)
           .then((value) => _getArticle(link, value))
-          .then((value) => _articlesCache[link.url] = value);
+          .then((value) => _articleCache[link.url] = value);
 
-  bool get any => _articlePagesCache.isNotEmpty;
+  bool get any => _articlePageCache.isNotEmpty;
 
   void loadMore() {
-    _page(_articlePagesCache.length).then((value) => notifyListeners());
+    _page(_articlePageCache.length).then((value) => notifyListeners());
   }
 
   void refresh() {
-    _articlesCache.clear();
-    _articlePagesCache.clear();
+    _articleCache.clear();
+    _articlePageCache.clear();
     loadMore();
   }
 
@@ -117,9 +112,9 @@ class Model extends ChangeNotifier {
   bool _isNotLetter(e) => !_isLetter(e);
   bool _isLetter(e) => e.text.contains('Письмо:');
 
-  List<Link> _articles(bool test(element)) => _articlePagesCache.isEmpty
+  List<Link> _articles(bool test(element)) => _articlePageCache.isEmpty
       ? []
-      : _articlePagesCache
+      : _articlePageCache
           .reduce((value, element) {
             value.addAll(element);
             return value;
@@ -134,18 +129,39 @@ class Model extends ChangeNotifier {
           .toList();
 
   Article _getArticle(Link link, dom.Document value) {
+    final comments = _getUndynamicComments(value);
     return Article(
       link.url,
       link.title,
-      _getArticleText(value),
-      _getComments(value).where((e) => e.article?.isNotEmpty ?? false).toList(),
+      _getArticleText(value, comments),
+      comments,
     );
   }
 
-  String _getArticleText(dom.Document value) {
-    return _ContentDiv.map(value.querySelector)
-        .firstWhere((element) => element?.text?.isNotEmpty ?? false)
-        .innerHtml;
+  String _getArticleText(dom.Document value, List<Comment> comments) {
+    var article = value.querySelector('article.b-singlepost-body').outerHtml;
+
+    for (final comment in comments) {
+      for (final element in _quotes(comment, article)) {
+        final from = element.text.trim().unsurround('"').unsurround('...');
+        final link = '$CommentLink${comments.indexOf(comment)}';
+        final to = '<a class="quote" href=$link>$from</a>';
+        article = article.replaceFirst(from, to);
+      }
+    }
+
+    return article;
+  }
+
+  List<dom.Element> _quotes(Comment comment, String article) {
+    return parse(comment.article).querySelectorAll('i');
+  }
+
+  // if where() directly in _getComments it doesn't work TODO
+  List<Comment> _getUndynamicComments(dom.Document value) {
+    return _getComments(value)
+        .where((e) => e.article?.isNotEmpty ?? false)
+        .toList();
   }
 
   List<Comment> _getComments(dom.Document value) {
@@ -187,4 +203,17 @@ class Article {
   final String title;
   final String text;
   final List<Comment> comments;
+}
+
+extension _Unsurround on String {
+  String unsurround(String remove) {
+    String result = this;
+    if (result.startsWith(remove)) {
+      result = result.substring(remove.length);
+    }
+    if (result.endsWith(remove)) {
+      result = result.substring(0, result.length - remove.length);
+    }
+    return result;
+  }
 }
