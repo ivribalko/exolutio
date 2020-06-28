@@ -82,6 +82,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 _buildAppBar(),
                 if (_data != null) _buildHtml(),
                 if (_data != null) _buildComments(),
+                if (_data != null) _buildFloatingMargin(),
                 if (_data == null) SliverProgressIndicator(),
               ],
             ),
@@ -146,7 +147,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  SliverToBoxAdapter _buildHtml() {
+  Widget _buildHtml() {
     final style = Style(fontSize: FontSize(20));
     return SliverToBoxAdapter(
       child: Html(
@@ -159,6 +160,10 @@ class _ArticleScreenState extends State<ArticleScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildFloatingMargin() {
+    return SliverToBoxAdapter(child: Container(height: 80));
   }
 
   void _animateTo(double position) {
