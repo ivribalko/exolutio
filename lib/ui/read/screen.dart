@@ -70,7 +70,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: _jumper.jumped ? _jumper.setBacked : _jumper.setJumpedStart,
-        child: Icon(_jumper.jumped ? Icons.arrow_downward : Icons.arrow_upward),
+        child: Icon(_floatingIcon),
       ),
       body: SafeArea(
         child: Stack(
@@ -95,6 +95,15 @@ class _ArticleScreenState extends State<ArticleScreen> {
         ),
       ),
     );
+  }
+
+  IconData get _floatingIcon {
+    switch (_jumper.mode.value) {
+      case JumpMode.start:
+        return Icons.arrow_downward;
+      default:
+        return Icons.arrow_upward;
+    }
   }
 
   SliverAppBar _buildAppBar() {
@@ -240,7 +249,7 @@ class _Jumper {
   bool _jumpedUp;
   double _jumpedFrom;
   final _ArticleScreenState reading;
-  final mode = PublishSubject<JumpMode>();
+  final mode = BehaviorSubject<JumpMode>()..add(JumpMode.none);
   final position = PublishSubject<double>();
 
   _Jumper(this.reading);
@@ -250,7 +259,7 @@ class _Jumper {
     position.close();
   }
 
-  bool get jumped => _mode != JumpMode.none;
+  bool get jumped => mode.value != JumpMode.none;
 
   bool get returned {
     return _jumpedUp
@@ -258,11 +267,8 @@ class _Jumper {
         : reading._scroll.offset <= _jumpedFrom;
   }
 
-  JumpMode _mode = JumpMode.none;
   set _modeSetter(JumpMode event) {
-    _mode = event;
     mode.add(event);
-
     switch (event) {
       case JumpMode.none:
         position.add(null);
