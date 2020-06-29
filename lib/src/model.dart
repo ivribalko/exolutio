@@ -131,33 +131,46 @@ class Model extends ChangeNotifier {
 
   Article _getArticle(Link link, dom.Document value) {
     final comments = _getUndynamicComments(value);
+    final article = _colored(value, comments);
     return Article(
       link.url,
       link.title,
-      _getArticleText(value, comments),
+      article,
       comments,
     );
   }
 
-  String _getArticleText(dom.Document value, List<Comment> comments) {
+  String _colored(dom.Document value, List<Comment> comments) {
     var article = value.querySelector('article.b-singlepost-body').outerHtml;
 
-    for (final comment in comments) {
+    comments.asMap().forEach((index, comment) {
       for (final quote in _quotes(comment, article)) {
-        final from = quote.unsurround('"').unsurround('...').unsurround('-');
-        final link = '$CommentLink${comments.indexOf(comment)}';
-        final to = '<span class="quote">$from [ '
-            '<a class="quote" href=$link>ответ</a>'
-            ' ]</span>';
-        article = article.replaceFirst(from, to);
+        final clean = quote.unsurround('"').unsurround('...').unsurround('-');
+
+        if (article.indexOf(clean) > -1) {
+          final link = '$CommentLink$index';
+          final href = ' [ <a class="quote" href=$link>ответ</a> ]';
+          final span = '<span class="quote">';
+          final color = _colorize(comments[index], quote, '$span$quote</span>');
+
+          article = article.replaceFirst(clean, '$span$clean$href</span>');
+
+          comments.removeAt(index);
+          comments.insert(index, color);
+        }
       }
-    }
+    });
 
     return article;
   }
 
   Iterable<String> _quotes(Comment comment, String article) {
     return _quotesRegExp.allMatches(comment.article).map((e) => e[0]);
+  }
+
+  Comment _colorize(Comment comment, String from, String span) {
+    return Comment.map(comment.toMap()
+      ..['article'] = comment.article.replaceFirst(from, span));
   }
 
   // if where() directly in _getComments it doesn't work TODO
