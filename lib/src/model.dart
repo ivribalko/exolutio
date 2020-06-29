@@ -164,7 +164,7 @@ class Model extends ChangeNotifier {
         final link = '$CommentLink$index';
         final href = ' [ <a class="quote" href=$link>ответ</a> ]';
         final span = '<span class="quote">';
-        final color = _colorize(comments[index], quote, '$span$quote</span>');
+        final color = _colorize(comments[index], clean, '$span$clean</span>');
 
         article = article.replaceFirst(clean, '$span$clean$href</span>');
 
@@ -183,8 +183,9 @@ class Model extends ChangeNotifier {
   }
 
   Comment _colorize(Comment comment, String from, String span) {
-    return Comment.map(comment.toMap()
-      ..['article'] = comment.article.replaceFirst(from, span));
+    final article = comment.article.replaceFirst(from, span);
+    assert(article != comment.article);
+    return Comment.map(comment.toMap()..['article'] = article);
   }
 
   // if where() directly in _getComments it doesn't work TODO
