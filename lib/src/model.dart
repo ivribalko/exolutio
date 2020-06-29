@@ -16,6 +16,11 @@ enum Tag {
 }
 
 const String CommentLink = "comment:";
+const _startQuotes = '<«"\'‘“';
+const _ceaseQuotes = '>»"\'’”';
+const _word = '\\S+?';
+const _any = '.*?';
+const _ws = '\\s+?';
 
 class Model extends ChangeNotifier {
   Model(
@@ -38,7 +43,10 @@ class Model extends ChangeNotifier {
   final _articlePageCache = <List<dom.Element>>[];
   final _articleCache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
-  final _quotesRegExp = RegExp('[«"\'‘“](.+?)[»"\'’”]', caseSensitive: false);
+  final _quotesRegExp = RegExp(
+    '[$_startQuotes]($_any$_word$_ws$_word$_any)[$_ceaseQuotes]',
+    caseSensitive: false,
+  );
 
   List<Link> operator [](Tag tag) {
     switch (tag) {
@@ -143,34 +151,41 @@ class Model extends ChangeNotifier {
   String _colored(dom.Document value, List<Comment> comments) {
     var article = value.querySelector('article.b-singlepost-body').outerHtml;
 
-    comments.asMap().forEach((index, comment) {
-      for (final quote in _quotes(comment, article)) {
-        final clean = quote.unsurround('"').unsurround('...').unsurround('-');
+    var sorted = comments
+        .map((e) => MapEntry(comments.indexOf(e), _quotes(e, article)))
+        .toDescendingLength();
 
-        if (article.indexOf(clean) > -1) {
-          final link = '$CommentLink$index';
-          final href = ' [ <a class="quote" href=$link>ответ</a> ]';
-          final span = '<span class="quote">';
-          final color = _colorize(comments[index], quote, '$span$quote</span>');
+    for (final entry in sorted) {
+      final index = entry.key;
+      final quote = entry.value;
+      final clean = quote.clean().clean(); // two times!
 
-          article = article.replaceFirst(clean, '$span$clean$href</span>');
+      if (article.indexOf(clean) > -1) {
+        final link = '$CommentLink$index';
+        final href = ' [ <a class="quote" href=$link>ответ</a> ]';
+        final span = '<span class="quote">';
+        final color = _colorize(comments[index], clean, '$span$clean</span>');
 
-          comments.removeAt(index);
-          comments.insert(index, color);
-        }
+        article = article.replaceFirst(clean, '$span$clean$href</span>');
+
+        comments.removeAt(index);
+        comments.insert(index, color);
       }
-    });
+    }
 
     return article;
   }
 
   Iterable<String> _quotes(Comment comment, String article) {
-    return _quotesRegExp.allMatches(comment.article).map((e) => e[0]);
+    return _quotesRegExp
+        .allMatches(parse(comment.article).body.text)
+        .map((e) => e[0]);
   }
 
   Comment _colorize(Comment comment, String from, String span) {
-    return Comment.map(comment.toMap()
-      ..['article'] = comment.article.replaceFirst(from, span));
+    final article = comment.article.replaceFirst(from, span);
+    assert(article != comment.article);
+    return Comment.map(comment.toMap()..['article'] = article);
   }
 
   // if where() directly in _getComments it doesn't work TODO
@@ -221,15 +236,52 @@ class Article {
   final List<Comment> comments;
 }
 
-extension _Unsurround on String {
+extension _Madness on Iterable<MapEntry<int, Iterable<String>>> {
+  List<MapEntry<int, String>> toDescendingLength() {
+    // create a list
+    var result = List<MapEntry<int, String>>();
+
+    // SelectMany from all comments with comment index
+    this.fold(result, (result, element) {
+      element.value.forEach((e) {
+        result.add(MapEntry(element.key, e));
+      });
+      return result;
+    });
+
+    // sort lengthy comments to be first
+    result.sort((a, b) => b.value.length.compareTo(a.value.length));
+
+    return result;
+  }
+}
+
+extension _Extension on String {
+  static final _extras = _startQuotes.runes
+      .followedBy(_ceaseQuotes.runes)
+      .map((e) => String.fromCharCode(e))
+      .followedBy(['...', '-', '…']).toList();
+
+  String clean() {
+    var result = this;
+
+    for (final char in _extras) {
+      result = result.trim().unsurround(char);
+    }
+
+    return result.trim();
+  }
+
   String unsurround(String remove) {
-    String result = this.trim();
+    var result = this;
+
     if (result.startsWith(remove)) {
       result = result.substring(remove.length);
     }
     if (result.endsWith(remove)) {
       result = result.substring(0, result.length - remove.length);
     }
-    return result.trim();
+
+    return result;
   }
 }

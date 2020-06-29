@@ -12,19 +12,24 @@ class MockLoader extends Mock implements Loader {}
 class MockPreferences extends Mock implements SharedPreferences {}
 
 void main() {
-  Model model;
+  var model;
+  var loader;
   var updated;
 
+  void loadFile(String id) {
+    when(loader.body(any)).thenAnswer((_) => File(
+          'test/evo-lutio.livejournal.com__$id.html',
+        ).readAsString());
+  }
+
   setUp(() {
-    final loader = MockLoader();
+    loader = MockLoader();
 
     when(loader.page(any)).thenAnswer((_) => File(
           'test/evo-lutio.livejournal.com.html',
         ).readAsString());
 
-    when(loader.body(any)).thenAnswer((_) => File(
-          'test/evo-lutio.livejournal.com__1180335.html',
-        ).readAsString());
+    loadFile('1180335');
 
     updated = StreamController();
     model = Model(loader, MockPreferences());
@@ -57,13 +62,25 @@ void main() {
     expect(article.comments.length, equals(20));
   });
 
-  test('quotes count', () async {
+  test('quotes count 1', () async {
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
     final article = await model.article(link);
     final quotes = RegExp('class="quote"').allMatches(article.text);
 
-    expect(quotes.length, equals(44));
+    expect(quotes.length, equals(52));
+  });
+
+  test('quotes count 2', () async {
+    loadFile('1179434');
+
+    model.loadMore();
+    await updated.stream.first;
+    final link = model[Tag.letters].first;
+    final article = await model.article(link);
+    final quotes = RegExp('class="quote"').allMatches(article.text);
+
+    expect(quotes.length, equals(30));
   });
 }
