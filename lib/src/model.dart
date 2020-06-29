@@ -146,9 +146,9 @@ class Model extends ChangeNotifier {
       for (final quote in _quotes(comment, article)) {
         final from = quote.unsurround('"').unsurround('...').unsurround('-');
         final link = '$CommentLink${comments.indexOf(comment)}';
-        final to = '<span class="quote">$from ['
+        final to = '<span class="quote">$from [ '
             '<a class="quote" href=$link>ответ</a>'
-            ']</span>';
+            ' ]</span>';
         article = article.replaceFirst(from, to);
       }
     }
