@@ -38,6 +38,7 @@ class Model extends ChangeNotifier {
   final _articlePageCache = <List<dom.Element>>[];
   final _articleCache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
+  final _quotesRegExp = new RegExp(r'"(.+?)"', caseSensitive: false);
 
   List<Link> operator [](Tag tag) {
     switch (tag) {
@@ -156,10 +157,7 @@ class Model extends ChangeNotifier {
   }
 
   Iterable<String> _quotes(Comment comment, String article) {
-    return parse(comment.article)
-        .querySelectorAll('i')
-        .map((e) => e.text.trim())
-        .where((e) => e.length > 2);
+    return _quotesRegExp.allMatches(comment.article).map((e) => e[0]);
   }
 
   // if where() directly in _getComments it doesn't work TODO

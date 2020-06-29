@@ -64,6 +64,6 @@ void main() {
     final article = await model.article(link);
     final quotes = RegExp(r'class="quote"').allMatches(article.text);
 
-    expect(quotes.length, equals(20));
+    expect(quotes.length, equals(46));
   });
 }
