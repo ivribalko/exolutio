@@ -12,9 +12,9 @@ class MockLoader extends Mock implements Loader {}
 class MockPreferences extends Mock implements SharedPreferences {}
 
 void main() {
-  var model;
-  var loader;
-  var updated;
+  Model model;
+  Loader loader;
+  StreamController updated;
 
   void loadFile(String id) {
     when(loader.body(any)).thenAnswer((_) => File(
@@ -62,6 +62,17 @@ void main() {
     expect(article.comments.length, equals(20));
   });
 
+  test('comments count 2', () async {
+    loadFile('1179434');
+
+    model.loadMore();
+    await updated.stream.first;
+    final link = model[Tag.letters].first;
+    final article = await model.article(link);
+
+    expect(article.comments.length, equals(50));
+  });
+
   test('quotes count 1', () async {
     model.loadMore();
     await updated.stream.first;
@@ -81,6 +92,6 @@ void main() {
     final article = await model.article(link);
     final quotes = RegExp('class="quote"').allMatches(article.text);
 
-    expect(quotes.length, equals(30));
+    expect(quotes.length, equals(60));
   });
 }
