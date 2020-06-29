@@ -79,11 +79,14 @@ class Model extends ChangeNotifier {
 
   FutureOr<Article> article(Link link) =>
       _articleCache[link.url] ??
-      loader
-          .body(link.url)
-          .then(parse)
+      _fetchArticle(link.url)
           .then((value) => _getArticle(link, value))
           .then((value) => _articleCache[link.url] = value);
+
+  Future<dom.Document> _fetchArticle(String url) {
+    print(url);
+    return loader.body(url).then(parse);
+  }
 
   bool get any => _articlePageCache.isNotEmpty;
 
@@ -137,8 +140,8 @@ class Model extends ChangeNotifier {
               ))
           .toList();
 
-  Article _getArticle(Link link, dom.Document value) {
-    final comments = _getUndynamicComments(value);
+  Future<Article> _getArticle(Link link, dom.Document value) async {
+    final comments = await _getUndynamicComments(link, value);
     final article = _colored(value, comments);
     return Article(
       link.url,
@@ -189,11 +192,33 @@ class Model extends ChangeNotifier {
   }
 
   // if where() directly in _getComments it doesn't work TODO
-  List<Comment> _getUndynamicComments(dom.Document value) {
-    return _getComments(value)
-        .where((e) => e.article?.isNotEmpty ?? false)
-        .toList();
+  Future<List<Comment>> _getUndynamicComments(
+    Link link,
+    dom.Document firstPage,
+  ) async {
+    final commentsPagesCount = firstPage
+            .querySelector(
+                '#comments > div.b-xylem.b-xylem-nocomment.b-xylem-first > div > ul')
+            ?.children
+            ?.length ??
+        1;
+
+    final other = await Future.wait(
+        List<int>.generate(commentsPagesCount - 1, (index) => index + 2)
+            .map((e) => '${link.url}?page=$e')
+            .map(_fetchArticle));
+
+    final result = List<Comment>();
+    final pages = <dom.Document>[firstPage, ...other];
+
+    for (final page in pages) {
+      result.addAll(_getComments(page).where(_nonEmptyComment));
+    }
+
+    return result;
   }
+
+  bool _nonEmptyComment(Comment e) => e.article?.isNotEmpty ?? false;
 
   List<Comment> _getComments(dom.Document value) {
     const commentsSource = 'Site.page = ';
