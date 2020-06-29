@@ -69,7 +69,7 @@ void main() {
     final article = await model.article(link);
     final quotes = RegExp('class="quote"').allMatches(article.text);
 
-    expect(quotes.length, equals(44));
+    expect(quotes.length, equals(52));
   });
 
   test('quotes count 2', () async {
@@ -81,6 +81,6 @@ void main() {
     final article = await model.article(link);
     final quotes = RegExp('class="quote"').allMatches(article.text);
 
-    expect(quotes.length, equals(16));
+    expect(quotes.length, equals(30));
   });
 }
