@@ -151,23 +151,27 @@ class Model extends ChangeNotifier {
   String _colored(dom.Document value, List<Comment> comments) {
     var article = value.querySelector('article.b-singlepost-body').outerHtml;
 
-    comments.asMap().forEach((index, comment) {
-      for (final quote in _quotes(comment, article)) {
-        final clean = quote.clean().clean(); // two times!
+    var sorted = comments
+        .map((e) => MapEntry(comments.indexOf(e), _quotes(e, article)))
+        .toDescendingLength();
 
-        if (article.indexOf(clean) > -1) {
-          final link = '$CommentLink$index';
-          final href = ' [ <a class="quote" href=$link>ответ</a> ]';
-          final span = '<span class="quote">';
-          final color = _colorize(comments[index], quote, '$span$quote</span>');
+    for (final entry in sorted) {
+      final index = entry.key;
+      final quote = entry.value;
+      final clean = quote.clean().clean(); // two times!
 
-          article = article.replaceFirst(clean, '$span$clean$href</span>');
+      if (article.indexOf(clean) > -1) {
+        final link = '$CommentLink$index';
+        final href = ' [ <a class="quote" href=$link>ответ</a> ]';
+        final span = '<span class="quote">';
+        final color = _colorize(comments[index], quote, '$span$quote</span>');
 
-          comments.removeAt(index);
-          comments.insert(index, color);
-        }
+        article = article.replaceFirst(clean, '$span$clean$href</span>');
+
+        comments.removeAt(index);
+        comments.insert(index, color);
       }
-    });
+    }
 
     return article;
   }
@@ -229,6 +233,26 @@ class Article {
   final String title;
   final String text;
   final List<Comment> comments;
+}
+
+extension _Madness on Iterable<MapEntry<int, Iterable<String>>> {
+  List<MapEntry<int, String>> toDescendingLength() {
+    // create a list
+    var result = List<MapEntry<int, String>>();
+
+    // SelectMany from all comments with comment index
+    this.fold(result, (result, element) {
+      element.value.forEach((e) {
+        result.add(MapEntry(element.key, e));
+      });
+      return result;
+    });
+
+    // sort lengthy comments to be first
+    result.sort((a, b) => b.value.length.compareTo(a.value.length));
+
+    return result;
+  }
 }
 
 extension _Extension on String {
