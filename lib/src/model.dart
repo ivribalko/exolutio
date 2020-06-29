@@ -156,7 +156,10 @@ class Model extends ChangeNotifier {
   }
 
   Iterable<String> _quotes(Comment comment, String article) {
-    return parse(comment.article).querySelectorAll('i').map((e) => e.text);
+    return parse(comment.article)
+        .querySelectorAll('i')
+        .map((e) => e.text.trim())
+        .where((e) => e.length > 2);
   }
 
   // if where() directly in _getComments it doesn't work TODO
