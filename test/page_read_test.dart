@@ -57,12 +57,13 @@ void main() {
     expect(article.comments.length, equals(20));
   });
 
-  test('comment inside article', () async {
+  test('quotes count', () async {
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
     final article = await model.article(link);
+    final quotes = RegExp(r'class="quote"').allMatches(article.text);
 
-    expect(article.text.contains('<span class="quote">'), isTrue);
+    expect(quotes.length, equals(20));
   });
 }
