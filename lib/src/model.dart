@@ -16,6 +16,9 @@ enum Tag {
 }
 
 const String CommentLink = "comment:";
+const _word = '\\S+?';
+const _any = '.*?';
+const _ws = '\\s+?';
 
 class Model extends ChangeNotifier {
   Model(
@@ -38,7 +41,10 @@ class Model extends ChangeNotifier {
   final _articlePageCache = <List<dom.Element>>[];
   final _articleCache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
-  final _quotesRegExp = RegExp('[«"\'‘“](.+?)[»"\'’”]', caseSensitive: false);
+  final _quotesRegExp = RegExp(
+    '[«"\'‘“]($_any$_word$_ws$_word$_any)[»"\'’”]',
+    caseSensitive: false,
+  );
 
   List<Link> operator [](Tag tag) {
     switch (tag) {
