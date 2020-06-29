@@ -62,8 +62,8 @@ void main() {
     await updated.stream.first;
     final link = model[Tag.letters].first;
     final article = await model.article(link);
-    final quotes = RegExp(r'class="quote"').allMatches(article.text);
+    final quotes = RegExp('class="quote"').allMatches(article.text);
 
-    expect(quotes.length, equals(46));
+    expect(quotes.length, equals(48));
   });
 }

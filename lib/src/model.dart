@@ -38,7 +38,10 @@ class Model extends ChangeNotifier {
   final _articlePageCache = <List<dom.Element>>[];
   final _articleCache = Map<String, Article>();
   final _savePosition = PublishSubject<Function>();
-  final _quotesRegExp = new RegExp(r'"(.+?)"', caseSensitive: false);
+  final _quotesRegExp = new RegExp(
+    '[«,",\',‘,“](.+?)[»,",\',’,”]',
+    caseSensitive: false,
+  );
 
   List<Link> operator [](Tag tag) {
     switch (tag) {
