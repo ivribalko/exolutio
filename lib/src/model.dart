@@ -142,8 +142,8 @@ class Model extends ChangeNotifier {
     var article = value.querySelector('article.b-singlepost-body').outerHtml;
 
     for (final comment in comments) {
-      for (final element in _quotes(comment, article)) {
-        final from = element.text.trim().unsurround('"').unsurround('...');
+      for (final quote in _quotes(comment, article)) {
+        final from = quote.unsurround('"').unsurround('...').unsurround('-');
         final link = '$CommentLink${comments.indexOf(comment)}';
         final to = '<span class="quote">$from ['
             '<a class="quote" href=$link>ответ</a>'
@@ -155,8 +155,8 @@ class Model extends ChangeNotifier {
     return article;
   }
 
-  List<dom.Element> _quotes(Comment comment, String article) {
-    return parse(comment.article).querySelectorAll('i');
+  Iterable<String> _quotes(Comment comment, String article) {
+    return parse(comment.article).querySelectorAll('i').map((e) => e.text);
   }
 
   // if where() directly in _getComments it doesn't work TODO
@@ -209,13 +209,13 @@ class Article {
 
 extension _Unsurround on String {
   String unsurround(String remove) {
-    String result = this;
+    String result = this.trim();
     if (result.startsWith(remove)) {
       result = result.substring(remove.length);
     }
     if (result.endsWith(remove)) {
       result = result.substring(0, result.length - remove.length);
     }
-    return result;
+    return result.trim();
   }
 }
