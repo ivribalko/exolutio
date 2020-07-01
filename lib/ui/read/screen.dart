@@ -258,14 +258,13 @@ class _ProgressState extends State<_Progress> {
     var position = _scroll.position;
     var value = position.pixels / position.maxScrollExtent;
     if (value.isInfinite || value.isNaN) {
-      return LinearProgressIndicator(value: 0.0);
-    } else {
-      return GestureDetector(
-        onTapDown: (e) => _jump(e.localPosition, context),
-        onHorizontalDragUpdate: (e) => _jump(e.localPosition, context),
-        child: LinearProgressIndicator(value: value),
-      );
+      value = 0;
     }
+    return GestureDetector(
+      onTapDown: (e) => _jump(e.localPosition, context),
+      onHorizontalDragUpdate: (e) => _jump(e.localPosition, context),
+      child: LinearProgressIndicator(value: value),
+    );
   }
 
   void _jump(Offset offset, BuildContext context) {
