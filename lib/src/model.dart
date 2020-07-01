@@ -214,17 +214,14 @@ class Model extends ChangeNotifier {
 
     descending.sort((a, b) => b.key.compareTo(a.key));
 
+    // 1 topic starter + 1 first answer
+    const int duplicates = 2;
+
     for (final link in descending) {
       await _fetchArticle(link.value)
           .then(_getComments)
-          .then(
-            (value) => value.where(
-              // not a duplicate
-              (a) => !comments.any((b) => b.article == a.article),
-            ),
-          )
-          // first is always already showed after topic starter
-          .then((value) => comments.insertAll(link.key + 2, value));
+          .then((value) => value..removeRange(0, duplicates))
+          .then((value) => comments.insertAll(link.key + duplicates, value));
     }
 
     return comments;
