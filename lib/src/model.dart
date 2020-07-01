@@ -84,7 +84,6 @@ class Model extends ChangeNotifier {
           .then((value) => _articleCache[link.url] = value);
 
   Future<dom.Document> _fetchArticle(String url) {
-    print(url);
     return loader.body(url).then(parse);
   }
 
@@ -127,10 +126,7 @@ class Model extends ChangeNotifier {
   List<Link> _articles(bool test(element)) => _articlePageCache.isEmpty
       ? []
       : _articlePageCache
-          .reduce((value, element) {
-            value.addAll(element);
-            return value;
-          })
+          .reduce((value, element) => value..addAll(element))
           .where(test)
           .map((e) => e.children.first)
           .where((element) => element.text.isNotEmpty)
@@ -208,17 +204,47 @@ class Model extends ChangeNotifier {
             .map((e) => '${link.url}?page=$e')
             .map(_fetchArticle));
 
-    final result = List<Comment>();
-    final pages = <dom.Document>[firstPage, ...other];
+    final comments = List<Comment>();
 
-    for (final page in pages) {
-      result.addAll(_getComments(page).where(_nonEmptyComment));
+    for (final page in [firstPage, ...other]) {
+      comments.addAll(_getComments(page));
     }
 
-    return result;
+    final descending = expandable(comments).toList();
+
+    descending.sort((a, b) => b.key.compareTo(a.key));
+
+    for (final link in descending) {
+      await _fetchArticle(link.value)
+          .then(_getComments)
+          .then(
+            (value) => value.where(
+              // not a duplicate
+              (a) => !comments.any((b) => b.article == a.article),
+            ),
+          )
+          // first is always already showed after topic starter
+          .then((value) => comments.insertAll(link.key + 2, value));
+    }
+
+    return comments;
   }
 
-  bool _nonEmptyComment(Comment e) => e.article?.isNotEmpty ?? false;
+  @visibleForTesting
+  Iterable<MapEntry<int, String>> expandable(List<Comment> comments) {
+    return comments
+        .where((e) => e.level == 1)
+        .map((e) => MapEntry(
+              comments.indexOf(e),
+              e.actions
+                  ?.firstWhere(
+                    (e) => e.name == 'expandchilds',
+                    orElse: () => null,
+                  )
+                  ?.href,
+            ))
+        .where((e) => e?.value?.isNotEmpty ?? false);
+  }
 
   List<Comment> _getComments(dom.Document value) {
     const commentsSource = 'Site.page = ';
@@ -236,7 +262,11 @@ class Model extends ChangeNotifier {
     final json = temp.substring(0, end).trim().replaceAll(';', '');
     final user = jsonDecode(json);
 
-    return user['comments'].map((e) => Comment.map(e)).cast<Comment>().toList();
+    return user['comments']
+        .map((e) => Comment.map(e))
+        .cast<Comment>()
+        .where((e) => (e as Comment).article?.isNotEmpty ?? false)
+        .toList();
   }
 }
 
