@@ -215,14 +215,20 @@ class Model extends ChangeNotifier {
     descending.sort((a, b) => b.key.compareTo(a.key));
 
     // 1 topic starter + 1 first answer
-    const int duplicates = 2;
+    const int dupes = 2;
 
-    for (final link in descending) {
-      await _fetchArticle(link.value)
-          .then(_getComments)
-          .then((value) => value..removeRange(0, duplicates))
-          .then((value) => comments.insertAll(link.key + duplicates, value));
-    }
+    final fetched = await Future.wait(descending
+        .map((e) => e.value)
+        .map(_fetchArticle)
+        .map((e) => e
+            .then(_getComments)
+            .then((value) => value..removeRange(0, dupes))));
+
+    int realIndex(int fetchIndex) => descending[fetchIndex].key + dupes;
+
+    fetched
+        .asMap()
+        .forEach((key, value) => comments.insertAll(realIndex(key), value));
 
     return comments;
   }
