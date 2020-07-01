@@ -20,6 +20,10 @@ void main() {
     when(loader.body(any)).thenAnswer((_) => File(
           'test/evo-lutio.livejournal.com__$id.html',
         ).readAsString());
+
+    when(loader.body(argThat(contains('thread=')))).thenAnswer((_) => File(
+          'test/evo-lutio.livejournal.com__single_page_thread=87311791.html',
+        ).readAsString());
   }
 
   setUp(() {
@@ -28,8 +32,6 @@ void main() {
     when(loader.page(any)).thenAnswer((_) => File(
           'test/evo-lutio.livejournal.com.html',
         ).readAsString());
-
-    loadFile('1180335');
 
     updated = StreamController();
     model = Model(loader, MockPreferences());
@@ -41,6 +43,8 @@ void main() {
   });
 
   test('first comment text', () async {
+    loadFile('single_page');
+
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
@@ -53,27 +57,31 @@ void main() {
             'com/903296.html</a> '));
   });
 
-  test('comments count', () async {
-    model.loadMore();
-    await updated.stream.first;
-    final link = model[Tag.letters].first;
-    final article = await model.article(link);
-
-    expect(article.comments.length, equals(20));
-  });
-
-  test('comments count 2', () async {
-    loadFile('1179434');
+  test('comments count on single_page', () async {
+    loadFile('single_page');
 
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
-    expect(article.comments.length, equals(50));
+    expect(article.comments.length, equals(22));
   });
 
-  test('quotes count 1', () async {
+  test('comments count on double_page', () async {
+    loadFile('double_page');
+
+    model.loadMore();
+    await updated.stream.first;
+    final link = model[Tag.letters].first;
+    final article = await model.article(link);
+
+    expect(article.comments.length, equals(54));
+  });
+
+  test('quotes count on single_page', () async {
+    loadFile('single_page');
+
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
@@ -83,8 +91,8 @@ void main() {
     expect(quotes.length, equals(52));
   });
 
-  test('quotes count 2', () async {
-    loadFile('1179434');
+  test('quotes count on double_page', () async {
+    loadFile('double_page');
 
     model.loadMore();
     await updated.stream.first;
@@ -96,11 +104,27 @@ void main() {
   });
 
   test('expandable comments count', () async {
+    loadFile('single_page');
+
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
     expect(model.expandable(article.comments).length, equals(5));
+  });
+
+  test('comments order', () async {
+    loadFile('single_page');
+
+    model.loadMore();
+    await updated.stream.first;
+    final link = model[Tag.letters].first;
+    final article = await model.article(link);
+
+    final actual = article.comments.map((e) => e.article).join("\n\n");
+    final expected = await File('test/comments_order.txt').readAsString();
+
+    expect(actual, equals(expected));
   });
 }
