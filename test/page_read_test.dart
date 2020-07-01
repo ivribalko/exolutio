@@ -20,6 +20,10 @@ void main() {
     when(loader.body(any)).thenAnswer((_) => File(
           'test/evo-lutio.livejournal.com__$id.html',
         ).readAsString());
+
+    when(loader.body(argThat(contains('thread=')))).thenAnswer((_) => File(
+          'test/evo-lutio.livejournal.com__1180335_thread=87311791.html',
+        ).readAsString());
   }
 
   setUp(() {
@@ -28,8 +32,6 @@ void main() {
     when(loader.page(any)).thenAnswer((_) => File(
           'test/evo-lutio.livejournal.com.html',
         ).readAsString());
-
-    loadFile('1180335');
 
     updated = StreamController();
     model = Model(loader, MockPreferences());
@@ -41,6 +43,8 @@ void main() {
   });
 
   test('first comment text', () async {
+    loadFile('1180335');
+
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
@@ -53,16 +57,18 @@ void main() {
             'com/903296.html</a> '));
   });
 
-  test('comments count', () async {
+  test('comments count on 1180335', () async {
+    loadFile('1180335');
+
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
-    expect(article.comments.length, equals(20));
+    expect(article.comments.length, equals(22));
   });
 
-  test('comments count 2', () async {
+  test('comments count on 1179434', () async {
     loadFile('1179434');
 
     model.loadMore();
@@ -70,10 +76,12 @@ void main() {
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
-    expect(article.comments.length, equals(50));
+    expect(article.comments.length, equals(54));
   });
 
-  test('quotes count 1', () async {
+  test('quotes count on 1180335', () async {
+    loadFile('1180335');
+
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
@@ -83,7 +91,7 @@ void main() {
     expect(quotes.length, equals(52));
   });
 
-  test('quotes count 2', () async {
+  test('quotes count on 1179434', () async {
     loadFile('1179434');
 
     model.loadMore();
@@ -96,6 +104,8 @@ void main() {
   });
 
   test('expandable comments count', () async {
+    loadFile('1180335');
+
     model.loadMore();
     await updated.stream.first;
     final link = model[Tag.letters].first;
