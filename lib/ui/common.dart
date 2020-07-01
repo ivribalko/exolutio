@@ -9,10 +9,13 @@ class SliverProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Container(
-        height: 300,
-        child: Center(child: CircularProgressIndicator()),
+    return SliverFillRemaining(
+      child: Column(
+        children: <Widget>[
+          Spacer(),
+          CircularProgressIndicator(),
+          Spacer(),
+        ],
       ),
     );
   }
