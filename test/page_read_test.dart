@@ -22,7 +22,7 @@ void main() {
         ).readAsString());
 
     when(loader.body(argThat(contains('thread=')))).thenAnswer((_) => File(
-          'test/evo-lutio.livejournal.com__1180335_thread=87311791.html',
+          'test/evo-lutio.livejournal.com__single_page_thread=87311791.html',
         ).readAsString());
   }
 
@@ -43,7 +43,7 @@ void main() {
   });
 
   test('first comment text', () async {
-    loadFile('1180335');
+    loadFile('single_page');
 
     model.loadMore();
     await updated.stream.first;
@@ -57,8 +57,8 @@ void main() {
             'com/903296.html</a> '));
   });
 
-  test('comments count on 1180335', () async {
-    loadFile('1180335');
+  test('comments count on single_page', () async {
+    loadFile('single_page');
 
     model.loadMore();
     await updated.stream.first;
@@ -69,7 +69,7 @@ void main() {
   });
 
   test('comments count on 1179434', () async {
-    loadFile('1179434');
+    loadFile('double_page');
 
     model.loadMore();
     await updated.stream.first;
@@ -79,8 +79,8 @@ void main() {
     expect(article.comments.length, equals(54));
   });
 
-  test('quotes count on 1180335', () async {
-    loadFile('1180335');
+  test('quotes count on single_page', () async {
+    loadFile('single_page');
 
     model.loadMore();
     await updated.stream.first;
@@ -91,8 +91,8 @@ void main() {
     expect(quotes.length, equals(52));
   });
 
-  test('quotes count on 1179434', () async {
-    loadFile('1179434');
+  test('quotes count on double_page', () async {
+    loadFile('double_page');
 
     model.loadMore();
     await updated.stream.first;
@@ -104,7 +104,7 @@ void main() {
   });
 
   test('expandable comments count', () async {
-    loadFile('1180335');
+    loadFile('single_page');
 
     model.loadMore();
     await updated.stream.first;
