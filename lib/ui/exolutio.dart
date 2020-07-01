@@ -10,11 +10,11 @@ class Exolutio extends StatelessWidget {
       title: 'Exolutio',
       theme: ThemeData(
         brightness: Brightness.light,
-        fontFamily: 'Roboto',
+        fontFamily: 'Merriweather_Sans',
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        fontFamily: 'Roboto',
+        fontFamily: 'Merriweather_Sans',
       ),
       routes: {
         '/': (context) => HomeScreen(),
