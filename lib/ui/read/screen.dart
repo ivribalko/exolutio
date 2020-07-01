@@ -241,9 +241,11 @@ class _Progress extends StatefulWidget {
 }
 
 class _ProgressState extends State<_Progress> {
+  AutoScrollController get _scroll => widget.reading._scroll;
+
   @override
   void initState() {
-    widget.reading._scroll.addListener(() => setState(() {}));
+    _scroll.addListener(() => setState(() {}));
     super.initState();
   }
 
@@ -253,13 +255,22 @@ class _ProgressState extends State<_Progress> {
       return LinearProgressIndicator();
     }
 
-    var position = widget.reading._scroll.position;
+    var position = _scroll.position;
     var value = position.pixels / position.maxScrollExtent;
     if (value.isInfinite || value.isNaN) {
       return LinearProgressIndicator(value: 0.0);
     } else {
-      return LinearProgressIndicator(value: value);
+      return GestureDetector(
+        onTapDown: (e) => _jump(e.localPosition, context),
+        onHorizontalDragUpdate: (e) => _jump(e.localPosition, context),
+        child: LinearProgressIndicator(value: value),
+      );
     }
+  }
+
+  void _jump(Offset offset, BuildContext context) {
+    final relative = offset.dx / context.size.width;
+    return _scroll.jumpTo(_scroll.position.maxScrollExtent * relative);
   }
 }
 
