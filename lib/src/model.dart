@@ -84,7 +84,6 @@ class Model extends ChangeNotifier {
           .then((value) => _articleCache[link.url] = value);
 
   Future<dom.Document> _fetchArticle(String url) {
-    print(url);
     return loader.body(url).then(parse);
   }
 
@@ -211,27 +210,37 @@ class Model extends ChangeNotifier {
     final comments = List<Comment>();
 
     for (final page in [firstPage, ...other]) {
-      comments.addAll(_getComments(page).where(_nonEmptyComment));
+      comments.addAll(_getComments(page));
+    }
+
+    final descending = expandable(comments).toList();
+
+    descending.sort((a, b) => b.key.compareTo(a.key));
+
+    for (final link in descending) {
+      await _fetchArticle(link.value)
+          .then(_getComments)
+          .then((value) => comments.insertAll(link.key, value));
     }
 
     return comments;
   }
 
   @visibleForTesting
-  Iterable<String> expandable(List<Comment> comments) {
+  Iterable<MapEntry<int, String>> expandable(List<Comment> comments) {
     return comments
         .where((e) => e.level == 1)
-        .map(
-          (e) => e.actions?.firstWhere(
-            (e) => e.name == 'expandchilds',
-            orElse: () => null,
-          ),
-        )
-        .where((e) => e != null)
-        .map((e) => e.href);
+        .map((e) => MapEntry(
+              comments.indexOf(e),
+              e.actions
+                  ?.firstWhere(
+                    (e) => e.name == 'expandchilds',
+                    orElse: () => null,
+                  )
+                  ?.href,
+            ))
+        .where((e) => e?.value?.isNotEmpty ?? false);
   }
-
-  bool _nonEmptyComment(Comment e) => e.article?.isNotEmpty ?? false;
 
   List<Comment> _getComments(dom.Document value) {
     const commentsSource = 'Site.page = ';
@@ -249,7 +258,11 @@ class Model extends ChangeNotifier {
     final json = temp.substring(0, end).trim().replaceAll(';', '');
     final user = jsonDecode(json);
 
-    return user['comments'].map((e) => Comment.map(e)).cast<Comment>().toList();
+    return user['comments']
+        .map((e) => Comment.map(e))
+        .cast<Comment>()
+        .where((e) => (e as Comment).article?.isNotEmpty ?? false)
+        .toList();
   }
 }
 
