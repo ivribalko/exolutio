@@ -126,10 +126,7 @@ class Model extends ChangeNotifier {
   List<Link> _articles(bool test(element)) => _articlePageCache.isEmpty
       ? []
       : _articlePageCache
-          .reduce((value, element) {
-            value.addAll(element);
-            return value;
-          })
+          .reduce((value, element) => value..addAll(element))
           .where(test)
           .map((e) => e.children.first)
           .where((element) => element.text.isNotEmpty)
@@ -226,7 +223,8 @@ class Model extends ChangeNotifier {
               (a) => !comments.any((b) => b.article == a.article),
             ),
           )
-          .then((value) => comments.insertAll(link.key + 1, value));
+          // first is always already showed after topic starter
+          .then((value) => comments.insertAll(link.key + 2, value));
     }
 
     return comments;
