@@ -68,31 +68,35 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: _jumper.jumped ? _jumper.setBacked : _jumper.setJumpedStart,
-        child: Icon(_floatingIcon),
-      ),
-      body: SafeArea(
-        child: Stack(
-          children: <Widget>[
-            CustomScrollView(
-              controller: _scroll,
-              slivers: [
-                _buildAppBar(),
-                if (_data != null) _buildHtml(),
-                if (_data != null) _buildComments(),
-                if (_data != null) _buildFloatingMargin(),
-                if (_data == null) SliverProgressIndicator(),
-              ],
-            ),
-            Column(
-              children: <Widget>[
-                Spacer(),
-                _Progress(this),
-              ],
-            ),
-          ],
+    return WillPopScope(
+      onWillPop: () async => !_jumper.setBacked(),
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed:
+              _jumper.jumped ? _jumper.setBacked : _jumper.setJumpedStart,
+          child: Icon(_floatingIcon),
+        ),
+        body: SafeArea(
+          child: Stack(
+            children: <Widget>[
+              CustomScrollView(
+                controller: _scroll,
+                slivers: [
+                  _buildAppBar(),
+                  if (_data != null) _buildHtml(),
+                  if (_data != null) _buildComments(),
+                  if (_data != null) _buildFloatingMargin(),
+                  if (_data == null) SliverProgressIndicator(),
+                ],
+              ),
+              Column(
+                children: <Widget>[
+                  Spacer(),
+                  _Progress(this),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -341,10 +345,13 @@ class _Jumper {
     reading.setState(() {}); // TODO
   }
 
-  void setBacked() {
+  bool setBacked() {
     if (jumped) {
       _modeSetter = JumpMode.back;
       clear();
+      return true;
+    } else {
+      return false;
     }
   }
 
