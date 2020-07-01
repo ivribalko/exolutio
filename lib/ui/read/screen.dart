@@ -11,7 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../main.dart';
 import '../common.dart';
 
-const _fontSize = 17.0;
+const _fontSize = 20.0;
 const _jumpDuration = Duration(milliseconds: 300);
 
 class ArticleScreen extends StatefulWidget {
@@ -131,20 +131,28 @@ class _ArticleScreenState extends State<ArticleScreen> {
                   color: e.dname == e.poster ? _authorColor : null,
                   child: Column(
                     children: <Widget>[
-                      Text(
-                        e.dname,
-                        style: TextStyle(
-                          color: e.dname == e.poster
-                              ? Colors.white
-                              : Theme.of(context).disabledColor,
-                          shadows: <Shadow>[
-                            Shadow(
-                              offset: Offset(0.0, 1.0),
-                              blurRadius: 2.0,
-                              color: Color.fromARGB(255, 0, 0, 0),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            '  ${'↳ ' * e.level} ${e.dname}',
+                            style: TextStyle(
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  .fontSize,
+                              color: e.dname == e.poster
+                                  ? Colors.white
+                                  : Theme.of(context).disabledColor,
+                              shadows: <Shadow>[
+                                Shadow(
+                                  offset: Offset(0.0, 1.0),
+                                  blurRadius: 2.0,
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       Html(
                         data: '<article>${e.article}</article>',

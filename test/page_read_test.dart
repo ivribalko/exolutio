@@ -94,4 +94,13 @@ void main() {
 
     expect(quotes.length, equals(60));
   });
+
+  test('expandable comments count', () async {
+    model.loadMore();
+    await updated.stream.first;
+    final link = model[Tag.letters].first;
+    final article = await model.article(link);
+
+    expect(model.expandable(article.comments).length, equals(5));
+  });
 }
