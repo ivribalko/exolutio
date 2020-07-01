@@ -220,7 +220,13 @@ class Model extends ChangeNotifier {
     for (final link in descending) {
       await _fetchArticle(link.value)
           .then(_getComments)
-          .then((value) => comments.insertAll(link.key, value));
+          .then(
+            (value) => value.where(
+              // not a duplicate
+              (a) => !comments.any((b) => b.article == a.article),
+            ),
+          )
+          .then((value) => comments.insertAll(link.key + 1, value));
     }
 
     return comments;
