@@ -113,4 +113,18 @@ void main() {
 
     expect(model.expandable(article.comments).length, equals(5));
   });
+
+  test('comments order', () async {
+    loadFile('single_page');
+
+    model.loadMore();
+    await updated.stream.first;
+    final link = model[Tag.letters].first;
+    final article = await model.article(link);
+
+    final actual = article.comments.map((e) => e.article).join("\n\n");
+    final expected = await File('test/comments_order.txt').readAsString();
+
+    expect(actual, equals(expected));
+  });
 }
