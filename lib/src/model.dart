@@ -208,14 +208,27 @@ class Model extends ChangeNotifier {
             .map((e) => '${link.url}?page=$e')
             .map(_fetchArticle));
 
-    final result = List<Comment>();
-    final pages = <dom.Document>[firstPage, ...other];
+    final comments = List<Comment>();
 
-    for (final page in pages) {
-      result.addAll(_getComments(page).where(_nonEmptyComment));
+    for (final page in [firstPage, ...other]) {
+      comments.addAll(_getComments(page).where(_nonEmptyComment));
     }
 
-    return result;
+    return comments;
+  }
+
+  @visibleForTesting
+  Iterable<String> expandable(List<Comment> comments) {
+    return comments
+        .where((e) => e.level == 1)
+        .map(
+          (e) => e.actions?.firstWhere(
+            (e) => e.name == 'expandchilds',
+            orElse: () => null,
+          ),
+        )
+        .where((e) => e != null)
+        .map((e) => e.href);
   }
 
   bool _nonEmptyComment(Comment e) => e.article?.isNotEmpty ?? false;
