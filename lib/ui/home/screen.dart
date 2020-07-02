@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../main.dart';
+import '../routes.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -112,8 +113,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return _LinkView(
       link,
       () => Navigator.of(context).pushNamed(
-        '/read',
-        arguments: [link.title, link],
+        Routes.read,
+        arguments: link,
       ),
     );
   }

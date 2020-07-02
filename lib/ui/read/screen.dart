@@ -35,9 +35,9 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   @override
   void initState() {
-    var arguments = _getScreenArguments(widget.context);
-    _articleAsFuture(arguments[1]).then(_initStateWithData);
-    _title = arguments[0];
+    final link = _getRouteArguments(widget.context) as Link;
+    _title = link.title;
+    _articleAsFuture(link).then(_initStateWithData);
     _jumper = _Jumper(this);
     _jumper.mode.listen((value) => setState(() {}));
     _jumper.position.listen(_animateTo);
@@ -223,8 +223,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
     }
   }
 
-  List _getScreenArguments(BuildContext context) {
-    return ModalRoute.of(context).settings.arguments as List;
+  Object _getRouteArguments(BuildContext context) {
+    return ModalRoute.of(context).settings.arguments;
   }
 
   Future<Article> _articleAsFuture(Link argument) {
@@ -268,7 +268,7 @@ class _BottomBar extends StatelessWidget {
       ? null
       : Share.share(
           '${_article.link.title}: '
-          '${await firebase.getArticleLink(_article.link.url)}',
+          '${await firebase.getArticleLink(_article.link)}',
         );
 }
 

@@ -1,6 +1,7 @@
 import 'package:exolutio/src/firebase.dart';
 import 'package:exolutio/src/loader.dart';
 import 'package:exolutio/src/model.dart';
+import 'package:exolutio/ui/deeplink.dart';
 import 'package:exolutio/ui/exolutio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<Model>(create: (_) => locator<Model>()),
+        Provider<Router>(create: (context) => Router(context), lazy: false),
       ],
       child: Exolutio(),
     ),

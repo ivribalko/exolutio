@@ -1,3 +1,4 @@
+import 'package:exolutio/ui/routes.dart';
 import 'package:flutter/material.dart';
 
 import 'home/screen.dart';
@@ -17,8 +18,8 @@ class Exolutio extends StatelessWidget {
         fontFamily: 'Merriweather_Sans',
       ),
       routes: {
-        '/': (context) => HomeScreen(),
-        '/read': (context) => ArticleScreen(context),
+        Routes.home: (context) => HomeScreen(),
+        Routes.read: (context) => ArticleScreen(context),
       },
       // https://github.com/Sub6Resources/flutter_html/issues/294#issuecomment-637318948
       builder: (BuildContext context, Widget child) => MediaQuery(
