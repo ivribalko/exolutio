@@ -4,11 +4,11 @@ import 'package:exolutio/src/model.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 
-class Router {
+class DeepRouter {
   final BuildContext context;
   final _firebase = locator<Firebase>();
 
-  Router(
+  DeepRouter(
     this.context,
   ) {
     _checkInitialLink().then((_) => initDynamicLinks());
@@ -29,7 +29,7 @@ class Router {
     var deep = data?.link;
     if (deep != null) {
       final map = deep.queryParameters;
-      final link = Link(map['title'], map['url']);
+      final link = Link(url: map[urlKey], title: map[titleKey]);
       print('following link to ${deep.path}: '
           'of title: ${link.title} '
           'and url: ${link.url}');

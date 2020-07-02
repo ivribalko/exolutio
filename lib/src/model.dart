@@ -131,8 +131,8 @@ class Model extends ChangeNotifier {
           .map((e) => e.children.first)
           .where((element) => element.text.isNotEmpty)
           .map((e) => Link(
-                e.attributes['href'],
-                e.text,
+                url: e.attributes['href'],
+                title: e.text,
               ))
           .toList();
 
@@ -273,7 +273,7 @@ class Model extends ChangeNotifier {
 }
 
 class Link {
-  Link(this.url, this.title);
+  Link({this.url, this.title});
 
   final String url;
   final String title;
