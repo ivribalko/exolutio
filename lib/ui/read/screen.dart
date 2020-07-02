@@ -92,7 +92,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
               Column(
                 children: <Widget>[
                   Spacer(),
-                  _Progress(this),
+                  _BottomBar(this),
                 ],
               ),
             ],
@@ -232,6 +232,31 @@ class _ArticleScreenState extends State<ArticleScreen> {
     } else {
       return futureOr;
     }
+  }
+}
+
+class _BottomBar extends StatelessWidget {
+  final _ArticleScreenState reading;
+
+  _BottomBar(this.reading);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      child: Column(
+        children: <Widget>[
+          Flexible(
+            child: RaisedButton.icon(
+              onPressed: null,
+              icon: Icon(Icons.share),
+              label: Text('Share'),
+            ),
+          ),
+          _Progress(reading),
+        ],
+      ),
+    );
   }
 }
 
