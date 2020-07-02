@@ -102,8 +102,8 @@ class Model extends ChangeNotifier {
   bool isRead(Link link) => prefs.containsKey(link.url);
 
   double getPosition(Article article) {
-    if (prefs.containsKey(article.url)) {
-      return prefs.getDouble(article.url);
+    if (prefs.containsKey(article.link.url)) {
+      return prefs.getDouble(article.link.url);
     } else {
       return null;
     }
@@ -112,9 +112,9 @@ class Model extends ChangeNotifier {
   void savePosition(Article article, double position) {
     _savePosition.add(() {
       if (position <= 0) {
-        prefs.remove(article.url);
+        prefs.remove(article.link.url);
       } else {
-        prefs.setDouble(article.url, position);
+        prefs.setDouble(article.link.url, position);
       }
       notifyListeners();
     });
@@ -140,8 +140,7 @@ class Model extends ChangeNotifier {
     final comments = await _getUndynamicComments(link, value);
     final article = _colored(value, comments);
     return Article(
-      link.url,
-      link.title,
+      link,
       article,
       comments,
     );
@@ -282,14 +281,12 @@ class Link {
 
 class Article {
   Article(
-    this.url,
-    this.title,
+    this.link,
     this.text,
     this.comments,
   );
 
-  final String url;
-  final String title;
+  final Link link;
   final String text;
   final List<Comment> comments;
 }

@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:exolutio/src/firebase.dart';
 import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../main.dart';
@@ -237,8 +239,11 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
 class _BottomBar extends StatelessWidget {
   final _ArticleScreenState reading;
+  final firebase = locator<Firebase>();
 
   _BottomBar(this.reading);
+
+  Article get _article => reading._data;
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +253,7 @@ class _BottomBar extends StatelessWidget {
         children: <Widget>[
           Flexible(
             child: RaisedButton.icon(
-              onPressed: null,
+              onPressed: _shareLink,
               icon: Icon(Icons.share),
               label: Text('Share'),
             ),
@@ -258,6 +263,13 @@ class _BottomBar extends StatelessWidget {
       ),
     );
   }
+
+  void _shareLink() async => _article?.link?.url == null
+      ? null
+      : Share.share(
+          '${_article.link.title}: '
+          '${await firebase.getArticleLink(_article.link.url)}',
+        );
 }
 
 class _Progress extends StatefulWidget {
