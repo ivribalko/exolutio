@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:exolutio/src/firebase.dart';
 import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../main.dart';
@@ -14,16 +16,16 @@ import '../common.dart';
 const _fontSize = 20.0;
 const _jumpDuration = Duration(milliseconds: 300);
 
-class ArticleScreen extends StatefulWidget {
-  ArticleScreen(this.context);
+class ReadScreen extends StatefulWidget {
+  ReadScreen(this.context);
 
   final context;
 
   @override
-  _ArticleScreenState createState() => _ArticleScreenState();
+  _ReadScreenState createState() => _ReadScreenState();
 }
 
-class _ArticleScreenState extends State<ArticleScreen> {
+class _ReadScreenState extends State<ReadScreen> {
   final _model = locator<Model>();
   final _scroll = AutoScrollController();
   _Jumper _jumper;
@@ -33,9 +35,9 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   @override
   void initState() {
-    var arguments = _getScreenArguments(widget.context);
-    _articleAsFuture(arguments[1]).then(_initStateWithData);
-    _title = arguments[0];
+    final link = _getRouteArguments(widget.context) as Link;
+    _title = link.title;
+    _articleAsFuture(link).then(_initStateWithData);
     _jumper = _Jumper(this);
     _jumper.mode.listen((value) => setState(() {}));
     _jumper.position.listen(_animateTo);
@@ -92,7 +94,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
               Column(
                 children: <Widget>[
                   Spacer(),
-                  _Progress(this),
+                  _BottomBar(this),
                 ],
               ),
             ],
@@ -221,8 +223,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
     }
   }
 
-  List _getScreenArguments(BuildContext context) {
-    return ModalRoute.of(context).settings.arguments as List;
+  Object _getRouteArguments(BuildContext context) {
+    return ModalRoute.of(context).settings.arguments;
   }
 
   Future<Article> _articleAsFuture(Link argument) {
@@ -235,8 +237,43 @@ class _ArticleScreenState extends State<ArticleScreen> {
   }
 }
 
+class _BottomBar extends StatelessWidget {
+  final _ReadScreenState reading;
+  final firebase = locator<Firebase>();
+
+  _BottomBar(this.reading);
+
+  Article get _article => reading._data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      child: Column(
+        children: <Widget>[
+          Flexible(
+            child: RaisedButton.icon(
+              onPressed: _shareLink,
+              icon: Icon(Icons.share),
+              label: Text('Share'),
+            ),
+          ),
+          _Progress(reading),
+        ],
+      ),
+    );
+  }
+
+  void _shareLink() async => _article?.link?.url == null
+      ? null
+      : Share.share(
+          '${_article.link.title}: '
+          '${await firebase.getArticleLink(_article.link)}',
+        );
+}
+
 class _Progress extends StatefulWidget {
-  final _ArticleScreenState reading;
+  final _ReadScreenState reading;
 
   _Progress(this.reading);
 
@@ -287,7 +324,7 @@ enum JumpMode {
 class _Jumper {
   bool _jumpedUp;
   double _jumpedFrom;
-  final _ArticleScreenState reading;
+  final _ReadScreenState reading;
   final mode = BehaviorSubject<JumpMode>()..add(JumpMode.none);
   final position = PublishSubject<double>();
 

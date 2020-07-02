@@ -1,3 +1,4 @@
+import 'package:exolutio/src/firebase.dart';
 import 'package:exolutio/src/loader.dart';
 import 'package:exolutio/src/model.dart';
 import 'package:exolutio/ui/exolutio.dart';
@@ -20,6 +21,7 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
 
   locator.registerSingleton(Model(Loader(), prefs));
+  locator.registerSingleton(Firebase());
 
   runApp(
     MultiProvider(
