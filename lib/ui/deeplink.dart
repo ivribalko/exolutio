@@ -33,10 +33,14 @@ class Router {
       print('following link to ${deep.path}: '
           'of title: ${link.title} '
           'and url: ${link.url}');
-      Navigator.of(context).pushNamed(
-        deep.path,
-        arguments: link,
-      );
+      try {
+        Navigator.of(context).pushNamed(
+          deep.path,
+          arguments: link,
+        );
+      } catch (e) {
+        print(e);
+      }
     }
   }
 }
