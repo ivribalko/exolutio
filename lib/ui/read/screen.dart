@@ -16,16 +16,16 @@ import '../common.dart';
 const _fontSize = 20.0;
 const _jumpDuration = Duration(milliseconds: 300);
 
-class ArticleScreen extends StatefulWidget {
-  ArticleScreen(this.context);
+class ReadScreen extends StatefulWidget {
+  ReadScreen(this.context);
 
   final context;
 
   @override
-  _ArticleScreenState createState() => _ArticleScreenState();
+  _ReadScreenState createState() => _ReadScreenState();
 }
 
-class _ArticleScreenState extends State<ArticleScreen> {
+class _ReadScreenState extends State<ReadScreen> {
   final _model = locator<Model>();
   final _scroll = AutoScrollController();
   _Jumper _jumper;
@@ -238,7 +238,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
 }
 
 class _BottomBar extends StatelessWidget {
-  final _ArticleScreenState reading;
+  final _ReadScreenState reading;
   final firebase = locator<Firebase>();
 
   _BottomBar(this.reading);
@@ -273,7 +273,7 @@ class _BottomBar extends StatelessWidget {
 }
 
 class _Progress extends StatefulWidget {
-  final _ArticleScreenState reading;
+  final _ReadScreenState reading;
 
   _Progress(this.reading);
 
@@ -324,7 +324,7 @@ enum JumpMode {
 class _Jumper {
   bool _jumpedUp;
   double _jumpedFrom;
-  final _ArticleScreenState reading;
+  final _ReadScreenState reading;
   final mode = BehaviorSubject<JumpMode>()..add(JumpMode.none);
   final position = PublishSubject<double>();
 

@@ -19,7 +19,7 @@ class Exolutio extends StatelessWidget {
       ),
       routes: {
         Routes.home: (context) => HomeScreen(),
-        Routes.read: (context) => ArticleScreen(context),
+        Routes.read: (context) => ReadScreen(context),
       },
       // https://github.com/Sub6Resources/flutter_html/issues/294#issuecomment-637318948
       builder: (BuildContext context, Widget child) => MediaQuery(
