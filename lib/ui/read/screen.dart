@@ -26,7 +26,8 @@ class ReadScreen extends StatefulWidget {
 }
 
 class _ReadScreenState extends State<ReadScreen> {
-  final _model = locator<Model>();
+  final _meta = locator<MetaModel>();
+  final _html = locator<HtmlModel>();
   final _scroll = AutoScrollController();
   _Jumper _jumper;
 
@@ -45,7 +46,7 @@ class _ReadScreenState extends State<ReadScreen> {
     _scroll.addListener(() {
       if (!_jumper.jumped || _jumper.returned) {
         _jumper.clear();
-        _model.savePosition(
+        _meta.savePosition(
           _data,
           _scroll.offset,
         );
@@ -57,7 +58,7 @@ class _ReadScreenState extends State<ReadScreen> {
 
   void _initStateWithData(Article value) {
     _data = value;
-    _animateTo(_model.getPosition(_data));
+    _animateTo(_meta.getPosition(_data));
     setState(() {});
   }
 
@@ -228,7 +229,7 @@ class _ReadScreenState extends State<ReadScreen> {
   }
 
   Future<Article> _articleAsFuture(Link argument) {
-    var futureOr = _model.article(argument);
+    var futureOr = _html.article(argument);
     if (futureOr is Article) {
       return Future.value(futureOr);
     } else {

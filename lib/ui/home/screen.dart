@@ -13,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _model = locator<Model>();
+  final _model = locator<HtmlModel>();
   final _refresh = RefreshController(initialRefresh: false);
 
   @override
@@ -53,9 +53,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Consumer<Model> _buildTab(BuildContext context, Tag tag) {
-    return Consumer<Model>(
-      builder: (_, Model model, __) {
+  Consumer<HtmlModel> _buildTab(BuildContext context, Tag tag) {
+    return Consumer<HtmlModel>(
+      builder: (_, HtmlModel model, __) {
         if (!model.any) {
           _model.loadMore();
           return Center(
@@ -128,7 +128,7 @@ class _LinkView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<Model, bool>(
+    return Selector<MetaModel, bool>(
       selector: (_, model) => model.isRead(data),
       builder: (BuildContext context, bool isRead, __) {
         return ListTile(

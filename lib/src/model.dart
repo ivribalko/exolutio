@@ -23,27 +23,14 @@ const _word = '\\S+?';
 const _any = '.*?';
 const _ws = '\\s+?';
 
-class Model extends ChangeNotifier {
-  Model(
+class HtmlModel extends ChangeNotifier {
+  HtmlModel(
     this.loader,
-    this.prefs,
-  ) {
-    _savePosition
-        .throttle(
-          (event) => TimerStream(
-            true,
-            Duration(milliseconds: 500),
-          ),
-          trailing: true,
-        )
-        .listen((value) => value());
-  }
+  );
 
   final Loader loader;
-  final SharedPreferences prefs;
   final _articlePageCache = <List<dom.Element>>[];
   final _articleCache = Map<String, Article>();
-  final _savePosition = PublishSubject<Function>();
   final _quotesRegExp = RegExp(
     '[$_startQuotes]($_any$_word$_ws$_word$_any)[$_ceaseQuotes]',
     caseSensitive: false,
@@ -98,27 +85,6 @@ class Model extends ChangeNotifier {
     _articleCache.clear();
     _articlePageCache.clear();
     loadMore();
-  }
-
-  bool isRead(Link link) => prefs.containsKey(link.url);
-
-  double getPosition(Article article) {
-    if (prefs.containsKey(article.link.url)) {
-      return prefs.getDouble(article.link.url);
-    } else {
-      return null;
-    }
-  }
-
-  void savePosition(Article article, double position) {
-    _savePosition.add(() {
-      if (position <= 0) {
-        prefs.remove(article.link.url);
-      } else {
-        prefs.setDouble(article.link.url, position);
-      }
-      notifyListeners();
-    });
   }
 
   bool _isNotLetter(e) => !_isLetter(e);
@@ -270,6 +236,46 @@ class Model extends ChangeNotifier {
         .cast<Comment>()
         .where((e) => (e as Comment).article?.isNotEmpty ?? false)
         .toList();
+  }
+}
+
+class MetaModel extends ChangeNotifier {
+  final SharedPreferences prefs;
+  final _savePosition = PublishSubject<Function>();
+
+  MetaModel(
+    this.prefs,
+  ) {
+    _savePosition
+        .throttle(
+          (event) => TimerStream(
+            true,
+            Duration(milliseconds: 500),
+          ),
+          trailing: true,
+        )
+        .listen((value) => value());
+  }
+
+  bool isRead(Link link) => prefs.containsKey(link.url);
+
+  double getPosition(Article article) {
+    if (prefs.containsKey(article.link.url)) {
+      return prefs.getDouble(article.link.url);
+    } else {
+      return null;
+    }
+  }
+
+  void savePosition(Article article, double position) {
+    _savePosition.add(() {
+      if (position <= 0) {
+        prefs.remove(article.link.url);
+      } else {
+        prefs.setDouble(article.link.url, position);
+      }
+      notifyListeners();
+    });
   }
 }
 

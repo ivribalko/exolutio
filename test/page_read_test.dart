@@ -12,7 +12,7 @@ class MockLoader extends Mock implements Loader {}
 class MockPreferences extends Mock implements SharedPreferences {}
 
 void main() {
-  Model model;
+  HtmlModel model;
   Loader loader;
   StreamController updated;
 
@@ -34,7 +34,7 @@ void main() {
         ).readAsString());
 
     updated = StreamController();
-    model = Model(loader, MockPreferences());
+    model = HtmlModel(loader, MockPreferences());
     model.addListener(() => updated.add(null));
   });
   tearDown(() {

@@ -20,16 +20,22 @@ void main() async {
 
   final prefs = await SharedPreferences.getInstance();
 
-  locator.registerSingleton(Model(Loader(), prefs));
+  locator.registerSingleton(HtmlModel(Loader()));
+  locator.registerSingleton(MetaModel(prefs));
   locator.registerSingleton(Firebase());
 
   runApp(
     MultiProvider(
       providers: [
         // TODO move to home?
-        ChangeNotifierProvider<Model>(create: (_) => locator<Model>()),
+        provide<HtmlModel>(),
+        provide<MetaModel>(),
       ],
       child: Exolutio(),
     ),
   );
+}
+
+ChangeNotifierProvider<T> provide<T extends ChangeNotifier>() {
+  return ChangeNotifierProvider<T>(create: (_) => locator<T>());
 }
