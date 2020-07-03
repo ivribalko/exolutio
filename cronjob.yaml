@@ -1,0 +1,14 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: new-content-notifier
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: new-content-notifier
+              image: gcr.io/exolutio/new-content-notifier
+          restartPolicy: Never
