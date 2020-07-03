@@ -27,7 +27,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.7.3
-  flutter_launcher_name: ^0.0.1
   mockito: ^4.1.1
   pedantic: ^1.9.0
   wakelock: ^0.1.4+1
@@ -45,6 +44,3 @@ flutter:
         - asset: assets/fonts/Merriweather_Sans/MerriweatherSans-Light.ttf
         - asset: assets/fonts/Merriweather_Sans/MerriweatherSans-LightItalic.ttf
         - asset: assets/fonts/Merriweather_Sans/MerriweatherSans-Regular.ttf
-
-flutter_launcher_name:
-  name: "Exolutio"
