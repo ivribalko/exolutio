@@ -1,5 +1,5 @@
+import 'package:exolutio/src/html_model.dart';
 import 'package:exolutio/src/loader.dart';
-import 'package:exolutio/src/model.dart';
 
 void main() async {
   final model = HtmlModel(Loader());

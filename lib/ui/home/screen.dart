@@ -1,4 +1,5 @@
-import 'package:exolutio/src/model.dart';
+import 'package:exolutio/src/html_model.dart';
+import 'package:exolutio/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';

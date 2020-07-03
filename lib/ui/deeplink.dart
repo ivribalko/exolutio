@@ -1,6 +1,6 @@
 import 'package:exolutio/main.dart';
 import 'package:exolutio/src/firebase.dart';
-import 'package:exolutio/src/model.dart';
+import 'package:exolutio/src/html_model.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 

@@ -1,6 +1,7 @@
 import 'package:exolutio/src/firebase.dart';
+import 'package:exolutio/src/html_model.dart';
 import 'package:exolutio/src/loader.dart';
-import 'package:exolutio/src/model.dart';
+import 'package:exolutio/src/meta_model.dart';
 import 'package:exolutio/ui/exolutio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

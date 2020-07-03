@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:exolutio/src/firebase.dart';
-import 'package:exolutio/src/model.dart';
+import 'package:exolutio/src/html_model.dart';
+import 'package:exolutio/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
