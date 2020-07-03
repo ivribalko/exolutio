@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:exolutio/src/comment.dart';
 import 'package:exolutio/src/firebase.dart';
-import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
 
@@ -21,7 +20,7 @@ const _word = '\\S+?';
 const _any = '.*?';
 const _ws = '\\s+?';
 
-class HtmlModel extends ChangeNotifier {
+class HtmlModel {
   HtmlModel(
     this.loader,
   );
@@ -76,7 +75,7 @@ class HtmlModel extends ChangeNotifier {
   bool get any => _articlePageCache.isNotEmpty;
 
   Future loadMore() async {
-    await _page(_articlePageCache.length).then((value) => notifyListeners());
+    await _page(_articlePageCache.length);
   }
 
   void refresh() {
@@ -197,7 +196,6 @@ class HtmlModel extends ChangeNotifier {
     return comments;
   }
 
-  @visibleForTesting
   Iterable<MapEntry<int, String>> expandable(List<Comment> comments) {
     return comments
         .where((e) => e.level == 1)

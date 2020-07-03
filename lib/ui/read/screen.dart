@@ -13,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../main.dart';
 import '../common.dart';
+import '../view_model.dart';
 
 const _fontSize = 20.0;
 const _jumpDuration = Duration(milliseconds: 300);
@@ -28,7 +29,7 @@ class ReadScreen extends StatefulWidget {
 
 class _ReadScreenState extends State<ReadScreen> {
   final _meta = locator<MetaModel>();
-  final _html = locator<HtmlModel>();
+  final _html = locator<HtmlViewModel>();
   final _scroll = AutoScrollController();
   _Jumper _jumper;
 

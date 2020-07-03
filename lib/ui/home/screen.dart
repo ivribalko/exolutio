@@ -7,6 +7,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../main.dart';
 import '../routes.dart';
+import '../view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -14,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _model = locator<HtmlModel>();
+  final _model = locator<HtmlViewModel>();
   final _refresh = RefreshController(initialRefresh: false);
 
   @override
@@ -54,9 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Consumer<HtmlModel> _buildTab(BuildContext context, Tag tag) {
-    return Consumer<HtmlModel>(
-      builder: (_, HtmlModel model, __) {
+  Consumer<HtmlViewModel> _buildTab(BuildContext context, Tag tag) {
+    return Consumer<HtmlViewModel>(
+      builder: (_, HtmlViewModel model, __) {
         if (!model.any) {
           _model.loadMore();
           return Center(

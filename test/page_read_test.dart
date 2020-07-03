@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:exolutio/src/html_model.dart';
 import 'package:exolutio/src/loader.dart';
+import 'package:exolutio/ui/view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,7 +14,7 @@ class MockPreferences extends Mock implements SharedPreferences {}
 
 void main() {
   Loader loader;
-  HtmlModel model;
+  HtmlViewModel model;
   StreamController updated;
 
   void loadFile(String id) {
@@ -34,7 +35,7 @@ void main() {
         ).readAsString());
 
     updated = StreamController();
-    model = HtmlModel(loader);
+    model = HtmlViewModel(loader);
     model.addListener(() => updated.add(null));
   });
   tearDown(() {

@@ -1,5 +1,4 @@
 import 'package:exolutio/src/firebase.dart';
-import 'package:exolutio/src/html_model.dart';
 import 'package:exolutio/src/loader.dart';
 import 'package:exolutio/src/meta_model.dart';
 import 'package:exolutio/ui/exolutio.dart';
@@ -9,6 +8,8 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
+
+import 'ui/view_model.dart';
 
 GetIt locator = GetIt.instance;
 
@@ -21,7 +22,7 @@ void main() async {
 
   final prefs = await SharedPreferences.getInstance();
 
-  locator.registerSingleton(HtmlModel(Loader()));
+  locator.registerSingleton(HtmlViewModel(Loader()));
   locator.registerSingleton(MetaModel(prefs));
   locator.registerSingleton(Firebase());
 
@@ -29,7 +30,7 @@ void main() async {
     MultiProvider(
       providers: [
         // TODO move to home?
-        provide<HtmlModel>(),
+        provide<HtmlViewModel>(),
         provide<MetaModel>(),
       ],
       child: Exolutio(),
