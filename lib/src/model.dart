@@ -77,8 +77,8 @@ class HtmlModel extends ChangeNotifier {
 
   bool get any => _articlePageCache.isNotEmpty;
 
-  void loadMore() {
-    _page(_articlePageCache.length).then((value) => notifyListeners());
+  Future loadMore() async {
+    await _page(_articlePageCache.length).then((value) => notifyListeners());
   }
 
   void refresh() {
