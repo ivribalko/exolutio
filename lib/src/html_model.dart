@@ -2,20 +2,19 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:exolutio/src/comment.dart';
-import 'package:exolutio/src/firebase.dart';
-import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'loader.dart';
 
 enum Tag {
+  any,
   letters,
   others,
 }
 
+const String titleKey = 'title';
+const String urlKey = 'url';
 const String CommentLink = "comment:";
 const _startQuotes = '<«"\'‘“';
 const _ceaseQuotes = '>»"\'’”';
@@ -23,34 +22,23 @@ const _word = '\\S+?';
 const _any = '.*?';
 const _ws = '\\s+?';
 
-class Model extends ChangeNotifier {
-  Model(
+class HtmlModel {
+  HtmlModel(
     this.loader,
-    this.prefs,
-  ) {
-    _savePosition
-        .throttle(
-          (event) => TimerStream(
-            true,
-            Duration(milliseconds: 500),
-          ),
-          trailing: true,
-        )
-        .listen((value) => value());
-  }
+  );
 
   final Loader loader;
-  final SharedPreferences prefs;
   final _articlePageCache = <List<dom.Element>>[];
   final _articleCache = Map<String, Article>();
-  final _savePosition = PublishSubject<Function>();
   final _quotesRegExp = RegExp(
     '[$_startQuotes]($_any$_word$_ws$_word$_any)[$_ceaseQuotes]',
     caseSensitive: false,
   );
 
-  List<Link> operator [](Tag tag) {
+  List<Link> cached(Tag tag) {
     switch (tag) {
+      case Tag.any:
+        return _articles((_) => true);
       case Tag.letters:
         return _articles(_isLetter);
       case Tag.others:
@@ -59,6 +47,8 @@ class Model extends ChangeNotifier {
         throw UnimplementedError();
     }
   }
+
+  List<Link> operator [](Tag tag) => cached(tag);
 
   Future<List<dom.Element>> _page(int index) {
     if (_articlePageCache.length > index) {
@@ -90,35 +80,14 @@ class Model extends ChangeNotifier {
 
   bool get any => _articlePageCache.isNotEmpty;
 
-  void loadMore() {
-    _page(_articlePageCache.length).then((value) => notifyListeners());
+  Future<List<Link>> loadMore() async {
+    return _page(_articlePageCache.length).then((value) => this[Tag.any]);
   }
 
   void refresh() {
     _articleCache.clear();
     _articlePageCache.clear();
     loadMore();
-  }
-
-  bool isRead(Link link) => prefs.containsKey(link.url);
-
-  double getPosition(Article article) {
-    if (prefs.containsKey(article.link.url)) {
-      return prefs.getDouble(article.link.url);
-    } else {
-      return null;
-    }
-  }
-
-  void savePosition(Article article, double position) {
-    _savePosition.add(() {
-      if (position <= 0) {
-        prefs.remove(article.link.url);
-      } else {
-        prefs.setDouble(article.link.url, position);
-      }
-      notifyListeners();
-    });
   }
 
   bool _isNotLetter(e) => !_isLetter(e);
@@ -233,7 +202,6 @@ class Model extends ChangeNotifier {
     return comments;
   }
 
-  @visibleForTesting
   Iterable<MapEntry<int, String>> expandable(List<Comment> comments) {
     return comments
         .where((e) => e.level == 1)
@@ -274,15 +242,17 @@ class Model extends ChangeNotifier {
 }
 
 class Link {
+  final String url;
+  final String title;
+
   Link({this.url, this.title});
 
   Link.fromMap(Map map) : this(url: map[urlKey], title: map[titleKey]);
 
-  final String url;
-  final String title;
+  Map<String, String> toMap() => {urlKey: url, titleKey: title};
 
   @override
-  String toString() => 'url: $url, title: $title';
+  String toString() => toMap().toString();
 }
 
 class Article {

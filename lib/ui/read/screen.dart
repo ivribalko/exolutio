@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:exolutio/src/firebase.dart';
-import 'package:exolutio/src/model.dart';
+import 'package:exolutio/src/html_model.dart';
+import 'package:exolutio/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
@@ -12,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../main.dart';
 import '../common.dart';
+import '../view_model.dart';
 
 const _fontSize = 20.0;
 const _jumpDuration = Duration(milliseconds: 300);
@@ -26,7 +28,8 @@ class ReadScreen extends StatefulWidget {
 }
 
 class _ReadScreenState extends State<ReadScreen> {
-  final _model = locator<Model>();
+  final _meta = locator<MetaModel>();
+  final _html = locator<HtmlViewModel>();
   final _scroll = AutoScrollController();
   _Jumper _jumper;
 
@@ -45,7 +48,7 @@ class _ReadScreenState extends State<ReadScreen> {
     _scroll.addListener(() {
       if (!_jumper.jumped || _jumper.returned) {
         _jumper.clear();
-        _model.savePosition(
+        _meta.savePosition(
           _data,
           _scroll.offset,
         );
@@ -57,7 +60,7 @@ class _ReadScreenState extends State<ReadScreen> {
 
   void _initStateWithData(Article value) {
     _data = value;
-    _animateTo(_model.getPosition(_data));
+    _animateTo(_meta.getPosition(_data));
     setState(() {});
   }
 
@@ -228,7 +231,7 @@ class _ReadScreenState extends State<ReadScreen> {
   }
 
   Future<Article> _articleAsFuture(Link argument) {
-    var futureOr = _model.article(argument);
+    var futureOr = _html.article(argument);
     if (futureOr is Article) {
       return Future.value(futureOr);
     } else {

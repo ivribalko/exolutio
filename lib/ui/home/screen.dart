@@ -1,4 +1,5 @@
-import 'package:exolutio/src/model.dart';
+import 'package:exolutio/src/html_model.dart';
+import 'package:exolutio/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +7,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../main.dart';
 import '../routes.dart';
+import '../view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -13,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _model = locator<Model>();
+  final _model = locator<HtmlViewModel>();
   final _refresh = RefreshController(initialRefresh: false);
 
   @override
@@ -53,9 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Consumer<Model> _buildTab(BuildContext context, Tag tag) {
-    return Consumer<Model>(
-      builder: (_, Model model, __) {
+  Consumer<HtmlViewModel> _buildTab(BuildContext context, Tag tag) {
+    return Consumer<HtmlViewModel>(
+      builder: (_, HtmlViewModel model, __) {
         if (!model.any) {
           _model.loadMore();
           return Center(
@@ -128,7 +130,7 @@ class _LinkView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<Model, bool>(
+    return Selector<MetaModel, bool>(
       selector: (_, model) => model.isRead(data),
       builder: (BuildContext context, bool isRead, __) {
         return ListTile(

@@ -1,10 +1,7 @@
 import 'package:exolutio/ui/routes.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 
-import 'model.dart';
-
-const String titleKey = 'title';
-const String urlKey = 'url';
+import 'html_model.dart';
 
 class Firebase {
   Future<String> getArticleLink(Link link) async {
