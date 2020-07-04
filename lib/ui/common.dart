@@ -1,3 +1,4 @@
+import 'package:exolutio/src/model.dart';
 import 'package:flutter/material.dart';
 
 const double AppBarHeight = 100;
@@ -18,5 +19,16 @@ class SliverProgressIndicator extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+void safePushNamed(BuildContext context, String path, Link link) {
+  try {
+    Navigator.of(context).pushNamed(
+      path,
+      arguments: link,
+    );
+  } catch (e) {
+    print(e);
   }
 }

@@ -26,6 +26,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        // TODO move to home?
         ChangeNotifierProvider<Model>(create: (_) => locator<Model>()),
       ],
       child: Exolutio(),

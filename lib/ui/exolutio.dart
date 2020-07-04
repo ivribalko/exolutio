@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'deeplink.dart';
 import 'home/screen.dart';
+import 'messages.dart';
 import 'read/screen.dart';
 
 class Exolutio extends StatelessWidget {
@@ -21,10 +22,7 @@ class Exolutio extends StatelessWidget {
       ),
       initialRoute: Routes.home,
       routes: {
-        Routes.home: (context) => Provider<DeepRouter>(
-            create: (context) => DeepRouter(context),
-            child: HomeScreen(),
-            lazy: false),
+        Routes.home: (context) => _multiProviderHome(),
         Routes.read: (context) => ReadScreen(context),
       },
       // https://github.com/Sub6Resources/flutter_html/issues/294#issuecomment-637318948
@@ -32,6 +30,22 @@ class Exolutio extends StatelessWidget {
         data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
         child: child,
       ),
+    );
+  }
+
+  Widget _multiProviderHome() {
+    return MultiProvider(
+      providers: [
+        Provider<DeepRouter>(
+          create: (context) => DeepRouter(context),
+          lazy: false,
+        ),
+        Provider<PushRouter>(
+          create: (context) => PushRouter(context),
+          lazy: false,
+        ),
+      ],
+      child: HomeScreen(),
     );
   }
 }

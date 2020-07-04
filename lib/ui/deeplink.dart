@@ -4,6 +4,8 @@ import 'package:exolutio/src/model.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 
+import 'common.dart';
+
 class DeepRouter {
   final BuildContext context;
   final _firebase = locator<Firebase>();
@@ -33,14 +35,8 @@ class DeepRouter {
       print('following link to ${deep.path}: '
           'of title: ${link.title} '
           'and url: ${link.url}');
-      try {
-        Navigator.of(context).pushNamed(
-          deep.path,
-          arguments: link,
-        );
-      } catch (e) {
-        print(e);
-      }
+
+      safePushNamed(context, deep.path, link);
     }
   }
 }
