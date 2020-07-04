@@ -6,16 +6,6 @@ import 'package:firebase_cloud_messaging_backend/firebase_cloud_messaging_backen
 import 'package:firedart/firedart.dart';
 
 void main() async {
-  Platform.environment.forEach((key, value) {
-    print(key);
-    print(value);
-  });
-
-  final server = FirebaseCloudMessagingServer(
-    _credentials(),
-    'exolutio',
-  );
-
   final auth = await FirebaseAuth(
     // Firebase : Settings : General
     Platform.environment['FIREBASE_WEB_API_KEY'],
@@ -28,6 +18,11 @@ void main() async {
   final current = await HtmlModel(Loader()).loadMore();
   final earlier = (await links.get()).map((e) => Link.fromMap(e.map)).toList();
 
+  final sender = FirebaseCloudMessagingServer(
+    _credentials(),
+    'exolutio',
+  );
+
   var updated = false;
 
   for (final link in current) {
@@ -35,7 +30,7 @@ void main() async {
       print('Found new link: $link');
       await links.add(link.toMap());
       print('Link added to database');
-      final response = await _broadcastNotification(server, link);
+      final response = await _broadcastNotification(sender, link);
       print(
         'Link broadcasted. FCM response: { '
         'statusCode: ${response.statusCode}, '
@@ -62,19 +57,21 @@ void main() async {
   exit(0);
 }
 
-JWTClaim _credentials() => JWTClaim.from(_credentialsFile);
-
-File get _credentialsFile {
-  return File.fromUri(
-    Uri.file(
-      // https://cloud.google.com/kubernetes-engine/docs/tutorials/authenticating-to-cloud-platform
-      Platform.environment['GOOGLE_APPLICATION_CREDENTIALS'],
+JWTClaim _credentials() {
+  return JWTClaim.from(
+    File.fromUri(
+      Uri.file(
+        // https://cloud.google.com/kubernetes-engine/docs/tutorials/authenticating-to-cloud-platform
+        Platform.environment['GOOGLE_APPLICATION_CREDENTIALS'],
+      ),
     ),
   );
 }
 
 Future<ServerResult> _broadcastNotification(
-    FirebaseCloudMessagingServer server, Link link) {
+  FirebaseCloudMessagingServer server,
+  Link link,
+) {
   return server.send(
     Send(
       message: Message(

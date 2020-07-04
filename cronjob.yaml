@@ -8,13 +8,22 @@ spec:
     spec:
       template:
         spec:
+          volumes:
+            - name: google-cloud-key
+              secret:
+                secretName: pubsub-key
           containers:
             - name: new-content-notifier
-              image: gcr.io/exolutio/new-content-notifier
+              image: gcr.io/exolutio/new-content-notifier:latest
+              volumeMounts:
+                - name: google-cloud-key
+                  mountPath: /var/secrets/google
               env:
                 - name: FIREBASE_WEB_API_KEY
                   valueFrom:
                     secretKeyRef:
-                      name: exolutio-firebase-secret-web-api-key
-                      key: exolutio-firebase-secret-web-api-key
+                      name: web-api-key
+                      key: web-api-key
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: /var/secrets/google/key.json
           restartPolicy: Never
