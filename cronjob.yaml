@@ -15,6 +15,6 @@ spec:
                 - name: FIREBASE_WEB_API_KEY
                   valueFrom:
                     secretKeyRef:
-                      name: firebase-secret-web-api-key
-                      key: firebase-secret-web-api-key
+                      name: exolutio-firebase-secret-web-api-key
+                      key: exolutio-firebase-secret-web-api-key
           restartPolicy: Never

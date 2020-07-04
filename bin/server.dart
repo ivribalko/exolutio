@@ -6,8 +6,13 @@ import 'package:firebase_cloud_messaging_backend/firebase_cloud_messaging_backen
 import 'package:firedart/firedart.dart';
 
 void main() async {
+  Platform.environment.forEach((key, value) {
+    print(key);
+    print(value);
+  });
+
   final server = FirebaseCloudMessagingServer(
-    JWTClaim.from(_credentialsFile),
+    _credentials(),
     'exolutio',
   );
 
@@ -18,16 +23,17 @@ void main() async {
   )
     ..signInAnonymously();
 
-  final store = Firestore('exolutio', auth: auth).collection('titles');
+  final store = Firestore('exolutio', auth: auth);
+  final links = store.collection('links');
   final current = await HtmlModel(Loader()).loadMore();
-  final earlier = (await store.get()).map((e) => Link.fromMap(e.map)).toList();
+  final earlier = (await links.get()).map((e) => Link.fromMap(e.map)).toList();
 
   var updated = false;
 
   for (final link in current) {
     if (_notAny(earlier, link)) {
       print('Found new link: $link');
-      await store.add(link.toMap());
+      await links.add(link.toMap());
       print('Link added to database');
       final response = await _broadcastNotification(server, link);
       print(
@@ -42,24 +48,26 @@ void main() async {
 
   for (final link in earlier) {
     if (_notAny(current, link)) {
-      await store.document(link.url).delete();
+      await links.document(link.url).delete();
       print('Removed old link: $link');
     }
   }
 
   if (updated) {
-    print('Firestore updated with new titles');
+    print('Firestore updated with new links');
   } else {
-    print('No new titles found, updated skipped');
+    print('No new links found');
   }
 
   exit(0);
 }
 
+JWTClaim _credentials() => JWTClaim.from(_credentialsFile);
+
 File get _credentialsFile {
   return File.fromUri(
     Uri.file(
-      // https://firebase.google.com/docs/cloud-messaging/auth-server
+      // https://cloud.google.com/kubernetes-engine/docs/tutorials/authenticating-to-cloud-platform
       Platform.environment['GOOGLE_APPLICATION_CREDENTIALS'],
     ),
   );
