@@ -1,4 +1,4 @@
-import 'package:exolutio/src/model.dart';
+import 'package:exolutio/src/html_model.dart';
 import 'package:flutter/material.dart';
 
 const double AppBarHeight = 100;

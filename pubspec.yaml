@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   firebase_dynamic_links: ^0.5.1
+  firebase_messaging: ^6.0.16
   flutter:
     sdk: flutter
   flutter_html: ^1.0.0

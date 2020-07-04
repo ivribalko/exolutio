@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:exolutio/src/model.dart';
+import 'package:exolutio/src/html_model.dart';
 import 'package:exolutio/ui/routes.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
