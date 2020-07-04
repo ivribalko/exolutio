@@ -280,6 +280,9 @@ class Link {
 
   final String url;
   final String title;
+
+  @override
+  String toString() => 'url: $url, title: $title';
 }
 
 class Article {

@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:exolutio/src/model.dart';
 import 'package:exolutio/ui/routes.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+
+import 'common.dart';
 
 class PushRouter {
   final BuildContext context;
@@ -14,16 +18,15 @@ class PushRouter {
     final firebaseMessaging = FirebaseMessaging();
     await firebaseMessaging.requestNotificationPermissions();
     firebaseMessaging.configure(
-      onMessage: _handleNotification,
-      onLaunch: _handleNotification,
-      onResume: _handleNotification,
+      onLaunch: _onNotification,
+      onResume: _onNotification,
     );
+    print('Push notifications have been set up');
   }
 
-  Future<dynamic> _handleNotification(Map<String, dynamic> data) async {
-    Navigator.of(context).pushNamed(
-      Routes.read,
-      arguments: Link.fromMap(data),
-    );
+  Future<dynamic> _onNotification(Map<String, dynamic> message) async {
+    final link = Link.fromMap(Platform.isAndroid ? message['data'] : message);
+    print('Opening link from push notification: $link');
+    safePushNamed(context, Routes.read, link);
   }
 }

@@ -33,8 +33,8 @@ class Exolutio extends StatelessWidget {
     );
   }
 
-  Provider<DeepRouter> _multiProviderHome() {
-    MultiProvider(
+  Widget _multiProviderHome() {
+    return MultiProvider(
       providers: [
         Provider<DeepRouter>(
           create: (context) => DeepRouter(context),
