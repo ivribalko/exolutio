@@ -249,7 +249,7 @@ class Link {
 
   Link.fromMap(Map map) : this(url: map[urlKey], title: map[titleKey]);
 
-  Map<String, dynamic> toMap() => {urlKey: url, titleKey: title};
+  Map<String, String> toMap() => {urlKey: url, titleKey: title};
 
   @override
   String toString() => toMap().toString();
