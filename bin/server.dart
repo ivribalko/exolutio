@@ -45,13 +45,14 @@ void main() async {
     if (_notAny(current, link)) {
       await links.document(link.url).delete();
       print('Removed old link: $link');
+      updated = true;
     }
   }
 
   if (updated) {
-    print('Firestore updated with new links');
+    print('Firestore updated');
   } else {
-    print('No new links found');
+    print('No changes found');
   }
 
   exit(0);
@@ -76,10 +77,14 @@ Future<ServerResult> _broadcastNotification(
     Send(
       message: Message(
         notification: Notification(
-          body: 'Появилась новая статья - ${link.title}',
+          title: 'Новая статья!',
+          body: '${link.title} - перейти к чтению.',
         ),
         topic: 'new-content',
         data: link.toMap()..['click_action'] = 'FLUTTER_NOTIFICATION_CLICK',
+        android: AndroidConfig(
+          priority: AndroidMessagePriority.HIGH,
+        ),
       ),
     ),
   );
