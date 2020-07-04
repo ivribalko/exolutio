@@ -17,6 +17,7 @@ class PushRouter {
   Future _setUpPushNotifications() async {
     final firebaseMessaging = FirebaseMessaging();
     await firebaseMessaging.requestNotificationPermissions();
+    await firebaseMessaging.subscribeToTopic('new-content');
     firebaseMessaging.configure(
       onLaunch: _onNotification,
       onResume: _onNotification,
