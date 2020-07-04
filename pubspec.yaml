@@ -9,3 +9,5 @@ environment:
 dependencies:
   html: ^0.14.0+3
   http: ^0.12.1
+  firebase_cloud_messaging_backend: ^1.0.1
+  firedart: ^0.8.2

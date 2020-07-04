@@ -3,9 +3,6 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 
 import 'html_model.dart';
 
-const String titleKey = 'title';
-const String urlKey = 'url';
-
 class Firebase {
   Future<String> getArticleLink(Link link) async {
     final parameters = DynamicLinkParameters(

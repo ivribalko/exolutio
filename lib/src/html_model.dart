@@ -2,17 +2,19 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:exolutio/src/comment.dart';
-import 'package:exolutio/src/firebase.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
 
 import 'loader.dart';
 
 enum Tag {
+  any,
   letters,
   others,
 }
 
+const String titleKey = 'title';
+const String urlKey = 'url';
 const String CommentLink = "comment:";
 const _startQuotes = '<«"\'‘“';
 const _ceaseQuotes = '>»"\'’”';
@@ -33,8 +35,10 @@ class HtmlModel {
     caseSensitive: false,
   );
 
-  List<Link> operator [](Tag tag) {
+  List<Link> cached(Tag tag) {
     switch (tag) {
+      case Tag.any:
+        return _articles((_) => true);
       case Tag.letters:
         return _articles(_isLetter);
       case Tag.others:
@@ -43,6 +47,8 @@ class HtmlModel {
         throw UnimplementedError();
     }
   }
+
+  List<Link> operator [](Tag tag) => cached(tag);
 
   Future<List<dom.Element>> _page(int index) {
     if (_articlePageCache.length > index) {
@@ -74,8 +80,8 @@ class HtmlModel {
 
   bool get any => _articlePageCache.isNotEmpty;
 
-  Future loadMore() async {
-    await _page(_articlePageCache.length);
+  Future<List<Link>> loadMore() async {
+    return _page(_articlePageCache.length).then((value) => this[Tag.any]);
   }
 
   void refresh() {
@@ -236,15 +242,17 @@ class HtmlModel {
 }
 
 class Link {
+  final String url;
+  final String title;
+
   Link({this.url, this.title});
 
   Link.fromMap(Map map) : this(url: map[urlKey], title: map[titleKey]);
 
-  final String url;
-  final String title;
+  Map<String, dynamic> toMap() => {urlKey: url, titleKey: title};
 
   @override
-  String toString() => 'url: $url, title: $title';
+  String toString() => toMap().toString();
 }
 
 class Article {

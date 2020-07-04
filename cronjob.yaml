@@ -11,4 +11,10 @@ spec:
           containers:
             - name: new-content-notifier
               image: gcr.io/exolutio/new-content-notifier
+              env:
+                - name: FIREBASE_WEB_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: firebase-secret-web-api-key
+                      key: firebase-secret-web-api-key
           restartPolicy: Never
