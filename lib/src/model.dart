@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:exolutio/src/comment.dart';
+import 'package:exolutio/src/firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
@@ -274,6 +275,8 @@ class Model extends ChangeNotifier {
 
 class Link {
   Link({this.url, this.title});
+
+  Link.fromMap(Map map) : this(url: map[urlKey], title: map[titleKey]);
 
   final String url;
   final String title;
