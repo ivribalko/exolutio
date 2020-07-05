@@ -47,7 +47,7 @@ class _ReadScreenState extends State<ReadScreen> {
     _jumper.position.listen(_animateTo);
 
     _scroll.addListener(() {
-      if (!_jumper.jumped || _jumper.returned) {
+      if (_jumper.returned) {
         _jumper.clear();
         _meta.savePosition(
           _data,
@@ -75,11 +75,10 @@ class _ReadScreenState extends State<ReadScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => !_jumper.setBacked(),
+      onWillPop: () async => !_jumper.goBack(),
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
-          onPressed:
-              _jumper.jumped ? _jumper.setBacked : _jumper.setJumpedStart,
+          onPressed: _jumper.jumped ? _jumper.goBack : _jumper.goStart,
           child: Icon(_floatingIcon),
         ),
         body: SafeArea(
@@ -207,7 +206,7 @@ class _ReadScreenState extends State<ReadScreen> {
   void _onLinkTap(String url) {
     if (url.startsWith(CommentLink)) {
       final index = url.substring(CommentLink.length);
-      _jumper.setJumpedComment(int.parse(index));
+      _jumper.goComment(int.parse(index));
     } else {
       launch(url);
     }
@@ -251,19 +250,23 @@ class _BottomBar extends StatefulWidget {
 }
 
 class _BottomBarState extends State<_BottomBar> {
-  static const double _height = 85;
+  static const double _height = 55;
   final _meta = locator<MetaModel>();
   final firebase = locator<Firebase>();
-  get _scrollController => widget.reading._scroll;
   double _offset = 0, _delta = 0, _offsetWas = _height;
+  AutoScrollController get _scroll => widget.reading._scroll;
 
   @override
   void initState() {
-    _scrollController.addListener(
+    _scroll.addListener(
       () => setState(
         () {
-          final offset = _scrollController.offset;
-          _delta += (offset - _offsetWas);
+          final offset = _scroll.offset;
+          if (widget.reading._jumper.jumped) {
+            _delta += (offset - _offsetWas).abs();
+          } else {
+            _delta += (offset - _offsetWas);
+          }
           _delta = min(max(0, _delta), _height);
           _offsetWas = offset;
           _offset = -_delta;
@@ -374,12 +377,16 @@ class _Jumper {
     position.close();
   }
 
+  double get _offset => reading._scroll.offset;
+
   bool get jumped => mode.value != JumpMode.none;
 
   bool get returned {
-    return _jumpedUp
-        ? reading._scroll.offset >= _jumpedFrom
-        : reading._scroll.offset <= _jumpedFrom;
+    if (!jumped) {
+      return true;
+    } else {
+      return _jumpedUp ? _offset >= _jumpedFrom : _offset <= _jumpedFrom;
+    }
   }
 
   set _modeSetter(JumpMode event) {
@@ -402,15 +409,15 @@ class _Jumper {
     }
   }
 
-  void setJumpedStart() {
+  void goStart() {
     _jumpedUp = true;
-    _jumpedFrom = reading._scroll.offset;
+    _jumpedFrom = _offset;
     _modeSetter = JumpMode.start;
   }
 
-  void setJumpedComment(int index) {
+  void goComment(int index) {
     _jumpedUp = false;
-    _jumpedFrom = reading._scroll.offset;
+    _jumpedFrom = _offset;
     _modeSetter = JumpMode.comment;
     reading._scroll.scrollToIndex(
       index,
@@ -421,10 +428,9 @@ class _Jumper {
     reading.setState(() {}); // TODO
   }
 
-  bool setBacked() {
+  bool goBack() {
     if (jumped) {
       _modeSetter = JumpMode.back;
-      clear();
       return true;
     } else {
       return false;
