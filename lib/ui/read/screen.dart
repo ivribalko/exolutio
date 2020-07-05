@@ -86,7 +86,7 @@ class _ReadScreenState extends State<ReadScreen> {
           child: Stack(
             children: <Widget>[
               Selector<MetaModel, double>(
-                selector: (_, meta) => meta.fontScale,
+                selector: (_, meta) => meta.fontSize,
                 builder: (_, __, ___) => CustomScrollView(
                   controller: _scroll,
                   slivers: [
@@ -186,9 +186,7 @@ class _ReadScreenState extends State<ReadScreen> {
     );
   }
 
-  double get _fontSize {
-    return Theme.of(context).textTheme.bodyText1.fontSize * _meta.fontScale;
-  }
+  double get _fontSize => _meta.fontSize;
 
   Map<String, Style> get _htmlStyle => {
         'article': Style(fontSize: FontSize(_fontSize)),
@@ -289,7 +287,7 @@ class _BottomBarState extends State<_BottomBar> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             _flatButton(Icons.share, _shareLink),
-            _flatButton(Icons.format_size, _meta.nextScale),
+            _flatButton(Icons.format_size, _meta.nextFontSize),
           ],
         ),
       ),
