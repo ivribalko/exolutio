@@ -298,11 +298,14 @@ class _BottomBarState extends State<_BottomBar> {
   }
 
   Widget _flatButton(IconData icon, Function onPressed) {
-    return FlatButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      label: Container(),
+    return Material(
       shape: CircleBorder(),
+      child: IconButton(
+        iconSize: 24,
+        onPressed: onPressed,
+        icon: Icon(icon),
+        enableFeedback: false,
+      ),
     );
   }
 
