@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'html_model.dart';
 
 class MetaModel extends ChangeNotifier {
-  static const fontSizeKey = 'fontScale';
+  static const fontSizeKey = 'fontSize';
   final SharedPreferences prefs;
   final _savePosition = PublishSubject<Function>();
   final _fontSizes = [17.0, 20.0, 24.0];

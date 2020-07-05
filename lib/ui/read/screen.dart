@@ -285,8 +285,9 @@ class _BottomBarState extends State<_BottomBar> {
       bottom: _offset,
       width: MediaQuery.of(context).size.width,
       child: Container(
+        decoration: _shadowWhenLight(context),
         height: _height,
-        color: Theme.of(context).bottomAppBarColor,
+        color: _colorWhenDark(context),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,9 +300,32 @@ class _BottomBarState extends State<_BottomBar> {
     );
   }
 
+  Color _colorWhenDark(BuildContext context) {
+    return isDarkTheme(context) ? Theme.of(context).bottomAppBarColor : null;
+  }
+
+  BoxDecoration _shadowWhenLight(BuildContext context) {
+    if (isDarkTheme(context)) {
+      return null;
+    } else {
+      return BoxDecoration(
+        color: Theme.of(context).bottomAppBarColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3), // changes position of shadow
+          ),
+        ],
+      );
+    }
+  }
+
   Widget _flatButton(IconData icon, Function onPressed) {
     return Material(
       shape: CircleBorder(),
+      color: Theme.of(context).bottomAppBarColor,
       child: IconButton(
         iconSize: 24,
         onPressed: onPressed,

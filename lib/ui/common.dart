@@ -32,3 +32,7 @@ void safePushNamed(BuildContext context, String path, Link link) {
     print(e);
   }
 }
+
+bool isDarkTheme(BuildContext context) {
+  return Theme.of(context).brightness == Brightness.dark;
+}
