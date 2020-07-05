@@ -98,6 +98,7 @@ class _ReadScreenState extends State<ReadScreen> {
                 ),
               ),
               _BottomBar(this),
+              _Progress(this),
             ],
           ),
         ),
@@ -250,7 +251,7 @@ class _BottomBar extends StatefulWidget {
 }
 
 class _BottomBarState extends State<_BottomBar> {
-  static const double _height = 55;
+  static const double _height = 60;
   final _meta = locator<MetaModel>();
   final firebase = locator<Firebase>();
   double _offset = 0, _delta = 0, _offsetWas = _height;
@@ -288,6 +289,7 @@ class _BottomBarState extends State<_BottomBar> {
         color: Theme.of(context).bottomAppBarColor,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _flatButton(Icons.share, _shareLink),
             _flatButton(Icons.format_size, _meta.nextFontSize),
@@ -337,6 +339,13 @@ class _ProgressState extends State<_Progress> {
 
   @override
   Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: _buildProgress(context),
+    );
+  }
+
+  Widget _buildProgress(BuildContext context) {
     if (widget.reading._data == null) {
       return LinearProgressIndicator();
     }
@@ -349,7 +358,13 @@ class _ProgressState extends State<_Progress> {
     return GestureDetector(
       onTapDown: (e) => _jump(e.localPosition, context),
       onHorizontalDragUpdate: (e) => _jump(e.localPosition, context),
-      child: LinearProgressIndicator(value: value),
+      child: Container(
+        color: Colors.transparent,
+        child: Padding(
+          padding: EdgeInsets.only(top: 15),
+          child: LinearProgressIndicator(value: value),
+        ),
+      ),
     );
   }
 
