@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:exolutio/src/firebase.dart';
 import 'package:exolutio/src/html_model.dart';
@@ -94,12 +95,7 @@ class _ReadScreenState extends State<ReadScreen> {
                   if (_data == null) SliverProgressIndicator(),
                 ],
               ),
-              Column(
-                children: <Widget>[
-                  Spacer(),
-                  _BottomBar(this),
-                ],
-              ),
+              _BottomBar(this),
             ],
           ),
         ),
@@ -240,30 +236,67 @@ class _ReadScreenState extends State<ReadScreen> {
   }
 }
 
-class _BottomBar extends StatelessWidget {
+class _BottomBar extends StatefulWidget {
   final _ReadScreenState reading;
-  final firebase = locator<Firebase>();
 
   _BottomBar(this.reading);
 
-  Article get _article => reading._data;
+  @override
+  _BottomBarState createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<_BottomBar> {
+  static const double _height = 85;
+  final firebase = locator<Firebase>();
+  get _scrollController => widget.reading._scroll;
+  double _offset = 0, _delta = 0, _offsetWas = _height;
+
+  @override
+  void initState() {
+    _scrollController.addListener(
+      () => setState(
+        () {
+          final offset = _scrollController.offset;
+          _delta += (offset - _offsetWas);
+          _delta = min(max(0, _delta), _height);
+          _offsetWas = offset;
+          _offset = -_delta;
+        },
+      ),
+    );
+    super.initState();
+  }
+
+  Article get _article => widget.reading._data;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 40,
-      child: Column(
-        children: <Widget>[
-          Flexible(
-            child: RaisedButton.icon(
-              onPressed: _shareLink,
-              icon: Icon(Icons.share),
-              label: Text('Share'),
-            ),
+    return Positioned(
+      bottom: _offset,
+      width: MediaQuery.of(context).size.width,
+      child: Align(
+        alignment: AlignmentDirectional.bottomCenter,
+        child: Container(
+          height: _height,
+          color: Theme.of(context).backgroundColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              _buildFlatButton(Icons.share, _shareLink),
+              _buildFlatButton(Icons.format_size, () {}),
+            ],
           ),
-          _Progress(reading),
-        ],
+        ),
       ),
+    );
+  }
+
+  FlatButton _buildFlatButton(IconData icon, Function onPressed) {
+    return FlatButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      label: Container(),
+      shape: CircleBorder(),
     );
   }
 
