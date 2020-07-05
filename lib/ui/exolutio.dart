@@ -17,6 +17,12 @@ class Exolutio extends StatelessWidget {
         fontFamily: 'Merriweather_Sans',
       ),
       darkTheme: ThemeData(
+        primaryColor: Colors.black,
+        cardColor: Colors.white10,
+        scaffoldBackgroundColor: Colors.black,
+        canvasColor: Colors.black,
+        bottomAppBarColor: Colors.black,
+        backgroundColor: Colors.black,
         brightness: Brightness.dark,
         fontFamily: 'Merriweather_Sans',
       ),

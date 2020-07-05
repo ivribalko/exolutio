@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:exolutio/src/firebase.dart';
 import 'package:exolutio/src/html_model.dart';
@@ -6,6 +7,7 @@ import 'package:exolutio/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:share/share.dart';
@@ -15,7 +17,6 @@ import '../../main.dart';
 import '../common.dart';
 import '../view_model.dart';
 
-const _fontSize = 20.0;
 const _jumpDuration = Duration(milliseconds: 300);
 
 class ReadScreen extends StatefulWidget {
@@ -31,8 +32,8 @@ class _ReadScreenState extends State<ReadScreen> {
   final _meta = locator<MetaModel>();
   final _html = locator<HtmlViewModel>();
   final _scroll = AutoScrollController();
-  _Jumper _jumper;
 
+  _Jumper _jumper;
   Article _data;
   String _title;
 
@@ -46,7 +47,7 @@ class _ReadScreenState extends State<ReadScreen> {
     _jumper.position.listen(_animateTo);
 
     _scroll.addListener(() {
-      if (!_jumper.jumped || _jumper.returned) {
+      if (_jumper.returned) {
         _jumper.clear();
         _meta.savePosition(
           _data,
@@ -74,32 +75,30 @@ class _ReadScreenState extends State<ReadScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => !_jumper.setBacked(),
+      onWillPop: () async => !_jumper.goBack(),
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
-          onPressed:
-              _jumper.jumped ? _jumper.setBacked : _jumper.setJumpedStart,
+          onPressed: _jumper.jumped ? _jumper.goBack : _jumper.goStart,
           child: Icon(_floatingIcon),
         ),
         body: SafeArea(
           child: Stack(
             children: <Widget>[
-              CustomScrollView(
-                controller: _scroll,
-                slivers: [
-                  _buildAppBar(),
-                  if (_data != null) _buildHtml(),
-                  if (_data != null) _buildComments(),
-                  if (_data != null) _buildFloatingMargin(),
-                  if (_data == null) SliverProgressIndicator(),
-                ],
+              Selector<MetaModel, double>(
+                selector: (_, meta) => meta.fontSize,
+                builder: (_, __, ___) => CustomScrollView(
+                  controller: _scroll,
+                  slivers: [
+                    _buildAppBar(),
+                    if (_data != null) _buildHtml(),
+                    if (_data != null) _buildComments(),
+                    if (_data != null) _buildFloatingMargin(),
+                    if (_data == null) SliverProgressIndicator(),
+                  ],
+                ),
               ),
-              Column(
-                children: <Widget>[
-                  Spacer(),
-                  _BottomBar(this),
-                ],
-              ),
+              _BottomBar(this),
+              _Progress(this),
             ],
           ),
         ),
@@ -187,6 +186,8 @@ class _ReadScreenState extends State<ReadScreen> {
     );
   }
 
+  double get _fontSize => _meta.fontSize;
+
   Map<String, Style> get _htmlStyle => {
         'article': Style(fontSize: FontSize(_fontSize)),
         '.quote': Style(fontSize: FontSize(_fontSize), color: _accentColor),
@@ -206,7 +207,7 @@ class _ReadScreenState extends State<ReadScreen> {
   void _onLinkTap(String url) {
     if (url.startsWith(CommentLink)) {
       final index = url.substring(CommentLink.length);
-      _jumper.setJumpedComment(int.parse(index));
+      _jumper.goComment(int.parse(index));
     } else {
       launch(url);
     }
@@ -240,29 +241,72 @@ class _ReadScreenState extends State<ReadScreen> {
   }
 }
 
-class _BottomBar extends StatelessWidget {
+class _BottomBar extends StatefulWidget {
   final _ReadScreenState reading;
-  final firebase = locator<Firebase>();
 
   _BottomBar(this.reading);
 
-  Article get _article => reading._data;
+  @override
+  _BottomBarState createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<_BottomBar> {
+  static const double _height = 60;
+  final _meta = locator<MetaModel>();
+  final firebase = locator<Firebase>();
+  double _offset = 0, _delta = 0, _offsetWas = _height;
+  AutoScrollController get _scroll => widget.reading._scroll;
+
+  @override
+  void initState() {
+    _scroll.addListener(
+      () => setState(
+        () {
+          final offset = _scroll.offset;
+          if (widget.reading._jumper.jumped) {
+            _delta += (offset - _offsetWas).abs();
+          } else {
+            _delta += (offset - _offsetWas);
+          }
+          _delta = min(max(0, _delta), _height);
+          _offsetWas = offset;
+          _offset = -_delta;
+        },
+      ),
+    );
+    super.initState();
+  }
+
+  Article get _article => widget.reading._data;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 40,
-      child: Column(
-        children: <Widget>[
-          Flexible(
-            child: RaisedButton.icon(
-              onPressed: _shareLink,
-              icon: Icon(Icons.share),
-              label: Text('Share'),
-            ),
-          ),
-          _Progress(reading),
-        ],
+    return Positioned(
+      bottom: _offset,
+      width: MediaQuery.of(context).size.width,
+      child: Container(
+        height: _height,
+        color: Theme.of(context).bottomAppBarColor,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _flatButton(Icons.share, _shareLink),
+            _flatButton(Icons.format_size, _meta.nextFontSize),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _flatButton(IconData icon, Function onPressed) {
+    return Material(
+      shape: CircleBorder(),
+      child: IconButton(
+        iconSize: 24,
+        onPressed: onPressed,
+        icon: Icon(icon),
+        enableFeedback: false,
       ),
     );
   }
@@ -295,6 +339,13 @@ class _ProgressState extends State<_Progress> {
 
   @override
   Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: _buildProgress(context),
+    );
+  }
+
+  Widget _buildProgress(BuildContext context) {
     if (widget.reading._data == null) {
       return LinearProgressIndicator();
     }
@@ -307,7 +358,13 @@ class _ProgressState extends State<_Progress> {
     return GestureDetector(
       onTapDown: (e) => _jump(e.localPosition, context),
       onHorizontalDragUpdate: (e) => _jump(e.localPosition, context),
-      child: LinearProgressIndicator(value: value),
+      child: Container(
+        color: Colors.transparent,
+        child: Padding(
+          padding: EdgeInsets.only(top: 15),
+          child: LinearProgressIndicator(value: value),
+        ),
+      ),
     );
   }
 
@@ -338,12 +395,16 @@ class _Jumper {
     position.close();
   }
 
+  double get _offset => reading._scroll.offset;
+
   bool get jumped => mode.value != JumpMode.none;
 
   bool get returned {
-    return _jumpedUp
-        ? reading._scroll.offset >= _jumpedFrom
-        : reading._scroll.offset <= _jumpedFrom;
+    if (!jumped) {
+      return true;
+    } else {
+      return _jumpedUp ? _offset >= _jumpedFrom : _offset <= _jumpedFrom;
+    }
   }
 
   set _modeSetter(JumpMode event) {
@@ -366,15 +427,15 @@ class _Jumper {
     }
   }
 
-  void setJumpedStart() {
+  void goStart() {
     _jumpedUp = true;
-    _jumpedFrom = reading._scroll.offset;
+    _jumpedFrom = _offset;
     _modeSetter = JumpMode.start;
   }
 
-  void setJumpedComment(int index) {
+  void goComment(int index) {
     _jumpedUp = false;
-    _jumpedFrom = reading._scroll.offset;
+    _jumpedFrom = _offset;
     _modeSetter = JumpMode.comment;
     reading._scroll.scrollToIndex(
       index,
@@ -385,10 +446,9 @@ class _Jumper {
     reading.setState(() {}); // TODO
   }
 
-  bool setBacked() {
+  bool goBack() {
     if (jumped) {
       _modeSetter = JumpMode.back;
-      clear();
       return true;
     } else {
       return false;
