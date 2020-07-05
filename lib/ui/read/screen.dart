@@ -7,6 +7,7 @@ import 'package:exolutio/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:share/share.dart';
@@ -16,7 +17,6 @@ import '../../main.dart';
 import '../common.dart';
 import '../view_model.dart';
 
-const _fontSize = 20.0;
 const _jumpDuration = Duration(milliseconds: 300);
 
 class ReadScreen extends StatefulWidget {
@@ -32,8 +32,8 @@ class _ReadScreenState extends State<ReadScreen> {
   final _meta = locator<MetaModel>();
   final _html = locator<HtmlViewModel>();
   final _scroll = AutoScrollController();
-  _Jumper _jumper;
 
+  _Jumper _jumper;
   Article _data;
   String _title;
 
@@ -85,15 +85,18 @@ class _ReadScreenState extends State<ReadScreen> {
         body: SafeArea(
           child: Stack(
             children: <Widget>[
-              CustomScrollView(
-                controller: _scroll,
-                slivers: [
-                  _buildAppBar(),
-                  if (_data != null) _buildHtml(),
-                  if (_data != null) _buildComments(),
-                  if (_data != null) _buildFloatingMargin(),
-                  if (_data == null) SliverProgressIndicator(),
-                ],
+              Selector<MetaModel, double>(
+                selector: (_, meta) => meta.fontScale,
+                builder: (_, __, ___) => CustomScrollView(
+                  controller: _scroll,
+                  slivers: [
+                    _buildAppBar(),
+                    if (_data != null) _buildHtml(),
+                    if (_data != null) _buildComments(),
+                    if (_data != null) _buildFloatingMargin(),
+                    if (_data == null) SliverProgressIndicator(),
+                  ],
+                ),
               ),
               _BottomBar(this),
             ],
@@ -183,6 +186,10 @@ class _ReadScreenState extends State<ReadScreen> {
     );
   }
 
+  double get _fontSize {
+    return Theme.of(context).textTheme.bodyText1.fontSize * _meta.fontScale;
+  }
+
   Map<String, Style> get _htmlStyle => {
         'article': Style(fontSize: FontSize(_fontSize)),
         '.quote': Style(fontSize: FontSize(_fontSize), color: _accentColor),
@@ -247,6 +254,7 @@ class _BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<_BottomBar> {
   static const double _height = 85;
+  final _meta = locator<MetaModel>();
   final firebase = locator<Firebase>();
   get _scrollController => widget.reading._scroll;
   double _offset = 0, _delta = 0, _offsetWas = _height;
@@ -282,8 +290,8 @@ class _BottomBarState extends State<_BottomBar> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              _buildFlatButton(Icons.share, _shareLink),
-              _buildFlatButton(Icons.format_size, () {}),
+              _flatButton(Icons.share, _shareLink),
+              _flatButton(Icons.format_size, _meta.nextScale),
             ],
           ),
         ),
@@ -291,7 +299,7 @@ class _BottomBarState extends State<_BottomBar> {
     );
   }
 
-  FlatButton _buildFlatButton(IconData icon, Function onPressed) {
+  FlatButton _flatButton(IconData icon, Function onPressed) {
     return FlatButton.icon(
       onPressed: onPressed,
       icon: Icon(icon),
