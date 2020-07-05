@@ -282,24 +282,21 @@ class _BottomBarState extends State<_BottomBar> {
     return Positioned(
       bottom: _offset,
       width: MediaQuery.of(context).size.width,
-      child: Align(
-        alignment: AlignmentDirectional.bottomCenter,
-        child: Container(
-          height: _height,
-          color: Theme.of(context).backgroundColor,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              _flatButton(Icons.share, _shareLink),
-              _flatButton(Icons.format_size, _meta.nextScale),
-            ],
-          ),
+      child: Container(
+        height: _height,
+        color: Theme.of(context).bottomAppBarColor,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            _flatButton(Icons.share, _shareLink),
+            _flatButton(Icons.format_size, _meta.nextScale),
+          ],
         ),
       ),
     );
   }
 
-  FlatButton _flatButton(IconData icon, Function onPressed) {
+  Widget _flatButton(IconData icon, Function onPressed) {
     return FlatButton.icon(
       onPressed: onPressed,
       icon: Icon(icon),
