@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:exolutio/src/comment.dart';
 import 'package:exolutio/src/firebase.dart';
 import 'package:exolutio/src/html_model.dart';
 import 'package:exolutio/src/meta_model.dart';
@@ -134,40 +135,12 @@ class _ReadScreenState extends State<ReadScreen> {
                 index: _data.comments.indexOf(e),
                 controller: _scroll,
                 key: ValueKey(_data.comments.indexOf(e)),
-                child: Card(
-                  elevation: 3,
-                  color: e.dname == e.poster ? _authorColor : null,
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            '  ${'↳ ' * e.level} ${e.dname}',
-                            style: TextStyle(
-                              fontSize: Theme.of(context)
-                                  .textTheme
-                                  .subtitle2
-                                  .fontSize,
-                              color: e.dname == e.poster
-                                  ? Colors.white
-                                  : Theme.of(context).disabledColor,
-                              shadows: <Shadow>[
-                                Shadow(
-                                  offset: Offset(0.0, 1.0),
-                                  blurRadius: 2.0,
-                                  color: Color.fromARGB(255, 0, 0, 0),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      Html(
-                        data: '<article>${e.article}</article>',
-                        style: e.dname == e.poster ? _authorStyle : _htmlStyle,
-                      ),
-                    ],
-                  ),
+                child: _Comment(
+                  comment: e,
+                  authorColor: _authorColor,
+                  context: context,
+                  authorStyle: _authorStyle,
+                  htmlStyle: _htmlStyle,
                 ),
               ),
             )
@@ -238,6 +211,103 @@ class _ReadScreenState extends State<ReadScreen> {
     } else {
       return futureOr;
     }
+  }
+}
+
+class _Comment extends StatelessWidget {
+  const _Comment({
+    Key key,
+    @required Comment comment,
+    @required Color authorColor,
+    @required this.context,
+    @required Map<String, Style> authorStyle,
+    @required Map<String, Style> htmlStyle,
+  })  : _comment = comment,
+        _authorColor = authorColor,
+        _authorStyle = authorStyle,
+        _htmlStyle = htmlStyle,
+        super(key: key);
+
+  final Comment _comment;
+  final Color _authorColor;
+  final BuildContext context;
+  final Map<String, Style> _authorStyle;
+  final Map<String, Style> _htmlStyle;
+
+  Widget _divider() {
+    return Divider(
+      height: 30,
+      thickness: 3,
+      indent: 50,
+      endIndent: 50,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        Column(
+          children: <Widget>[
+            if (_comment.level == 1) _divider(),
+            Card(
+              elevation: 3,
+              color: _comment.dname == _comment.poster ? _authorColor : null,
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(7.0),
+                        child: Text(
+                          '${_comment.level}↳ ${_comment.dname}',
+                          style: TextStyle(
+                            fontSize:
+                                Theme.of(context).textTheme.subtitle2.fontSize,
+                            color: _comment.dname == _comment.poster
+                                ? Colors.white
+                                : Theme.of(context).disabledColor,
+                            shadows: <Shadow>[
+                              Shadow(
+                                offset: Offset(0.0, 1.0),
+                                blurRadius: 2.0,
+                                color: Color.fromARGB(255, 0, 0, 0),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Html(
+                    data: '<article>${_comment.article}</article>',
+                    style: _comment.dname == _comment.poster
+                        ? _authorStyle
+                        : _htmlStyle,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Column(
+          children: <Widget>[
+            if (_comment.level == 1) _divider(),
+            Align(
+              alignment: Alignment.topRight,
+              child: CircleAvatar(
+                radius: 21,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(_comment.userpic),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
