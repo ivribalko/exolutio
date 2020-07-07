@@ -34,6 +34,7 @@ class _ReadScreenState extends State<ReadScreen> {
   final _html = locator<HtmlViewModel>();
   final _scroll = AutoScrollController();
 
+  StreamSubscription _loading;
   _Jumper _jumper;
   Article _data;
   String _title;
@@ -43,7 +44,7 @@ class _ReadScreenState extends State<ReadScreen> {
     final link = _getRouteArguments(widget.context) as Link;
     _title = link.title;
     _meta.savePosition(link, 0);
-    _articleAsFuture(link).then(_initStateWithData);
+    _loading = _articleAsFuture(link).asStream().listen(_initStateWithData);
     _jumper = _Jumper(this);
     _jumper.mode.listen((value) => setState(() {}));
     _jumper.position.listen(_animateTo);
@@ -69,6 +70,7 @@ class _ReadScreenState extends State<ReadScreen> {
 
   @override
   void dispose() {
+    _loading.cancel();
     _jumper.dispose();
     _scroll.dispose();
     super.dispose();
