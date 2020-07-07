@@ -244,7 +244,7 @@ class _Comment extends StatelessWidget {
           Row(
             children: <Widget>[
               Text(
-                '  ${'↳ ' * _comment.level} ${_comment.dname}',
+                ' ${_comment.level}↳ ${_comment.dname}',
                 style: TextStyle(
                   fontSize: Theme.of(context).textTheme.subtitle2.fontSize,
                   color: _comment.dname == _comment.poster
