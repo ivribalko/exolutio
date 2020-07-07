@@ -133,17 +133,30 @@ class _LinkView extends StatelessWidget {
     return Selector<MetaModel, bool>(
       selector: (_, model) => model.isRead(data),
       builder: (BuildContext context, bool isRead, __) {
-        return ListTile(
-          dense: true,
-          onTap: onTap,
-          title: Text(
-            data.title.replaceFirst('Письмо: ', '').replaceAll('"', ''),
-            style: TextStyle(
-              color: isRead ? Theme.of(context).disabledColor : null,
-              fontSize: Theme.of(context).textTheme.headline6.fontSize,
+        return Row(
+          children: <Widget>[
+            Flexible(
+              child: ListTile(
+                dense: true,
+                onTap: onTap,
+                title: Text(
+                  data.title.replaceFirst('Письмо: ', '').replaceAll('"', ''),
+                  style: TextStyle(
+                    color: isRead ? Theme.of(context).disabledColor : null,
+                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                  ),
+                ),
+                subtitle: Text(data.date),
+              ),
             ),
-          ),
-          subtitle: Text(data.date),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(
+                backgroundColor: Theme.of(context).dividerColor,
+                value: 0.3,
+              ),
+            ),
+          ],
         );
       },
     );
