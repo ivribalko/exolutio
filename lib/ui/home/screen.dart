@@ -153,7 +153,7 @@ class _LinkView extends StatelessWidget {
               padding: EdgeInsets.all(8.0),
               child: CircularProgressIndicator(
                 backgroundColor: Theme.of(context).dividerColor,
-                value: 0.3,
+                value: progress ?? 0,
               ),
             ),
           ],

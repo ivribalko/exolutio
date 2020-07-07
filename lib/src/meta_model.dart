@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,7 +29,8 @@ class MetaModel extends ChangeNotifier {
 
   double getProgress(Link link) {
     if (prefs.containsKey(link.url)) {
-      return prefs.getDouble(link.url);
+      final save = _loadSave(link);
+      return save.currentPosition / save.maximumPosition;
     } else {
       return null;
     }
@@ -35,15 +38,23 @@ class MetaModel extends ChangeNotifier {
 
   double getPosition(Link link) {
     if (prefs.containsKey(link.url)) {
-      return prefs.getDouble(link.url);
+      return _loadSave(link).currentPosition;
     } else {
       return null;
     }
   }
 
-  void savePosition(Link link, double position, double max) {
+  void savePosition(Link link, double at, double max) {
     _savePosition.add(() {
-      prefs.setDouble(link.url, position);
+      prefs.setString(
+        link.url,
+        jsonEncode(
+          _Save(
+            currentPosition: at,
+            maximumPosition: max,
+          ).toJson(),
+        ),
+      );
       notifyListeners();
     });
   }
@@ -55,5 +66,34 @@ class MetaModel extends ChangeNotifier {
     final index = (_fontSizes.indexOf(_fontSize) + 1) % _fontSizes.length;
     prefs.setDouble(fontSizeKey, _fontSize = _fontSizes[index]);
     notifyListeners();
+  }
+
+  _Save _loadSave(Link link) {
+    return _Save.fromJson(jsonDecode(prefs.getString(link.url)));
+  }
+}
+
+class _Save {
+  double _currentPosition;
+  double _maximumPosition;
+
+  double get currentPosition => _currentPosition;
+  double get maximumPosition => _maximumPosition;
+
+  _Save({double currentPosition, double maximumPosition}) {
+    _currentPosition = currentPosition;
+    _maximumPosition = maximumPosition;
+  }
+
+  _Save.fromJson(dynamic json) {
+    _currentPosition = json["currentPosition"];
+    _maximumPosition = json["maximumPosition"];
+  }
+
+  Map<String, dynamic> toJson() {
+    var map = <String, dynamic>{};
+    map["currentPosition"] = _currentPosition;
+    map["maximumPosition"] = _maximumPosition;
+    return map;
   }
 }
