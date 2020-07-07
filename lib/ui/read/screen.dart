@@ -270,13 +270,6 @@ class _Comment extends StatelessWidget {
                             color: _comment.dname == _comment.poster
                                 ? Colors.white
                                 : Theme.of(context).disabledColor,
-                            shadows: <Shadow>[
-                              Shadow(
-                                offset: Offset(0.0, 1.0),
-                                blurRadius: 2.0,
-                                color: Color.fromARGB(255, 0, 0, 0),
-                              ),
-                            ],
                           ),
                         ),
                       ),
