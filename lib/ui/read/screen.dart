@@ -239,7 +239,7 @@ class _Comment extends StatelessWidget {
   final Map<String, Style> _authorStyle;
   final Map<String, Style> _htmlStyle;
 
-  Widget _divider() {
+  Widget _divider({Color color}) {
     return Padding(
       padding: _avatarMove,
       child: Divider(
@@ -247,6 +247,7 @@ class _Comment extends StatelessWidget {
         thickness: 3,
         indent: 50,
         endIndent: 50,
+        color: color,
       ),
     );
   }
@@ -257,7 +258,7 @@ class _Comment extends StatelessWidget {
       children: <Widget>[
         Column(
           children: <Widget>[
-            if (_comment.level == 1) _divider(),
+            if (_comment.level == 1) _divider(color: null),
             Padding(
               padding: _avatarMove, // move avatar higher
               child: Card(
@@ -298,7 +299,7 @@ class _Comment extends StatelessWidget {
         ),
         Column(
           children: <Widget>[
-            if (_comment.level == 1) _divider(),
+            if (_comment.level == 1) _divider(color: Colors.transparent),
             Align(
               alignment: Alignment.topRight,
               child: CircleAvatar(
