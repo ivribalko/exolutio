@@ -137,12 +137,13 @@ class _LinkView extends StatelessWidget {
           dense: true,
           onTap: onTap,
           title: Text(
-            data.title,
+            data.title.replaceFirst('Письмо: ', '').replaceAll('"', ''),
             style: TextStyle(
               color: isRead ? Theme.of(context).disabledColor : null,
               fontSize: Theme.of(context).textTheme.headline6.fontSize,
             ),
           ),
+          subtitle: Text(data.date),
         );
       },
     );

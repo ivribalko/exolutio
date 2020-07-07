@@ -13,8 +13,9 @@ enum Tag {
   others,
 }
 
-const String titleKey = 'title';
 const String urlKey = 'url';
+const String dateKey = 'date';
+const String titleKey = 'title';
 const String CommentLink = "comment:";
 const _startQuotes = '<«"\'‘“';
 const _ceaseQuotes = '>»"\'’”';
@@ -61,7 +62,7 @@ class HtmlModel {
   Future<List<dom.Element>> _loadPage(int index) => loader
       .page(index)
       .then(parse)
-      .then((value) => value.querySelectorAll('dt.entry-title'));
+      .then((value) => value.querySelectorAll('dl.entry.hentry'));
 
   List<dom.Element> _cachePage(List<dom.Element> e) {
     _articlePageCache.add(e);
@@ -97,14 +98,19 @@ class HtmlModel {
       ? []
       : _articlePageCache
           .reduce((value, element) => value..addAll(element))
-          .where(test)
-          .map((e) => e.children.first)
-          .where((element) => element.text.isNotEmpty)
-          .map((e) => Link(
-                url: e.attributes['href'],
-                title: e.text,
-              ))
+          .map(_hrefAndDateEntry)
+          .where((e) => test(e.key))
+          .where((e) => e.key.text.isNotEmpty)
+          .where((e) => e.key.text != 'ПРАВИЛА БЛОГА')
+          .map((e) => Link.fromHtml(e.key, e.value))
           .toList();
+
+  MapEntry<dom.Element, dom.Element> _hrefAndDateEntry(e) {
+    return MapEntry(
+      e.querySelector('a'),
+      e.querySelector('dd.entry-date > abbr'),
+    );
+  }
 
   Future<Article> _getArticle(Link link, dom.Document value) async {
     final comments = await _getUndynamicComments(link, value);
@@ -243,13 +249,29 @@ class HtmlModel {
 
 class Link {
   final String url;
+  final String date;
   final String title;
 
-  Link({this.url, this.title});
+  Link({this.url, this.date, this.title});
 
-  Link.fromMap(Map map) : this(url: map[urlKey], title: map[titleKey]);
+  Link.fromMap(
+    Map map,
+  ) : this(
+          url: map[urlKey],
+          date: map[dateKey],
+          title: map[titleKey],
+        );
 
-  Map<String, String> toMap() => {urlKey: url, titleKey: title};
+  Link.fromHtml(
+    dom.Element a,
+    dom.Element abbr,
+  ) : this(
+          url: a.attributes['href'],
+          date: abbr.text,
+          title: a.text,
+        );
+
+  Map<String, String> toMap() => {urlKey: url, dateKey: date, titleKey: title};
 
   @override
   String toString() => toMap().toString();

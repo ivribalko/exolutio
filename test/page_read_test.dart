@@ -15,7 +15,6 @@ class MockPreferences extends Mock implements SharedPreferences {}
 void main() {
   Loader loader;
   HtmlViewModel model;
-  StreamController updated;
 
   void loadFile(String id) {
     when(loader.body(any)).thenAnswer((_) => File(
@@ -34,20 +33,16 @@ void main() {
           'test/evo-lutio.livejournal.com.html',
         ).readAsString());
 
-    updated = StreamController();
     model = HtmlViewModel(loader);
-    model.addListener(() => updated.add(null));
   });
   tearDown(() {
-    updated.close();
     model.dispose();
   });
 
   test('first comment text', () async {
     loadFile('single_page');
 
-    model.loadMore();
-    await updated.stream.first;
+    await model.loadMore();
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
@@ -61,30 +56,17 @@ void main() {
   test('comments count on single_page', () async {
     loadFile('single_page');
 
-    model.loadMore();
-    await updated.stream.first;
+    await model.loadMore();
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
     expect(article.comments.length, equals(30));
   });
 
-  test('comments count on double_page', () async {
-    loadFile('double_page');
-
-    model.loadMore();
-    await updated.stream.first;
-    final link = model[Tag.letters].first;
-    final article = await model.article(link);
-
-    expect(article.comments.length, equals(74));
-  });
-
   test('comments count on triple_page', () async {
     loadFile('triple_page');
 
-    model.loadMore();
-    await updated.stream.first;
+    await model.loadMore();
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
@@ -94,8 +76,7 @@ void main() {
   test('quotes count on single_page', () async {
     loadFile('single_page');
 
-    model.loadMore();
-    await updated.stream.first;
+    await model.loadMore();
     final link = model[Tag.letters].first;
     final article = await model.article(link);
     final quotes = RegExp('class="quote"').allMatches(article.text);
@@ -103,23 +84,10 @@ void main() {
     expect(quotes.length, equals(52));
   });
 
-  test('quotes count on double_page', () async {
-    loadFile('double_page');
-
-    model.loadMore();
-    await updated.stream.first;
-    final link = model[Tag.letters].first;
-    final article = await model.article(link);
-    final quotes = RegExp('class="quote"').allMatches(article.text);
-
-    expect(quotes.length, equals(60));
-  });
-
   test('quotes count on triple_page', () async {
     loadFile('triple_page');
 
-    model.loadMore();
-    await updated.stream.first;
+    await model.loadMore();
     final link = model[Tag.letters].first;
     final article = await model.article(link);
     final quotes = RegExp('class="quote"').allMatches(article.text);
@@ -130,8 +98,7 @@ void main() {
   test('expandable comments count single_page', () async {
     loadFile('single_page');
 
-    model.loadMore();
-    await updated.stream.first;
+    await model.loadMore();
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
@@ -141,8 +108,7 @@ void main() {
   test('expandable comments count triple_page', () async {
     loadFile('triple_page');
 
-    model.loadMore();
-    await updated.stream.first;
+    await model.loadMore();
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
@@ -152,8 +118,7 @@ void main() {
   test('comments order single_page', () async {
     loadFile('single_page');
 
-    model.loadMore();
-    await updated.stream.first;
+    await model.loadMore();
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
@@ -166,8 +131,7 @@ void main() {
   test('comments order triple_page', () async {
     loadFile('triple_page');
 
-    model.loadMore();
-    await updated.stream.first;
+    await model.loadMore();
     final link = model[Tag.letters].first;
     final article = await model.article(link);
 
@@ -175,5 +139,27 @@ void main() {
     final expected = await File('test/order_triple_page.txt').readAsString();
 
     expect(actual, equals(expected));
+  });
+
+  Future testTitlesOrder(Tag tag) async {
+    loadFile('single_page');
+
+    await model.loadMore();
+    final actual = model[tag].join("\n\n");
+    final expected = await File('test/order_titles_$tag.txt').readAsString();
+
+    expect(actual, equals(expected));
+  }
+
+  test('titles order any', () async {
+    await testTitlesOrder(Tag.any);
+  });
+
+  test('titles order others', () async {
+    await testTitlesOrder(Tag.others);
+  });
+
+  test('titles order letters', () async {
+    await testTitlesOrder(Tag.letters);
   });
 }
