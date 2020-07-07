@@ -130,9 +130,9 @@ class _LinkView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<MetaModel, bool>(
-      selector: (_, model) => model.isRead(data),
-      builder: (BuildContext context, bool isRead, __) {
+    return Selector<MetaModel, double>(
+      selector: (_, model) => model.getProgress(data),
+      builder: (BuildContext context, double progress, __) {
         return Row(
           children: <Widget>[
             Flexible(
@@ -142,7 +142,7 @@ class _LinkView extends StatelessWidget {
                 title: Text(
                   data.title.replaceFirst('Письмо: ', '').replaceAll('"', ''),
                   style: TextStyle(
-                    color: isRead ? Theme.of(context).disabledColor : null,
+                    color: _desaturateCompleted(progress, context),
                     fontSize: Theme.of(context).textTheme.headline6.fontSize,
                   ),
                 ),
@@ -160,5 +160,11 @@ class _LinkView extends StatelessWidget {
         );
       },
     );
+  }
+
+  Color _desaturateCompleted(double progress, BuildContext context) {
+    return progress != null && progress >= 1
+        ? Theme.of(context).disabledColor
+        : null;
   }
 }

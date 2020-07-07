@@ -25,17 +25,23 @@ class MetaModel extends ChangeNotifier {
         .listen((value) => value());
   }
 
-  bool isRead(Link link) => prefs.containsKey(link.url);
-
-  double getPosition(Article article) {
-    if (prefs.containsKey(article.link.url)) {
-      return prefs.getDouble(article.link.url);
+  double getProgress(Link link) {
+    if (prefs.containsKey(link.url)) {
+      return prefs.getDouble(link.url);
     } else {
       return null;
     }
   }
 
-  void savePosition(Link link, double position) {
+  double getPosition(Link link) {
+    if (prefs.containsKey(link.url)) {
+      return prefs.getDouble(link.url);
+    } else {
+      return null;
+    }
+  }
+
+  void savePosition(Link link, double position, double max) {
     _savePosition.add(() {
       prefs.setDouble(link.url, position);
       notifyListeners();
