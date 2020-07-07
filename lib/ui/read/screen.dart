@@ -234,58 +234,77 @@ class _Comment extends StatelessWidget {
   final Map<String, Style> _authorStyle;
   final Map<String, Style> _htmlStyle;
 
+  Widget _divider() {
+    return Divider(
+      height: 30,
+      thickness: 3,
+      indent: 50,
+      endIndent: 50,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        Card(
-          elevation: 3,
-          color: _comment.dname == _comment.poster ? _authorColor : null,
-          child: Column(
-            children: <Widget>[
-              Row(
+        Column(
+          children: <Widget>[
+            if (_comment.level == 1) _divider(),
+            Card(
+              elevation: 3,
+              color: _comment.dname == _comment.poster ? _authorColor : null,
+              child: Column(
                 children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(left: 10.0),
-                    child: Text(
-                      '${_comment.level}↳ ${_comment.dname}',
-                      style: TextStyle(
-                        fontSize:
-                            Theme.of(context).textTheme.subtitle2.fontSize,
-                        color: _comment.dname == _comment.poster
-                            ? Colors.white
-                            : Theme.of(context).disabledColor,
-                        shadows: <Shadow>[
-                          Shadow(
-                            offset: Offset(0.0, 1.0),
-                            blurRadius: 2.0,
-                            color: Color.fromARGB(255, 0, 0, 0),
+                  Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(7.0),
+                        child: Text(
+                          '${_comment.level}↳ ${_comment.dname}',
+                          style: TextStyle(
+                            fontSize:
+                                Theme.of(context).textTheme.subtitle2.fontSize,
+                            color: _comment.dname == _comment.poster
+                                ? Colors.white
+                                : Theme.of(context).disabledColor,
+                            shadows: <Shadow>[
+                              Shadow(
+                                offset: Offset(0.0, 1.0),
+                                blurRadius: 2.0,
+                                color: Color.fromARGB(255, 0, 0, 0),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
+                  Html(
+                    data: '<article>${_comment.article}</article>',
+                    style: _comment.dname == _comment.poster
+                        ? _authorStyle
+                        : _htmlStyle,
                   ),
                 ],
               ),
-              Html(
-                data: '<article>${_comment.article}</article>',
-                style: _comment.dname == _comment.poster
-                    ? _authorStyle
-                    : _htmlStyle,
-              ),
-            ],
-          ),
-        ),
-        Align(
-          alignment: Alignment.topRight,
-          child: CircleAvatar(
-            radius: 21,
-            backgroundColor: Colors.white,
-            child: CircleAvatar(
-              radius: 20,
-              backgroundImage: NetworkImage(_comment.userpic),
             ),
-          ),
+          ],
+        ),
+        Column(
+          children: <Widget>[
+            if (_comment.level == 1) _divider(),
+            Align(
+              alignment: Alignment.topRight,
+              child: CircleAvatar(
+                radius: 21,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(_comment.userpic),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
