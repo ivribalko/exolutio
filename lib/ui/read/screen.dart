@@ -236,38 +236,54 @@ class _Comment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 3,
-      color: _comment.dname == _comment.poster ? _authorColor : null,
-      child: Column(
-        children: <Widget>[
-          Row(
+    return Stack(
+      children: <Widget>[
+        Card(
+          elevation: 3,
+          color: _comment.dname == _comment.poster ? _authorColor : null,
+          child: Column(
             children: <Widget>[
-              Text(
-                ' ${_comment.level}↳ ${_comment.dname}',
-                style: TextStyle(
-                  fontSize: Theme.of(context).textTheme.subtitle2.fontSize,
-                  color: _comment.dname == _comment.poster
-                      ? Colors.white
-                      : Theme.of(context).disabledColor,
-                  shadows: <Shadow>[
-                    Shadow(
-                      offset: Offset(0.0, 1.0),
-                      blurRadius: 2.0,
-                      color: Color.fromARGB(255, 0, 0, 0),
+              Row(
+                children: <Widget>[
+                  Text(
+                    ' ${_comment.level}↳ ${_comment.dname}',
+                    style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.subtitle2.fontSize,
+                      color: _comment.dname == _comment.poster
+                          ? Colors.white
+                          : Theme.of(context).disabledColor,
+                      shadows: <Shadow>[
+                        Shadow(
+                          offset: Offset(0.0, 1.0),
+                          blurRadius: 2.0,
+                          color: Color.fromARGB(255, 0, 0, 0),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+              Html(
+                data: '<article>${_comment.article}</article>',
+                style: _comment.dname == _comment.poster
+                    ? _authorStyle
+                    : _htmlStyle,
               ),
             ],
           ),
-          Html(
-            data: '<article>${_comment.article}</article>',
-            style:
-                _comment.dname == _comment.poster ? _authorStyle : _htmlStyle,
+        ),
+        Align(
+          alignment: Alignment.topRight,
+          child: CircleAvatar(
+            radius: 21,
+            backgroundColor: Colors.white,
+            child: CircleAvatar(
+              radius: 20,
+              backgroundImage: NetworkImage(_comment.userpic),
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
