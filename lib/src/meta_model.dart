@@ -35,13 +35,9 @@ class MetaModel extends ChangeNotifier {
     }
   }
 
-  void savePosition(Article article, double position) {
+  void savePosition(Link link, double position) {
     _savePosition.add(() {
-      if (position <= 0) {
-        prefs.remove(article.link.url);
-      } else {
-        prefs.setDouble(article.link.url, position);
-      }
+      prefs.setDouble(link.url, position);
       notifyListeners();
     });
   }

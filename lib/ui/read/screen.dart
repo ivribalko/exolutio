@@ -42,6 +42,7 @@ class _ReadScreenState extends State<ReadScreen> {
   void initState() {
     final link = _getRouteArguments(widget.context) as Link;
     _title = link.title;
+    _meta.savePosition(link, 0);
     _articleAsFuture(link).then(_initStateWithData);
     _jumper = _Jumper(this);
     _jumper.mode.listen((value) => setState(() {}));
@@ -51,7 +52,7 @@ class _ReadScreenState extends State<ReadScreen> {
       if (_jumper.returned) {
         _jumper.clear();
         _meta.savePosition(
-          _data,
+          link,
           _scroll.offset,
         );
       }
