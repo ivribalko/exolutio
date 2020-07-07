@@ -227,6 +227,7 @@ class _Comment extends StatelessWidget {
     @required Map<String, Style> htmlStyle,
   })  : _comment = comment,
         _authorColor = authorColor,
+        _avatarMove = const EdgeInsets.only(top: 5.0),
         _authorStyle = authorStyle,
         _htmlStyle = htmlStyle,
         super(key: key);
@@ -234,15 +235,19 @@ class _Comment extends StatelessWidget {
   final Comment _comment;
   final Color _authorColor;
   final BuildContext context;
+  final EdgeInsets _avatarMove;
   final Map<String, Style> _authorStyle;
   final Map<String, Style> _htmlStyle;
 
   Widget _divider() {
-    return Divider(
-      height: 30,
-      thickness: 3,
-      indent: 50,
-      endIndent: 50,
+    return Padding(
+      padding: _avatarMove,
+      child: Divider(
+        height: 20,
+        thickness: 3,
+        indent: 50,
+        endIndent: 50,
+      ),
     );
   }
 
@@ -253,35 +258,40 @@ class _Comment extends StatelessWidget {
         Column(
           children: <Widget>[
             if (_comment.level == 1) _divider(),
-            Card(
-              elevation: 3,
-              color: _comment.dname == _comment.poster ? _authorColor : null,
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(7.0),
-                        child: Text(
-                          '${_comment.level}↳ ${_comment.dname}',
-                          style: TextStyle(
-                            fontSize:
-                                Theme.of(context).textTheme.subtitle2.fontSize,
-                            color: _comment.dname == _comment.poster
-                                ? Colors.white
-                                : Theme.of(context).disabledColor,
+            Padding(
+              padding: _avatarMove, // move avatar higher
+              child: Card(
+                elevation: 3,
+                color: _comment.dname == _comment.poster ? _authorColor : null,
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(left: 7.0, top: 7.0),
+                          child: Text(
+                            '${_comment.level}↳ ${_comment.dname}',
+                            style: TextStyle(
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  .fontSize,
+                              color: _comment.dname == _comment.poster
+                                  ? Colors.white
+                                  : Theme.of(context).disabledColor,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Html(
-                    data: '<article>${_comment.article}</article>',
-                    style: _comment.dname == _comment.poster
-                        ? _authorStyle
-                        : _htmlStyle,
-                  ),
-                ],
+                      ],
+                    ),
+                    Html(
+                      data: '<article>${_comment.article}</article>',
+                      style: _comment.dname == _comment.poster
+                          ? _authorStyle
+                          : _htmlStyle,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -292,8 +302,8 @@ class _Comment extends StatelessWidget {
             Align(
               alignment: Alignment.topRight,
               child: CircleAvatar(
-                radius: 21,
-                backgroundColor: Colors.white,
+                radius: 22,
+                backgroundColor: Theme.of(context).dividerColor,
                 child: CircleAvatar(
                   radius: 20,
                   backgroundImage: NetworkImage(_comment.userpic),
