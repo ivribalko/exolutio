@@ -262,8 +262,17 @@ class _Comment extends StatelessWidget {
             Padding(
               padding: _avatarMove, // move avatar higher
               child: Card(
-                elevation: 3,
-                color: _comment.dname == _comment.poster ? _authorColor : null,
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    color: _borderColor(context),
+                    width: 1.5,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 2,
+                color: _comment.dname == _comment.poster
+                    ? _authorColor
+                    : Theme.of(context).bottomAppBarColor,
                 child: Column(
                   children: <Widget>[
                     Row(
@@ -304,7 +313,7 @@ class _Comment extends StatelessWidget {
               alignment: Alignment.topRight,
               child: CircleAvatar(
                 radius: 22,
-                backgroundColor: Theme.of(context).dividerColor,
+                backgroundColor: _borderColor(context),
                 child: CircleAvatar(
                   radius: 20,
                   backgroundImage: NetworkImage(_comment.userpic),
@@ -315,6 +324,10 @@ class _Comment extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Color _borderColor(BuildContext context) {
+    return Theme.of(context).dividerColor;
   }
 }
 
