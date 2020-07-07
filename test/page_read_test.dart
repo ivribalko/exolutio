@@ -145,7 +145,7 @@ void main() {
     loadFile('single_page');
 
     await model.loadMore();
-    final actual = model[tag].map((e) => e.title).join("\n\n");
+    final actual = model[tag].join("\n\n");
     final expected = await File('test/order_titles_$tag.txt').readAsString();
 
     expect(actual, equals(expected));
