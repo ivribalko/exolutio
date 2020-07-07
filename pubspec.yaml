@@ -44,3 +44,8 @@ flutter:
         - asset: assets/fonts/Merriweather_Sans/MerriweatherSans-Light.ttf
         - asset: assets/fonts/Merriweather_Sans/MerriweatherSans-LightItalic.ttf
         - asset: assets/fonts/Merriweather_Sans/MerriweatherSans-Regular.ttf
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/launcher.png"
