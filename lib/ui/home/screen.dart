@@ -130,22 +130,60 @@ class _LinkView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<MetaModel, bool>(
-      selector: (_, model) => model.isRead(data),
-      builder: (BuildContext context, bool isRead, __) {
-        return ListTile(
-          dense: true,
-          onTap: onTap,
-          title: Text(
-            data.title.replaceFirst('Письмо: ', '').replaceAll('"', ''),
-            style: TextStyle(
-              color: isRead ? Theme.of(context).disabledColor : null,
-              fontSize: Theme.of(context).textTheme.headline6.fontSize,
+    return Selector<MetaModel, double>(
+      selector: (_, model) => model.getProgress(data),
+      builder: (BuildContext context, double progress, __) {
+        return Row(
+          children: <Widget>[
+            Flexible(
+              child: ListTile(
+                dense: true,
+                onTap: onTap,
+                title: Text(
+                  data.title.replaceFirst('Письмо: ', '').replaceAll('"', ''),
+                  style: TextStyle(
+                    color: _desaturateCompleted(progress, context),
+                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                  ),
+                ),
+                subtitle: Text(data.date),
+              ),
             ),
-          ),
-          subtitle: Text(data.date),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: _Progress(progress),
+            ),
+          ],
         );
       },
     );
+  }
+
+  Color _desaturateCompleted(double progress, BuildContext context) {
+    return progress != null && progress >= 1
+        ? Theme.of(context).disabledColor
+        : null;
+  }
+}
+
+class _Progress extends StatelessWidget {
+  final progress;
+
+  const _Progress(this.progress);
+
+  @override
+  Widget build(BuildContext context) {
+    if ((progress ?? 0) >= 1) {
+      return Icon(
+        Icons.check,
+        size: 35,
+        color: Theme.of(context).accentColor,
+      );
+    } else {
+      return CircularProgressIndicator(
+        backgroundColor: Theme.of(context).dividerColor,
+        value: progress ?? 0,
+      );
+    }
   }
 }

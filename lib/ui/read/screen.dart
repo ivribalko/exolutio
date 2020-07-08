@@ -34,6 +34,7 @@ class _ReadScreenState extends State<ReadScreen> {
   final _html = locator<HtmlViewModel>();
   final _scroll = AutoScrollController();
 
+  StreamSubscription _loading;
   _Jumper _jumper;
   Article _data;
   String _title;
@@ -42,7 +43,7 @@ class _ReadScreenState extends State<ReadScreen> {
   void initState() {
     final link = _getRouteArguments(widget.context) as Link;
     _title = link.title;
-    _articleAsFuture(link).then(_initStateWithData);
+    _loading = _articleAsFuture(link).asStream().listen(_initStateWithData);
     _jumper = _Jumper(this);
     _jumper.mode.listen((value) => setState(() {}));
     _jumper.position.listen(_animateTo);
@@ -51,8 +52,9 @@ class _ReadScreenState extends State<ReadScreen> {
       if (_jumper.returned) {
         _jumper.clear();
         _meta.savePosition(
-          _data,
+          link,
           _scroll.offset,
+          _scroll.position.maxScrollExtent,
         );
       }
     });
@@ -62,12 +64,14 @@ class _ReadScreenState extends State<ReadScreen> {
 
   void _initStateWithData(Article value) {
     _data = value;
-    _animateTo(_meta.getPosition(_data));
+    _meta.savePosition(_data.link, 0, _scroll.position.maxScrollExtent);
+    _animateTo(_meta.getPosition(_data.link));
     setState(() {});
   }
 
   @override
   void dispose() {
+    _loading.cancel();
     _jumper.dispose();
     _scroll.dispose();
     super.dispose();
@@ -224,6 +228,7 @@ class _Comment extends StatelessWidget {
     @required Map<String, Style> htmlStyle,
   })  : _comment = comment,
         _authorColor = authorColor,
+        _avatarMove = const EdgeInsets.only(top: 5.0),
         _authorStyle = authorStyle,
         _htmlStyle = htmlStyle,
         super(key: key);
@@ -231,15 +236,20 @@ class _Comment extends StatelessWidget {
   final Comment _comment;
   final Color _authorColor;
   final BuildContext context;
+  final EdgeInsets _avatarMove;
   final Map<String, Style> _authorStyle;
   final Map<String, Style> _htmlStyle;
 
-  Widget _divider() {
-    return Divider(
-      height: 30,
-      thickness: 3,
-      indent: 50,
-      endIndent: 50,
+  Widget _divider({Color color}) {
+    return Padding(
+      padding: _avatarMove,
+      child: Divider(
+        height: 20,
+        thickness: 3,
+        indent: 50,
+        endIndent: 50,
+        color: color,
+      ),
     );
   }
 
@@ -249,55 +259,62 @@ class _Comment extends StatelessWidget {
       children: <Widget>[
         Column(
           children: <Widget>[
-            if (_comment.level == 1) _divider(),
-            Card(
-              elevation: 3,
-              color: _comment.dname == _comment.poster ? _authorColor : null,
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(7.0),
-                        child: Text(
-                          '${_comment.level}↳ ${_comment.dname}',
-                          style: TextStyle(
-                            fontSize:
-                                Theme.of(context).textTheme.subtitle2.fontSize,
-                            color: _comment.dname == _comment.poster
-                                ? Colors.white
-                                : Theme.of(context).disabledColor,
-                            shadows: <Shadow>[
-                              Shadow(
-                                offset: Offset(0.0, 1.0),
-                                blurRadius: 2.0,
-                                color: Color.fromARGB(255, 0, 0, 0),
-                              ),
-                            ],
+            if (_comment.level == 1) _divider(color: null),
+            Padding(
+              padding: _avatarMove, // move avatar higher
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    color: _borderColor(context),
+                    width: 1.5,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 2,
+                color: _comment.dname == _comment.poster
+                    ? _authorColor
+                    : Theme.of(context).bottomAppBarColor,
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(left: 7.0, top: 7.0),
+                          child: Text(
+                            '${_comment.level}↳ ${_comment.dname}',
+                            style: TextStyle(
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  .fontSize,
+                              color: _comment.dname == _comment.poster
+                                  ? Colors.white
+                                  : Theme.of(context).disabledColor,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Html(
-                    data: '<article>${_comment.article}</article>',
-                    style: _comment.dname == _comment.poster
-                        ? _authorStyle
-                        : _htmlStyle,
-                  ),
-                ],
+                      ],
+                    ),
+                    Html(
+                      data: '<article>${_comment.article}</article>',
+                      style: _comment.dname == _comment.poster
+                          ? _authorStyle
+                          : _htmlStyle,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
         Column(
           children: <Widget>[
-            if (_comment.level == 1) _divider(),
+            if (_comment.level == 1) _divider(color: Colors.transparent),
             Align(
               alignment: Alignment.topRight,
               child: CircleAvatar(
-                radius: 21,
-                backgroundColor: Colors.white,
+                radius: 22,
+                backgroundColor: _borderColor(context),
                 child: CircleAvatar(
                   radius: 20,
                   backgroundImage: NetworkImage(_comment.userpic),
@@ -308,6 +325,10 @@ class _Comment extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Color _borderColor(BuildContext context) {
+    return Theme.of(context).dividerColor;
   }
 }
 
