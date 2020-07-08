@@ -126,7 +126,7 @@ class HtmlModel {
     var article = value.querySelector('article.b-singlepost-body').outerHtml;
 
     var sorted = comments
-        .map((e) => MapEntry(comments.indexOf(e), _quotes(e, article)))
+        .map((e) => MapEntry(comments.indexOf(e), _quotes(e)))
         .toDescendingLength();
 
     for (final entry in sorted) {
@@ -150,10 +150,14 @@ class HtmlModel {
     return article;
   }
 
-  Iterable<String> _quotes(Comment comment, String article) {
+  Iterable<String> _quotes(Comment comment) {
+    final body = parse(comment.article).body;
+    final italics = body.querySelectorAll('i').map((e) => e.text);
     return _quotesRegExp
-        .allMatches(parse(comment.article).body.text)
-        .map((e) => e[0]);
+        .allMatches(body.text)
+        .map((e) => e[0])
+        .where((e) => !italics.contains(e))
+        .followedBy(italics);
   }
 
   Comment _colorize(Comment comment, String from, String span) {
