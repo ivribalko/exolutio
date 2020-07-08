@@ -152,7 +152,7 @@ class HtmlModel {
 
   Iterable<String> _quotes(Comment comment) {
     final body = parse(comment.article).body;
-    final italics = body.querySelectorAll('i').map((e) => e.text);
+    final italics = body.querySelectorAll('i').map((e) => e.innerHtml);
     return _quotesRegExp
         .allMatches(body.text)
         .map((e) => e[0])
@@ -162,7 +162,6 @@ class HtmlModel {
 
   Comment _colorize(Comment comment, String from, String span) {
     final article = comment.article.replaceFirst(from, span);
-    assert(article != comment.article);
     return Comment.map(comment.toMap()..['article'] = article);
   }
 
