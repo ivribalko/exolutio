@@ -28,19 +28,17 @@ final files = <String, String>{
   'quotes_with_quotes': File(
     'test/evo-lutio.livejournal.com__quotes_with_quotes.htm',
   ).readAsStringSync(),
+  'multiline_quotes': File(
+    'test/evo-lutio.livejournal.com__multiline_quotes.htm',
+  ).readAsStringSync(),
 };
-
-String readFile(String id) {
-  return File(
-    'test/evo-lutio.livejournal.com__$id.htm',
-  ).readAsStringSync();
-}
 
 void main() {
   Loader loader;
   HtmlViewModel model;
 
   void loadFile(String id) {
+    assert(files.containsKey(id));
     when(loader.body(any)).thenAnswer((_) => Future.value(files[id]));
     when(loader.body(argThat(contains('thread='))))
         .thenAnswer((_) => Future.value(files['thread']));
@@ -109,6 +107,17 @@ void main() {
     final quotes = RegExp('class="quote"').allMatches(article.text);
 
     expect(quotes.length, equals(88));
+  });
+
+  test('quotes count on multiline_quotes', () async {
+    loadFile('multiline_quotes');
+
+    await model.loadMore();
+    final link = model[Tag.letters].first;
+    final article = await model.article(link);
+    final quotes = RegExp('class="quote"').allMatches(article.text);
+
+    expect(quotes.length, equals(12));
   });
 
   test('expandable comments count single_page', () async {
