@@ -151,10 +151,7 @@ class _LinkView extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(
-                backgroundColor: Theme.of(context).dividerColor,
-                value: progress ?? 0,
-              ),
+              child: _Progress(progress),
             ),
           ],
         );
@@ -166,5 +163,27 @@ class _LinkView extends StatelessWidget {
     return progress != null && progress >= 1
         ? Theme.of(context).disabledColor
         : null;
+  }
+}
+
+class _Progress extends StatelessWidget {
+  final progress;
+
+  const _Progress(this.progress);
+
+  @override
+  Widget build(BuildContext context) {
+    if ((progress ?? 0) >= 1) {
+      return Icon(
+        Icons.check,
+        size: 35,
+        color: Theme.of(context).accentColor,
+      );
+    } else {
+      return CircularProgressIndicator(
+        backgroundColor: Theme.of(context).dividerColor,
+        value: progress ?? 0,
+      );
+    }
   }
 }
