@@ -36,6 +36,7 @@ final files = <String, String>{
 void main() {
   Loader loader;
   HtmlViewModel model;
+  bool rewrite = false;
 
   void loadFile(String id) {
     assert(files.containsKey(id));
@@ -148,9 +149,13 @@ void main() {
     final article = await model.article(link);
 
     final actual = article.comments.map((e) => e.article).join("\n\n");
-    final expected = await File('test/order_single_page.txt').readAsString();
+    if (rewrite) {
+      await File('test/order_single_page.txt').writeAsString(actual);
+    } else {
+      final expected = await File('test/order_single_page.txt').readAsString();
 
-    expect(actual, equals(expected));
+      expect(actual, equals(expected));
+    }
   });
 
   test('comments order triple_page', () async {
@@ -161,9 +166,13 @@ void main() {
     final article = await model.article(link);
 
     final actual = article.comments.map((e) => e.article).join("\n\n");
-    final expected = await File('test/order_triple_page.txt').readAsString();
+    if (rewrite) {
+      await File('test/order_triple_page.txt').writeAsString(actual);
+    } else {
+      final expected = await File('test/order_triple_page.txt').readAsString();
 
-    expect(actual, equals(expected));
+      expect(actual, equals(expected));
+    }
   });
 
   Future testTitlesOrder(Tag tag) async {

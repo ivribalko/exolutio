@@ -132,7 +132,7 @@ class HtmlModel {
     for (final entry in sorted) {
       final index = entry.key;
       final quote = entry.value;
-      final clean = quote.clean().clean(); // two times!
+      final clean = quote.clean().clean();
 
       if (article.indexOf(clean) > -1) {
         final link = '$CommentLink$index';
@@ -161,7 +161,20 @@ class HtmlModel {
   }
 
   Comment _colorize(Comment comment, String from, String span) {
-    final article = comment.article.replaceFirst(from, span);
+    final article = comment.article
+        // html parser gives '<br />' as '<br>'
+        .replaceAll('<br />', '<br>')
+        .replaceFirst(from, span);
+
+    assert(
+      article != comment.article,
+      'no quote\n\n'
+      '$from\n\n'
+      'in comment\n\n'
+      '${comment.article}\n\n'
+      'colorized',
+    );
+
     return Comment.map(comment.toMap()..['article'] = article);
   }
 
