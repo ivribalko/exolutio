@@ -121,6 +121,17 @@ void main() {
     expect(quotes.length, equals(16));
   });
 
+  test('quotes with quotes', () async {
+    loadFile('quotes_with_quotes');
+
+    await model.loadMore();
+    final link = model[Tag.letters].first;
+    final article = await model.article(link);
+    final quotes = RegExp('class="quote"').allMatches(article.text);
+
+    expect(quotes.length, equals(34));
+  });
+
   test('expandable comments count single_page', () async {
     loadFile('single_page');
 
@@ -195,15 +206,5 @@ void main() {
 
   test('titles order letters', () async {
     await testTitlesOrder(Tag.letters);
-  });
-
-  test('quotes with quotes', () async {
-    loadFile('quotes_with_quotes');
-
-    await model.loadMore();
-    final link = model[Tag.letters].first;
-    final article = await model.article(link);
-
-    expect(article.comments.length, equals(23));
   });
 }
