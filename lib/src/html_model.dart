@@ -32,7 +32,7 @@ class HtmlModel {
   final _articlePageCache = <List<dom.Element>>[];
   final _articleCache = Map<String, Article>();
   final _quotesRegExp = RegExp(
-    '[$_startQuotes]($_any$_word$_ws$_word$_any)[$_ceaseQuotes]',
+    '[$_startQuotes]$_any$_word$_ws$_word$_any[$_ceaseQuotes]',
     caseSensitive: false,
   );
 
@@ -126,13 +126,13 @@ class HtmlModel {
     var article = value.querySelector('article.b-singlepost-body').outerHtml;
 
     var sorted = comments
-        .map((e) => MapEntry(comments.indexOf(e), _quotes(e, article)))
+        .map((e) => MapEntry(comments.indexOf(e), _quotes(e)))
         .toDescendingLength();
 
     for (final entry in sorted) {
       final index = entry.key;
       final quote = entry.value;
-      final clean = quote.clean().clean(); // two times!
+      final clean = quote.clean().clean();
 
       if (article.indexOf(clean) > -1) {
         final link = '$CommentLink$index';
@@ -150,15 +150,31 @@ class HtmlModel {
     return article;
   }
 
-  Iterable<String> _quotes(Comment comment, String article) {
+  Iterable<String> _quotes(Comment comment) {
+    final body = parse(comment.article).body;
+    final italics = body.querySelectorAll('i').map((e) => e.innerHtml);
     return _quotesRegExp
-        .allMatches(parse(comment.article).body.text)
-        .map((e) => e[0]);
+        .allMatches(body.text)
+        .map((e) => e[0])
+        .where((e) => !italics.contains(e))
+        .followedBy(italics);
   }
 
   Comment _colorize(Comment comment, String from, String span) {
-    final article = comment.article.replaceFirst(from, span);
-    assert(article != comment.article);
+    final article = comment.article
+        // html parser gives '<br />' as '<br>'
+        .replaceAll('<br />', '<br>')
+        .replaceFirst(from, span);
+
+    assert(
+      article != comment.article,
+      'no quote\n\n'
+      '$from\n\n'
+      'in comment\n\n'
+      '${comment.article}\n\n'
+      'colorized',
+    );
+
     return Comment.map(comment.toMap()..['article'] = article);
   }
 
