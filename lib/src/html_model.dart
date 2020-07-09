@@ -32,7 +32,7 @@ class HtmlModel {
   final _articlePageCache = <List<dom.Element>>[];
   final _articleCache = Map<String, Article>();
   final _quotesRegExp = RegExp(
-    '[$_startQuotes]($_any$_word$_ws$_word$_any)[$_ceaseQuotes]',
+    '[$_startQuotes]$_any$_word$_ws$_word$_any[$_ceaseQuotes]',
     caseSensitive: false,
   );
 
