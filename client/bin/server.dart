@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:exolutio/src/html_model.dart';
-import 'package:exolutio/src/loader.dart';
+import 'package:client/src/html_model.dart';
+import 'package:client/src/loader.dart';
 import 'package:firebase_cloud_messaging_backend/firebase_cloud_messaging_backend.dart';
 import 'package:firedart/firedart.dart';
 

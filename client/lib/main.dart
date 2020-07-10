@@ -1,7 +1,7 @@
-import 'package:exolutio/src/firebase.dart';
-import 'package:exolutio/src/loader.dart';
-import 'package:exolutio/src/meta_model.dart';
-import 'package:exolutio/ui/exolutio.dart';
+import 'package:client/src/firebase.dart';
+import 'package:client/src/loader.dart';
+import 'package:client/src/meta_model.dart';
+import 'package:client/ui/exolutio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

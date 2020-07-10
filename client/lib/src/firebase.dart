@@ -1,4 +1,4 @@
-import 'package:exolutio/ui/routes.dart';
+import 'package:client/ui/routes.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 
 import 'html_model.dart';

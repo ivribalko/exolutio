@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:exolutio/src/comment.dart';
-import 'package:exolutio/src/firebase.dart';
-import 'package:exolutio/src/html_model.dart';
-import 'package:exolutio/src/meta_model.dart';
+import 'package:client/src/comment.dart';
+import 'package:client/src/firebase.dart';
+import 'package:client/src/html_model.dart';
+import 'package:client/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
