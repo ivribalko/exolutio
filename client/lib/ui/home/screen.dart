@@ -181,7 +181,7 @@ class _Progress extends StatelessWidget {
       );
     } else {
       return CircularProgressIndicator(
-        backgroundColor: Theme.of(context).dividerColor,
+        backgroundColor: Theme.of(context).disabledColor,
         value: progress ?? 0,
       );
     }
