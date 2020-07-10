@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:client/src/firebase.dart';
 import 'package:client/src/meta_model.dart';
+import 'package:client/ui/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
@@ -12,6 +13,7 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:share/share.dart';
 import 'package:shared/comment.dart';
 import 'package:shared/html_model.dart';
+import 'package:shared/loader.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../main.dart';
@@ -190,6 +192,8 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
     if (url.startsWith(CommentLink)) {
       final index = url.substring(CommentLink.length);
       _jumper.goComment(int.parse(index));
+    } else if (url.startsWith(Root)) {
+      safePushNamed(context, Routes.read, Link(url: url, date: '', title: ''));
     } else {
       launch(url);
     }
