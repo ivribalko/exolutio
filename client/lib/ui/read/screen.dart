@@ -35,6 +35,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
   final _scroll = AutoScrollController();
 
   StreamSubscription _loading;
+  ScrollPosition _lastScroll;
   _Jumper _jumper;
   Article _data;
   String _title;
@@ -50,6 +51,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
 
     _scroll.addListener(() {
       if (_jumper.returned) {
+        _lastScroll = _scroll.position;
         _jumper.clear();
       }
     });
@@ -221,11 +223,15 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
   }
 
   void _savePosition() {
-    _meta.savePosition(
-      _data.link,
-      _scroll.offset,
-      _scroll.position.maxScrollExtent,
-    );
+    if (_lastScroll != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (timeStamp) => _meta.savePosition(
+          _data.link,
+          _lastScroll.pixels,
+          _lastScroll.maxScrollExtent,
+        ),
+      );
+    }
   }
 }
 
