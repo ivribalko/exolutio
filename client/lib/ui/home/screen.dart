@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
       enablePullDown: true,
       onRefresh: _model.refresh,
       onLoading: _model.loadMore,
-      header: ClassicHeader(),
+      header: MaterialClassicHeader(),
       footer: ClassicFooter(),
       child: child,
     );
