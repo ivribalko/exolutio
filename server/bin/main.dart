@@ -6,15 +6,8 @@ import 'package:shared/html_model.dart';
 import 'package:shared/loader.dart';
 
 void main() async {
-  final auth = await FirebaseAuth(
-    // Firebase : Settings : General
-    Platform.environment['FIREBASE_WEB_API_KEY'],
-    await VolatileStore(),
-  )
-    ..signInAnonymously();
-
-  final store = Firestore('exolutio', auth: auth);
-  final links = store.collection('links');
+  final auth = await _firebaseAuth();
+  final links = Firestore('exolutio', auth: auth).collection('links');
   final current = await HtmlModel(Loader()).loadMore();
   final earlier = (await links.get()).map((e) => Link.fromMap(e.map)).toList();
 
@@ -27,15 +20,7 @@ void main() async {
 
   for (final link in current) {
     if (_notAny(earlier, link)) {
-      print('Found new link: $link');
-      await links.add(link.toMap());
-      print('Link added to database');
-      final response = await _broadcastNotification(sender, link);
-      print(
-        'Link broadcasted. FCM response: { '
-        'statusCode: ${response.statusCode}, '
-        'successful: ${response.successful}, }',
-      );
+      await _saveSend(link, links, sender);
       updated = true;
       break;
     }
@@ -43,8 +28,7 @@ void main() async {
 
   for (final link in earlier) {
     if (_notAny(current, link)) {
-      await links.document(link.url).delete();
-      print('Removed old link: $link');
+      await _delete(links, link);
       updated = true;
     }
   }
@@ -56,6 +40,36 @@ void main() async {
   }
 
   exit(0);
+}
+
+Future<FirebaseAuth> _firebaseAuth() async {
+  return await FirebaseAuth(
+    // Firebase : Settings : General
+    Platform.environment['FIREBASE_WEB_API_KEY'],
+    await VolatileStore(),
+  )
+    ..signInAnonymously();
+}
+
+Future _saveSend(
+  Link link,
+  CollectionReference links,
+  FirebaseCloudMessagingServer sender,
+) async {
+  print('Found new link: $link');
+  await links.add(link.toMap());
+  print('Link added to database');
+  final response = await _broadcastNotification(sender, link);
+  print(
+    'Link broadcasted. FCM response: { '
+    'statusCode: ${response.statusCode}, '
+    'successful: ${response.successful}, }',
+  );
+}
+
+Future _delete(CollectionReference links, Link link) async {
+  await links.document(link.url).delete();
+  print('Removed old link: $link');
 }
 
 JWTClaim _credentials() {
