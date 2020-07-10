@@ -6,56 +6,67 @@ import 'package:shared/html_model.dart';
 import 'package:shared/loader.dart';
 
 void main() async {
-  final auth = await FirebaseAuth(
-    // Firebase : Settings : General
-    Platform.environment['FIREBASE_WEB_API_KEY'],
-    await VolatileStore(),
-  )
-    ..signInAnonymously();
+  final links = Firestore(
+    'exolutio',
+    auth: await _firebaseAuth(),
+  ).collection('links');
 
-  final store = Firestore('exolutio', auth: auth);
-  final links = store.collection('links');
   final current = await HtmlModel(Loader()).loadMore();
-  final earlier = (await links.get()).map((e) => Link.fromMap(e.map)).toList();
+  final earlier = (await links.get()).map((e) => Link.fromMap(e.map));
 
-  final sender = FirebaseCloudMessagingServer(
+  final notifier = FirebaseCloudMessagingServer(
     _credentials(),
     'exolutio',
   );
 
-  var updated = false;
+  final added = missing(
+    from: earlier,
+    list: current,
+  ).map((e) => _notify(e, links, notifier));
 
-  for (final link in current) {
-    if (_notAny(earlier, link)) {
-      print('Found new link: $link');
-      await links.add(link.toMap());
-      print('Link added to database');
-      final response = await _broadcastNotification(sender, link);
-      print(
-        'Link broadcasted. FCM response: { '
-        'statusCode: ${response.statusCode}, '
-        'successful: ${response.successful}, }',
-      );
-      updated = true;
-      break;
-    }
-  }
+  final clean = missing(
+    from: current,
+    list: earlier,
+  ).map((e) => _delete(e, links));
 
-  for (final link in earlier) {
-    if (_notAny(current, link)) {
-      await links.document(link.url).delete();
-      print('Removed old link: $link');
-      updated = true;
-    }
-  }
-
-  if (updated) {
+  if ((await Future.wait([...added, ...clean])).length > 0) {
     print('Firestore updated');
   } else {
     print('No changes found');
   }
 
   exit(0);
+}
+
+Iterable<Link> missing({Iterable<Link> from, Iterable<Link> list}) {
+  return list.where((e) => _notAny(from, e));
+}
+
+Future<FirebaseAuth> _firebaseAuth() async {
+  return await FirebaseAuth(
+    // Firebase : Settings : General
+    Platform.environment['FIREBASE_WEB_API_KEY'],
+    await VolatileStore(),
+  )
+    ..signInAnonymously();
+}
+
+Future _notify(
+  Link link,
+  CollectionReference links,
+  FirebaseCloudMessagingServer notifier,
+) async {
+  print('Found new link: $link');
+  await links.add(link.toMap());
+  print('Link added to database');
+  await _send(notifier, link);
+  print('Users notified');
+}
+
+Future _delete(Link link, CollectionReference links) async {
+  final document = await links.where('url', isEqualTo: link.url).get();
+  await document.first.reference.delete();
+  print('Removed old link: $link');
 }
 
 JWTClaim _credentials() {
@@ -69,7 +80,7 @@ JWTClaim _credentials() {
   );
 }
 
-Future<ServerResult> _broadcastNotification(
+Future<ServerResult> _send(
   FirebaseCloudMessagingServer server,
   Link link,
 ) {
@@ -90,6 +101,6 @@ Future<ServerResult> _broadcastNotification(
   );
 }
 
-bool _notAny(List<Link> list, Link link) {
+bool _notAny(Iterable<Link> list, Link link) {
   return !list.any((e) => e.url == link.url);
 }
