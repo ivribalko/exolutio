@@ -58,12 +58,8 @@ Future _saveSend(
   print('Found new link: $link');
   await links.add(link.toMap());
   print('Link added to database');
-  final response = await _broadcastNotification(sender, link);
-  print(
-    'Link broadcasted. FCM response: { '
-    'statusCode: ${response.statusCode}, '
-    'successful: ${response.successful}, }',
-  );
+  final response = await _notify(sender, link);
+  print('Users notified. $response');
 }
 
 Future _delete(CollectionReference links, Link link) async {
@@ -82,7 +78,7 @@ JWTClaim _credentials() {
   );
 }
 
-Future<ServerResult> _broadcastNotification(
+Future<ServerResult> _notify(
   FirebaseCloudMessagingServer server,
   Link link,
 ) {
