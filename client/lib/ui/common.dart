@@ -1,5 +1,5 @@
-import 'package:client/src/html_model.dart';
 import 'package:flutter/material.dart';
+import 'package:shared/html_model.dart';
 
 const double AppBarHeight = 100;
 

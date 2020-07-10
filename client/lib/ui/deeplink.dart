@@ -1,8 +1,8 @@
 import 'package:client/main.dart';
 import 'package:client/src/firebase.dart';
-import 'package:client/src/html_model.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:shared/html_model.dart';
 
 import 'common.dart';
 

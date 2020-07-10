@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:client/src/html_model.dart';
-import 'package:client/src/loader.dart';
 import 'package:client/ui/view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:shared/html_model.dart';
+import 'package:shared/loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockLoader extends Mock implements Loader {}

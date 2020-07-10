@@ -1,7 +1,6 @@
 import 'package:client/ui/routes.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-
-import 'html_model.dart';
+import 'package:shared/html_model.dart';
 
 class Firebase {
   Future<String> getArticleLink(Link link) async {
