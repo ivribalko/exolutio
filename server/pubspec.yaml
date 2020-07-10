@@ -1,4 +1,4 @@
-name: exolutio
+name: server
 description: Send links from LiveJournal as push notifications.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.7.0+1
