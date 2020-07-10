@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:exolutio/src/comment.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
 
+import 'comment.dart';
 import 'loader.dart';
 
 enum Tag {

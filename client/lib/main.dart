@@ -1,11 +1,11 @@
-import 'package:exolutio/src/firebase.dart';
-import 'package:exolutio/src/loader.dart';
-import 'package:exolutio/src/meta_model.dart';
-import 'package:exolutio/ui/exolutio.dart';
+import 'package:client/src/firebase.dart';
+import 'package:client/src/meta_model.dart';
+import 'package:client/ui/exolutio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:shared/loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 

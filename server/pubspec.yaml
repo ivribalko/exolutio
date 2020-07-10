@@ -1,4 +1,4 @@
-name: exolutio
+name: server
 description: Send links from LiveJournal as push notifications.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.7.0+1
@@ -11,3 +11,5 @@ dependencies:
   http: ^0.12.1
   firebase_cloud_messaging_backend: ^1.0.1
   firedart: ^0.8.2
+  shared:
+    path: ../shared

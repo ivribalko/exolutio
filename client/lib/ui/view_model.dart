@@ -1,6 +1,6 @@
-import 'package:exolutio/src/html_model.dart';
-import 'package:exolutio/src/loader.dart';
 import 'package:flutter/material.dart';
+import 'package:shared/html_model.dart';
+import 'package:shared/loader.dart';
 
 class HtmlViewModel extends HtmlModel with ChangeNotifier {
   HtmlViewModel(Loader loader) : super(loader);

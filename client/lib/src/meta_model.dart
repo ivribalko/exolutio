@@ -2,9 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared/html_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'html_model.dart';
 
 class MetaModel extends ChangeNotifier {
   static const fontSizeKey = 'fontSize';

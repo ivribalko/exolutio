@@ -1,5 +1,5 @@
-name: exolutio
-description: Show comments with citation inside LiveJournal articles.
+name: client
+description: Show LiveJournal articles and comments with linked citation.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.8.0+2
 
@@ -20,6 +20,8 @@ dependencies:
   rxdart: ^0.24.1
   scroll_to_index: ^1.0.6
   share: ^0.6.4+3
+  shared:
+    path: ../shared
   shared_preferences: ^0.5.7+3
   url_launcher: ^5.4.11
 

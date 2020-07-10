@@ -1,9 +1,9 @@
-import 'package:exolutio/src/html_model.dart';
-import 'package:exolutio/src/meta_model.dart';
+import 'package:client/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:shared/html_model.dart';
 
 import '../../main.dart';
 import '../routes.dart';

@@ -1,4 +1,4 @@
-import 'package:exolutio/ui/routes.dart';
+import 'package:client/ui/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
