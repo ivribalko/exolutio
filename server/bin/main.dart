@@ -12,7 +12,7 @@ void main() async {
   ).collection('links');
 
   final current = await HtmlModel(Loader()).loadMore();
-  final earlier = (await links.get()).map((e) => Link.fromMap(e.map)).toList();
+  final earlier = (await links.get()).map((e) => Link.fromMap(e.map));
 
   final notifier = FirebaseCloudMessagingServer(
     _credentials(),
@@ -29,7 +29,7 @@ void main() async {
     list: earlier,
   ).map((e) => _delete(e, links));
 
-  if ((await Future.wait(added.followedBy(clean))).length > 0) {
+  if ((await Future.wait([...added, ...clean])).length > 0) {
     print('Firestore updated');
   } else {
     print('No changes found');
@@ -64,7 +64,8 @@ Future _notify(
 }
 
 Future _delete(Link link, CollectionReference links) async {
-  await links.document(link.url).delete();
+  final document = await links.where('url', isEqualTo: link.url).get();
+  await document.first.reference.delete();
   print('Removed old link: $link');
 }
 
