@@ -29,7 +29,7 @@ class ReadScreen extends StatefulWidget {
   _ReadScreenState createState() => _ReadScreenState();
 }
 
-class _ReadScreenState extends State<ReadScreen> {
+class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
   final _meta = locator<MetaModel>();
   final _html = locator<HtmlViewModel>();
   final _scroll = AutoScrollController();
@@ -51,14 +51,10 @@ class _ReadScreenState extends State<ReadScreen> {
     _scroll.addListener(() {
       if (_jumper.returned) {
         _jumper.clear();
-        _meta.savePosition(
-          link,
-          _scroll.offset,
-          _scroll.position.maxScrollExtent,
-        );
       }
     });
 
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
@@ -70,7 +66,14 @@ class _ReadScreenState extends State<ReadScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _savePosition();
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _savePosition();
     _loading.cancel();
     _jumper.dispose();
     _scroll.dispose();
@@ -215,6 +218,14 @@ class _ReadScreenState extends State<ReadScreen> {
     } else {
       return futureOr;
     }
+  }
+
+  void _savePosition() {
+    _meta.savePosition(
+      _data.link,
+      _scroll.offset,
+      _scroll.position.maxScrollExtent,
+    );
   }
 }
 
