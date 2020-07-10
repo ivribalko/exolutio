@@ -1,29 +1,18 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shared/html_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MetaModel extends ChangeNotifier {
   static const fontSizeKey = 'fontSize';
   final SharedPreferences prefs;
-  final _savePosition = PublishSubject<Function>();
   final _fontSizes = [17.0, 20.0, 24.0];
 
   MetaModel(
     this.prefs,
   ) {
     _fontSize = prefs.getDouble(fontSizeKey) ?? _fontSizes[0];
-    _savePosition
-        .throttle(
-          (event) => TimerStream(
-            true,
-            Duration(milliseconds: 500),
-          ),
-          trailing: true,
-        )
-        .listen((value) => value());
   }
 
   double getProgress(Link link) {
@@ -44,18 +33,16 @@ class MetaModel extends ChangeNotifier {
   }
 
   void savePosition(Link link, double at, double max) {
-    _savePosition.add(() {
-      prefs.setString(
-        link.url,
-        jsonEncode(
-          _Save(
-            currentPosition: at,
-            maximumPosition: max,
-          ).toJson(),
-        ),
-      );
-      notifyListeners();
-    });
+    prefs.setString(
+      link.url,
+      jsonEncode(
+        _Save(
+          currentPosition: at,
+          maximumPosition: max,
+        ).toJson(),
+      ),
+    );
+    notifyListeners();
   }
 
   double _fontSize;

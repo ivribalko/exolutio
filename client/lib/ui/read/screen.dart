@@ -29,12 +29,13 @@ class ReadScreen extends StatefulWidget {
   _ReadScreenState createState() => _ReadScreenState();
 }
 
-class _ReadScreenState extends State<ReadScreen> {
+class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
   final _meta = locator<MetaModel>();
   final _html = locator<HtmlViewModel>();
   final _scroll = AutoScrollController();
 
   StreamSubscription _loading;
+  ScrollPosition _lastScroll;
   _Jumper _jumper;
   Article _data;
   String _title;
@@ -50,15 +51,12 @@ class _ReadScreenState extends State<ReadScreen> {
 
     _scroll.addListener(() {
       if (_jumper.returned) {
+        _lastScroll = _scroll.position;
         _jumper.clear();
-        _meta.savePosition(
-          link,
-          _scroll.offset,
-          _scroll.position.maxScrollExtent,
-        );
       }
     });
 
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
@@ -70,7 +68,14 @@ class _ReadScreenState extends State<ReadScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _savePosition();
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _savePosition();
     _loading.cancel();
     _jumper.dispose();
     _scroll.dispose();
@@ -214,6 +219,18 @@ class _ReadScreenState extends State<ReadScreen> {
       return Future.value(futureOr);
     } else {
       return futureOr;
+    }
+  }
+
+  void _savePosition() {
+    if (_lastScroll != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (timeStamp) => _meta.savePosition(
+          _data.link,
+          _lastScroll.pixels,
+          _lastScroll.maxScrollExtent,
+        ),
+      );
     }
   }
 }
