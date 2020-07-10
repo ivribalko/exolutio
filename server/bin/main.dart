@@ -22,7 +22,6 @@ void main() async {
     if (_notAny(earlier, link)) {
       await _saveSend(link, links, sender);
       updated = true;
-      break;
     }
   }
 
