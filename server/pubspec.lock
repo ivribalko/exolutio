@@ -256,9 +256,11 @@ packages:
   shared:
     dependency: "direct main"
     description:
-      path: "../shared"
-      relative: true
-    source: path
+      path: shared
+      ref: HEAD
+      resolved-ref: cb0daa864f80eaca2253a1eae06670e9f1c9ce2b
+      url: "https://github.com/whitepyjamas/exolutio.git"
+    source: git
     version: "0.0.1"
   source_gen:
     dependency: transitive
