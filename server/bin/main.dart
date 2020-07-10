@@ -22,7 +22,7 @@ void main() async {
   final added = missing(
     from: earlier,
     list: current,
-  ).map((e) => _saveSend(e, links, notifier));
+  ).map((e) => _notify(e, links, notifier));
 
   final clean = missing(
     from: current,
@@ -51,7 +51,7 @@ Future<FirebaseAuth> _firebaseAuth() async {
     ..signInAnonymously();
 }
 
-Future _saveSend(
+Future _notify(
   Link link,
   CollectionReference links,
   FirebaseCloudMessagingServer notifier,
@@ -59,7 +59,7 @@ Future _saveSend(
   print('Found new link: $link');
   await links.add(link.toMap());
   print('Link added to database');
-  await _notify(notifier, link);
+  await _send(notifier, link);
   print('Users notified');
 }
 
@@ -79,7 +79,7 @@ JWTClaim _credentials() {
   );
 }
 
-Future<ServerResult> _notify(
+Future<ServerResult> _send(
   FirebaseCloudMessagingServer server,
   Link link,
 ) {
