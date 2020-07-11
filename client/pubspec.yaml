@@ -46,6 +46,16 @@ flutter:
         - asset: assets/fonts/Merriweather_Sans/MerriweatherSans-Light.ttf
         - asset: assets/fonts/Merriweather_Sans/MerriweatherSans-LightItalic.ttf
         - asset: assets/fonts/Merriweather_Sans/MerriweatherSans-Regular.ttf
+    - family: Literata
+      fonts:
+        - asset: assets/fonts/Literata/Literata-Bold.ttf
+        - asset: assets/fonts/Literata/Literata-BoldItalic.ttf
+        - asset: assets/fonts/Literata/Literata-Italic.ttf
+        - asset: assets/fonts/Literata/Literata-Medium.ttf
+        - asset: assets/fonts/Literata/Literata-MediumItalic.ttf
+        - asset: assets/fonts/Literata/Literata-Regular.ttf
+        - asset: assets/fonts/Literata/Literata-SemiBold.ttf
+        - asset: assets/fonts/Literata/Literata-SemiBoldItalic.ttf
 
 flutter_icons:
   android: "launcher_icon"

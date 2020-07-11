@@ -8,13 +8,17 @@ import 'messages.dart';
 import 'read/screen.dart';
 
 class Exolutio extends StatelessWidget {
+  final String font;
+
+  const Exolutio(this.font);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Exolutio',
       theme: ThemeData(
         brightness: Brightness.light,
-        fontFamily: 'Merriweather_Sans',
+        fontFamily: font,
       ),
       darkTheme: ThemeData(
         primaryColor: Colors.black,
@@ -24,7 +28,7 @@ class Exolutio extends StatelessWidget {
         bottomAppBarColor: Colors.black,
         backgroundColor: Colors.black,
         brightness: Brightness.dark,
-        fontFamily: 'Merriweather_Sans',
+        fontFamily: font,
       ),
       initialRoute: Routes.home,
       routes: {

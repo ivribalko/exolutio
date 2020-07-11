@@ -5,13 +5,16 @@ import 'package:shared/html_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MetaModel extends ChangeNotifier {
+  static const fontKey = 'font';
   static const fontSizeKey = 'fontSize';
   final SharedPreferences prefs;
+  final _fonts = ['Merriweather_Sans', 'Literata'];
   final _fontSizes = [17.0, 20.0, 24.0];
 
   MetaModel(
     this.prefs,
   ) {
+    _font = prefs.getString(fontKey) ?? _fonts[0];
     _fontSize = prefs.getDouble(fontSizeKey) ?? _fontSizes[0];
   }
 
@@ -42,6 +45,14 @@ class MetaModel extends ChangeNotifier {
         ).toJson(),
       ),
     );
+    notifyListeners();
+  }
+
+  String _font;
+  String get font => _font;
+  void nextFont() {
+    final index = (_fonts.indexOf(_font) + 1) % _fonts.length;
+    prefs.setString(fontKey, _font = _fonts[index]);
     notifyListeners();
   }
 
