@@ -145,44 +145,36 @@ void main() {
     expect(_model.expandable(article.comments).length, equals(7));
   });
 
-  test('comments order single_page', () async {
-    _loadFile('single_page');
+  group('comments order on', () {
+    Future _test(String name) async {
+      _loadFile(name);
 
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
+      await _model.loadMore();
+      final link = _model[Tag.letters].first;
+      final article = await _model.article(link);
 
-    final actual = article.comments.map((e) => e.article).join("\n\n");
-    if (_update) {
-      await File('test/assets/order_single_page.txt').writeAsString(actual);
-    } else {
-      final expected =
-          await File('test/assets/order_single_page.txt').readAsString();
+      final actual = article.comments.map((e) => e.article).join("\n\n");
+      if (_update) {
+        await File('test/assets/order_$name.txt').writeAsString(actual);
+      } else {
+        final expected =
+            await File('test/assets/order_$name.txt').readAsString();
 
-      expect(actual, equals(expected));
+        expect(actual, equals(expected));
+      }
     }
+
+    test('single_page', () async {
+      await _test('single_page');
+    });
+
+    test('triple_page', () async {
+      await _test('triple_page');
+    });
   });
 
-  test('comments order triple_page', () async {
-    _loadFile('triple_page');
-
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
-
-    final actual = article.comments.map((e) => e.article).join("\n\n");
-    if (_update) {
-      await File('test/assets/order_triple_page.txt').writeAsString(actual);
-    } else {
-      final expected =
-          await File('test/assets/order_triple_page.txt').readAsString();
-
-      expect(actual, equals(expected));
-    }
-  });
-
-  group('titles order ', () {
-    Future _testTitlesOrder(Tag tag) async {
+  group('titles order', () {
+    Future _test(Tag tag) async {
       _loadFile('single_page');
 
       await _model.loadMore();
@@ -193,15 +185,15 @@ void main() {
     }
 
     test('any', () async {
-      await _testTitlesOrder(Tag.any);
+      await _test(Tag.any);
     });
 
     test('others', () async {
-      await _testTitlesOrder(Tag.others);
+      await _test(Tag.others);
     });
 
     test('letters', () async {
-      await _testTitlesOrder(Tag.letters);
+      await _test(Tag.letters);
     });
   });
 }
