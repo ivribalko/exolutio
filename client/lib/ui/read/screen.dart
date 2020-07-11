@@ -1,14 +1,11 @@
 import 'dart:async';
-import 'dart:math';
 
-import 'package:client/src/firebase.dart';
 import 'package:client/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
-import 'package:share/share.dart';
 import 'package:shared/html_model.dart';
 import 'package:shared/loader.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -17,6 +14,7 @@ import '../../locator.dart';
 import '../common.dart';
 import '../routes.dart';
 import '../view_model.dart';
+import 'bottom_bar.dart';
 import 'comment_view.dart';
 import 'jumper.dart';
 import 'progress_view.dart';
@@ -107,7 +105,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
                   ],
                 ),
               ),
-              _BottomBar(this),
+              if (_data != null) BottomBar(_data, _jumper, _scroll),
               ProgressView(this._scroll),
             ],
           ),
@@ -235,107 +233,4 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
       );
     }
   }
-}
-
-class _BottomBar extends StatefulWidget {
-  final _ReadScreenState reading;
-
-  _BottomBar(this.reading);
-
-  @override
-  _BottomBarState createState() => _BottomBarState();
-}
-
-class _BottomBarState extends State<_BottomBar> {
-  static const double _height = 60;
-  final _meta = locator<MetaModel>();
-  final firebase = locator<Firebase>();
-  double _offset = 0, _delta = 0, _offsetWas = _height;
-  AutoScrollController get _scroll => widget.reading._scroll;
-
-  @override
-  void initState() {
-    _scroll.addListener(
-      () => setState(
-        () {
-          final offset = _scroll.offset;
-          if (widget.reading._jumper.jumped) {
-            _delta += (offset - _offsetWas).abs();
-          } else {
-            _delta += (offset - _offsetWas);
-          }
-          _delta = min(max(0, _delta), _height);
-          _offsetWas = offset;
-          _offset = -_delta;
-        },
-      ),
-    );
-    super.initState();
-  }
-
-  Article get _article => widget.reading._data;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      bottom: _offset,
-      width: MediaQuery.of(context).size.width,
-      child: Container(
-        decoration: _shadowWhenLight(context),
-        height: _height,
-        color: _colorWhenDark(context),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _flatButton(Icons.share, _shareLink),
-            _flatButton(Icons.text_format, _meta.nextFont),
-            _flatButton(Icons.format_size, _meta.nextFontSize),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _colorWhenDark(BuildContext context) {
-    return isDarkTheme(context) ? Theme.of(context).bottomAppBarColor : null;
-  }
-
-  BoxDecoration _shadowWhenLight(BuildContext context) {
-    if (isDarkTheme(context)) {
-      return null;
-    } else {
-      return BoxDecoration(
-        color: Theme.of(context).bottomAppBarColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: Offset(0, 3), // changes position of shadow
-          ),
-        ],
-      );
-    }
-  }
-
-  Widget _flatButton(IconData icon, Function onPressed) {
-    return Material(
-      shape: CircleBorder(),
-      color: Theme.of(context).bottomAppBarColor,
-      child: IconButton(
-        iconSize: 24,
-        onPressed: onPressed,
-        icon: Icon(icon),
-        enableFeedback: false,
-      ),
-    );
-  }
-
-  void _shareLink() async => _article?.link?.url == null
-      ? null
-      : Share.share(
-          '${_article.link.title}: '
-          '${await firebase.getArticleLink(_article.link)}',
-        );
 }
