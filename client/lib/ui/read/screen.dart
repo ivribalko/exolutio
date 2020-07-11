@@ -64,7 +64,6 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
 
   void _initStateWithData(Article value) {
     _data = value;
-    _meta.savePosition(_data.link, 0, _scroll.position.maxScrollExtent);
     _animateTo(_meta.getPosition(_data.link));
     setState(() {});
   }
