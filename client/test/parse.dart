@@ -125,24 +125,24 @@ void main() {
     expect(quotes.length, equals(34));
   });
 
-  test('expandable comments count single_page', () async {
-    _loadFile('single_page');
+  group('expandable comments count', () {
+    Future _test(String name, int count) async {
+      _loadFile(name);
 
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
+      await _model.loadMore();
+      final link = _model[Tag.letters].first;
+      final article = await _model.article(link);
 
-    expect(_model.expandable(article.comments).length, equals(5));
-  });
+      expect(_model.expandable(article.comments).length, equals(count));
+    }
 
-  test('expandable comments count triple_page', () async {
-    _loadFile('triple_page');
+    test('single_page', () async {
+      await _test('single_page', 5);
+    });
 
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
-
-    expect(_model.expandable(article.comments).length, equals(7));
+    test('triple_page', () async {
+      await _test('triple_page', 7);
+    });
   });
 
   group('comments order on', () {
