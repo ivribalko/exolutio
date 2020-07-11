@@ -19,6 +19,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final _refresh = RefreshController(initialRefresh: false);
 
   @override
+  void initState() {
+    _model.loadMore();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: DefaultTabController(
@@ -44,11 +50,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ];
           },
-          body: TabBarView(
-            children: [
-              _buildTab(context, Tag.letters),
-              _buildTab(context, Tag.others),
-            ],
+          body: Selector<HtmlViewModel, bool>(
+            selector: (_, model) => model.any,
+            builder: (_, any, __) {
+              return TabBarView(
+                children: [
+                  if (any) _buildTab(context, Tag.letters),
+                  if (any) _buildTab(context, Tag.others),
+                  if (!any) Center(child: CircularProgressIndicator()),
+                  if (!any) Center(child: CircularProgressIndicator()),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -58,12 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Consumer<HtmlViewModel> _buildTab(BuildContext context, Tag tag) {
     return Consumer<HtmlViewModel>(
       builder: (_, HtmlViewModel model, __) {
-        if (!model.any) {
-          _model.loadMore();
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
         SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
           _refresh.loadComplete();
           _refresh.refreshCompleted();
@@ -96,6 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildList(BuildContext context, List<Link> data) {
+    assert(data.map((e) => e.url).toSet().toList().length == data.length);
     return SliverPadding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
       sliver: SliverList(
