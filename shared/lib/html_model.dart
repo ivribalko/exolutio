@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
 
-import 'comment.dart';
+import 'comment_data.dart';
 import 'loader.dart';
 
 enum Tag {
@@ -122,7 +122,7 @@ class HtmlModel {
     );
   }
 
-  String _colored(dom.Document value, List<Comment> comments) {
+  String _colored(dom.Document value, List<CommentData> comments) {
     var article = value.querySelector('article.b-singlepost-body').outerHtml;
 
     var sorted = comments
@@ -150,7 +150,7 @@ class HtmlModel {
     return article;
   }
 
-  Iterable<String> _quotes(Comment comment) {
+  Iterable<String> _quotes(CommentData comment) {
     final body = parse(comment.article).body;
     final italics = body.querySelectorAll('i').map((e) => e.innerHtml);
     return _quotesRegExp
@@ -160,7 +160,7 @@ class HtmlModel {
         .followedBy(italics);
   }
 
-  Comment _colorize(Comment comment, String from, String span) {
+  CommentData _colorize(CommentData comment, String from, String span) {
     final article = comment.article
         // html parser gives '<br />' as '<br>'
         .replaceAll('<br />', '<br>')
@@ -175,11 +175,11 @@ class HtmlModel {
       'colorized',
     );
 
-    return Comment.map(comment.toMap()..['article'] = article);
+    return CommentData.map(comment.toMap()..['article'] = article);
   }
 
   // if where() directly in _getComments it doesn't work TODO
-  Future<List<Comment>> _getUndynamicComments(
+  Future<List<CommentData>> _getUndynamicComments(
     Link link,
     dom.Document firstPage,
   ) async {
@@ -195,7 +195,7 @@ class HtmlModel {
             .map((e) => '${link.url}?page=$e')
             .map(_fetchArticle));
 
-    final comments = List<Comment>();
+    final comments = List<CommentData>();
 
     for (final page in [firstPage, ...other]) {
       comments.addAll(_getComments(page));
@@ -224,7 +224,7 @@ class HtmlModel {
     return comments;
   }
 
-  Iterable<MapEntry<int, String>> expandable(List<Comment> comments) {
+  Iterable<MapEntry<int, String>> expandable(List<CommentData> comments) {
     return comments
         .where((e) => e.level == 1)
         .map((e) => MapEntry(
@@ -239,7 +239,7 @@ class HtmlModel {
         .where((e) => e?.value?.isNotEmpty ?? false);
   }
 
-  List<Comment> _getComments(dom.Document value) {
+  List<CommentData> _getComments(dom.Document value) {
     const commentsSource = 'Site.page = ';
     final script = value.body
         .querySelectorAll('script')
@@ -256,9 +256,9 @@ class HtmlModel {
     final user = jsonDecode(json);
 
     return user['comments']
-        .map((e) => Comment.map(e))
-        .cast<Comment>()
-        .where((e) => (e as Comment).article?.isNotEmpty ?? false)
+        .map((e) => CommentData.map(e))
+        .cast<CommentData>()
+        .where((e) => (e as CommentData).article?.isNotEmpty ?? false)
         .toList();
   }
 }
@@ -302,7 +302,7 @@ class Article {
 
   final Link link;
   final String text;
-  final List<Comment> comments;
+  final List<CommentData> comments;
 }
 
 extension _Madness on Iterable<MapEntry<int, Iterable<String>>> {

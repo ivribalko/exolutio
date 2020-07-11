@@ -10,7 +10,6 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:share/share.dart';
-import 'package:shared/comment.dart';
 import 'package:shared/html_model.dart';
 import 'package:shared/loader.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,6 +18,7 @@ import '../../locator.dart';
 import '../common.dart';
 import '../routes.dart';
 import '../view_model.dart';
+import 'comment_view.dart';
 
 const _jumpDuration = Duration(milliseconds: 300);
 
@@ -145,8 +145,8 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
                 index: _data.comments.indexOf(e),
                 controller: _scroll,
                 key: ValueKey(_data.comments.indexOf(e)),
-                child: _Comment(
-                  comment: e,
+                child: CommentView(
+                  data: e,
                   authorColor: _authorColor,
                   context: context,
                   authorStyle: _authorStyle,
@@ -235,120 +235,6 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
         ),
       );
     }
-  }
-}
-
-class _Comment extends StatelessWidget {
-  const _Comment({
-    Key key,
-    @required Comment comment,
-    @required Color authorColor,
-    @required this.context,
-    @required Map<String, Style> authorStyle,
-    @required Map<String, Style> htmlStyle,
-  })  : _comment = comment,
-        _authorColor = authorColor,
-        _avatarMove = const EdgeInsets.only(top: 5.0),
-        _authorStyle = authorStyle,
-        _htmlStyle = htmlStyle,
-        super(key: key);
-
-  final Comment _comment;
-  final Color _authorColor;
-  final BuildContext context;
-  final EdgeInsets _avatarMove;
-  final Map<String, Style> _authorStyle;
-  final Map<String, Style> _htmlStyle;
-
-  Widget _divider(Color color) {
-    return Padding(
-      padding: _avatarMove,
-      child: Divider(
-        height: 20,
-        thickness: 3,
-        indent: 50,
-        endIndent: 50,
-        color: color,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Column(
-          children: <Widget>[
-            if (_comment.level == 1) _divider(Theme.of(context).disabledColor),
-            Padding(
-              padding: _avatarMove, // move avatar higher
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: _borderColor(context),
-                    width: 1.5,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 2,
-                color: _comment.dname == _comment.poster
-                    ? _authorColor
-                    : Theme.of(context).bottomAppBarColor,
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(left: 7.0, top: 7.0),
-                          child: Text(
-                            '${_comment.level}↳ ${_comment.dname}',
-                            style: TextStyle(
-                              fontSize: Theme.of(context)
-                                  .textTheme
-                                  .subtitle2
-                                  .fontSize,
-                              color: _comment.dname == _comment.poster
-                                  ? Colors.white
-                                  : Theme.of(context).disabledColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Html(
-                      data: '<article>${_comment.article}</article>',
-                      style: _comment.dname == _comment.poster
-                          ? _authorStyle
-                          : _htmlStyle,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        Column(
-          children: <Widget>[
-            if (_comment.level == 1) _divider(Colors.transparent),
-            Align(
-              alignment: Alignment.topRight,
-              child: CircleAvatar(
-                radius: 22,
-                backgroundColor: _borderColor(context),
-                child: CircleAvatar(
-                  radius: 20,
-                  backgroundImage: NetworkImage(_comment.userpic),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Color _borderColor(BuildContext context) {
-    return Theme.of(context).disabledColor;
   }
 }
 
