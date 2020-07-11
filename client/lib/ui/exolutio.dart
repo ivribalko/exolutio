@@ -45,6 +45,9 @@ class Exolutio extends StatelessWidget {
 
   ThemeData _buildLightTheme(String font) {
     return ThemeData(
+      primaryColor: Color.fromRGBO(1, 67, 89, 1),
+      accentColor: Color.fromRGBO(1, 67, 89, 1),
+      highlightColor: Color.fromRGBO(1, 67, 89, 1),
       brightness: Brightness.light,
       fontFamily: font,
     );
