@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared/html_model.dart';
 
-import '../../main.dart';
+import '../../locator.dart';
 import '../routes.dart';
 import '../view_model.dart';
 

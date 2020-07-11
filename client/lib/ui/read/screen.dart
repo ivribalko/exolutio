@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:client/src/firebase.dart';
 import 'package:client/src/meta_model.dart';
-import 'package:client/ui/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
@@ -16,8 +15,9 @@ import 'package:shared/html_model.dart';
 import 'package:shared/loader.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../main.dart';
+import '../../locator.dart';
 import '../common.dart';
+import '../routes.dart';
 import '../view_model.dart';
 
 const _jumpDuration = Duration(milliseconds: 300);
