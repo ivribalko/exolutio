@@ -22,12 +22,12 @@ void main() async {
     'exolutio',
   );
 
-  final added = missing(
+  final added = _missing(
     from: earlier,
     list: current,
   ).map((e) => _notify(e, links, notifier));
 
-  final clean = missing(
+  final clean = _missing(
     from: current,
     list: earlier,
   ).map((e) => _delete(e, links));
@@ -41,7 +41,7 @@ void main() async {
   exit(0);
 }
 
-Iterable<Link> missing({Iterable<Link> from, Iterable<Link> list}) {
+Iterable<Link> _missing({Iterable<Link> from, Iterable<Link> list}) {
   return list.where((e) => _notAny(from, e));
 }
 
