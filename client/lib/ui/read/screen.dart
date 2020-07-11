@@ -19,6 +19,7 @@ import '../common.dart';
 import '../routes.dart';
 import '../view_model.dart';
 import 'comment_view.dart';
+import 'progress_view.dart';
 
 const _jumpDuration = Duration(milliseconds: 300);
 
@@ -109,7 +110,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
                 ),
               ),
               _BottomBar(this),
-              _Progress(this),
+              ProgressView(this._scroll),
             ],
           ),
         ),
@@ -339,61 +340,6 @@ class _BottomBarState extends State<_BottomBar> {
           '${_article.link.title}: '
           '${await firebase.getArticleLink(_article.link)}',
         );
-}
-
-class _Progress extends StatefulWidget {
-  final _ReadScreenState reading;
-
-  _Progress(this.reading);
-
-  @override
-  _ProgressState createState() => _ProgressState();
-}
-
-class _ProgressState extends State<_Progress> {
-  AutoScrollController get _scroll => widget.reading._scroll;
-
-  @override
-  void initState() {
-    _scroll.addListener(() => setState(() {}));
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: _buildProgress(context),
-    );
-  }
-
-  Widget _buildProgress(BuildContext context) {
-    if (widget.reading._data == null) {
-      return LinearProgressIndicator();
-    }
-
-    var position = _scroll.position;
-    var value = position.pixels / position.maxScrollExtent;
-    if (value.isInfinite || value.isNaN) {
-      value = 0;
-    }
-    return GestureDetector(
-      onTapDown: (e) => _jump(e.localPosition, context),
-      onHorizontalDragUpdate: (e) => _jump(e.localPosition, context),
-      child: Container(
-        color: Colors.transparent,
-        child: Padding(
-          padding: EdgeInsets.only(top: 15),
-          child: LinearProgressIndicator(value: value),
-        ),
-      ),
-    );
-  }
-
-  void _jump(Offset offset, BuildContext context) {
-    final relative = offset.dx / context.size.width;
-    return _scroll.jumpTo(_scroll.position.maxScrollExtent * relative);
-  }
 }
 
 enum JumpMode {
