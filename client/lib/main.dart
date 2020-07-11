@@ -6,6 +6,8 @@ import 'locator.dart';
 import 'ui/exolutio.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   if (kDebugMode) Wakelock.enable();
 
   await setUp();
