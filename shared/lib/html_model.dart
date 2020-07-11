@@ -136,7 +136,7 @@ class HtmlModel {
 
       if (article.indexOf(clean) > -1) {
         final link = '$CommentLink$index';
-        final href = ' [ <a class="quote" href=$link>ответ</a> ]';
+        final href = ' (<a class="quote" href=$link> ⇩ </a>)';
         final span = '<span class="quote">';
         final color = _colorize(comments[index], clean, '$span$clean</span>');
 
