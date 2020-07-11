@@ -13,24 +13,12 @@ class MockLoader extends Mock implements Loader {}
 class MockPreferences extends Mock implements SharedPreferences {}
 
 final _files = <String, String>{
-  'page': File(
-    'test/assets/evo-lutio.livejournal.com.htm',
-  ).readAsStringSync(),
-  'thread': File(
-    'test/assets/evo-lutio.livejournal.com__single_page_thread=add_two.htm',
-  ).readAsStringSync(),
-  'single_page': File(
-    'test/assets/evo-lutio.livejournal.com__single_page.htm',
-  ).readAsStringSync(),
-  'triple_page': File(
-    'test/assets/evo-lutio.livejournal.com__triple_page.htm',
-  ).readAsStringSync(),
-  'quotes_with_quotes': File(
-    'test/assets/evo-lutio.livejournal.com__quotes_with_quotes.htm',
-  ).readAsStringSync(),
-  'multiline_quotes': File(
-    'test/assets/evo-lutio.livejournal.com__multiline_quotes.htm',
-  ).readAsStringSync(),
+  'page': _baseAsset('.htm'),
+  'single_page': _baseAsset('__single_page.htm'),
+  'triple_page': _baseAsset('__triple_page.htm'),
+  'quotes_with_quotes': _baseAsset('__quotes_with_quotes.htm'),
+  'multiline_quotes': _baseAsset('__multiline_quotes.htm'),
+  'thread': _baseAsset('__single_page_thread=add_two.htm'),
 };
 
 Loader _loader;
@@ -39,8 +27,7 @@ bool _update = false;
 
 void main() {
   setUp(() {
-    _loader = MockLoader();
-    when(_loader.page(any)).thenAnswer((_) => Future.value(_files['page']));
+    when((_loader = MockLoader()).page(any)).thenAnswer(_fromFile);
     _model = HtmlViewModel(_loader);
   });
   tearDown(() {
@@ -49,7 +36,7 @@ void main() {
 
   group('comments count on ', () {
     Future _test(String name, int count) async {
-      _loadFile(name);
+      _mockFile(name);
 
       await _model.loadMore();
       final link = _model[Tag.letters].first;
@@ -64,7 +51,7 @@ void main() {
 
   group('quotes count', () {
     Future _test(String name, int count) async {
-      _loadFile(name);
+      _mockFile(name);
 
       await _model.loadMore();
       final link = _model[Tag.letters].first;
@@ -82,7 +69,7 @@ void main() {
 
   group('expandable comments count', () {
     Future _test(String name, int count) async {
-      _loadFile(name);
+      _mockFile(name);
 
       await _model.loadMore();
       final link = _model[Tag.letters].first;
@@ -97,7 +84,7 @@ void main() {
 
   group('comments order on', () {
     Future _test(String name) async {
-      _loadFile(name);
+      _mockFile(name);
 
       await _model.loadMore();
       final link = _model[Tag.letters].first;
@@ -105,12 +92,9 @@ void main() {
 
       final actual = article.comments.map((e) => e.article).join("\n\n");
       if (_update) {
-        await File('test/assets/order_$name.txt').writeAsString(actual);
+        await File(_path('order_$name.txt')).writeAsString(actual);
       } else {
-        final expected =
-            await File('test/assets/order_$name.txt').readAsString();
-
-        expect(actual, equals(expected));
+        expect(actual, equals(await _asset('order_$name.txt')));
       }
     }
 
@@ -120,7 +104,7 @@ void main() {
 
   group('titles order', () {
     Future _test(Tag tag) async {
-      _loadFile('single_page');
+      _mockFile('single_page');
 
       await _model.loadMore();
       final actual = _model[tag].join("\n\n");
@@ -135,15 +119,25 @@ void main() {
   });
 }
 
-void _loadFile(String id) {
+Future<String> _fromFile(_) {
+  return Future.value(_files['page']);
+}
+
+void _mockFile(String id) {
   assert(_files.containsKey(id));
   when(_loader.body(any)).thenAnswer((_) => Future.value(_files[id]));
   when(_loader.body(argThat(contains('thread='))))
       .thenAnswer((_) => Future.value(_files['thread']));
 }
 
-String _path(String name) => 'test/assets/$name';
+String _path(String name) {
+  return 'test/assets/$name';
+}
 
 Future<String> _asset(String name) {
   return File(_path(name)).readAsString();
+}
+
+String _baseAsset(String name) {
+  return File(_path('evo-lutio.livejournal.com$name')).readAsStringSync();
 }
