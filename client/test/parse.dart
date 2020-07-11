@@ -81,48 +81,22 @@ void main() {
     expect(article.comments.length, equals(40));
   });
 
-  test('quotes count on single_page', () async {
-    _loadFile('single_page');
+  group('quotes count', () {
+    Future _test(String name, int count) async {
+      _loadFile(name);
 
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
-    final quotes = RegExp('class="quote"').allMatches(article.text);
+      await _model.loadMore();
+      final link = _model[Tag.letters].first;
+      final article = await _model.article(link);
+      final quotes = RegExp('class="quote"').allMatches(article.text);
 
-    expect(quotes.length, equals(52));
-  });
+      expect(quotes.length, equals(count));
+    }
 
-  test('quotes count on triple_page', () async {
-    _loadFile('triple_page');
-
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
-    final quotes = RegExp('class="quote"').allMatches(article.text);
-
-    expect(quotes.length, equals(88));
-  });
-
-  test('quotes count on multiline_quotes', () async {
-    _loadFile('multiline_quotes');
-
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
-    final quotes = RegExp('class="quote"').allMatches(article.text);
-
-    expect(quotes.length, equals(16));
-  });
-
-  test('quotes with quotes', () async {
-    _loadFile('quotes_with_quotes');
-
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
-    final quotes = RegExp('class="quote"').allMatches(article.text);
-
-    expect(quotes.length, equals(34));
+    test('single_page', () async => await _test('single_page', 52));
+    test('triple_page', () async => await _test('triple_page', 88));
+    test('with quotes', () async => await _test('quotes_with_quotes', 34));
+    test('multiline_quotes', () async => await _test('multiline_quotes', 16));
   });
 
   group('expandable comments count', () {
@@ -136,13 +110,8 @@ void main() {
       expect(_model.expandable(article.comments).length, equals(count));
     }
 
-    test('single_page', () async {
-      await _test('single_page', 5);
-    });
-
-    test('triple_page', () async {
-      await _test('triple_page', 7);
-    });
+    test('single_page', () async => await _test('single_page', 5));
+    test('triple_page', () async => await _test('triple_page', 7));
   });
 
   group('comments order on', () {
@@ -164,13 +133,8 @@ void main() {
       }
     }
 
-    test('single_page', () async {
-      await _test('single_page');
-    });
-
-    test('triple_page', () async {
-      await _test('triple_page');
-    });
+    test('single_page', () async => await _test('single_page'));
+    test('triple_page', () async => await _test('triple_page'));
   });
 
   group('titles order', () {
@@ -184,17 +148,9 @@ void main() {
       expect(actual, equals(expected));
     }
 
-    test('any', () async {
-      await _test(Tag.any);
-    });
-
-    test('others', () async {
-      await _test(Tag.others);
-    });
-
-    test('letters', () async {
-      await _test(Tag.letters);
-    });
+    test('any', () async => await _test(Tag.any));
+    test('others', () async => await _test(Tag.others));
+    test('letters', () async => await _test(Tag.letters));
   });
 }
 
