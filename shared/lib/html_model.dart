@@ -19,7 +19,7 @@ const String titleKey = 'title';
 const String CommentLink = "comment:";
 const _startQuotes = '<«"\'‘“';
 const _ceaseQuotes = '>»"\'’”';
-const _word = '\\S+?';
+const _word = '\\S{2}?';
 const _any = '.*?';
 const _ws = '\\s+?';
 
