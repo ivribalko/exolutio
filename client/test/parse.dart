@@ -35,7 +35,7 @@ final _files = <String, String>{
 
 Loader _loader;
 HtmlViewModel _model;
-bool _rewrite = false;
+bool _update = false;
 
 void main() {
   setUp(() {
@@ -153,7 +153,7 @@ void main() {
     final article = await _model.article(link);
 
     final actual = article.comments.map((e) => e.article).join("\n\n");
-    if (_rewrite) {
+    if (_update) {
       await File('test/assets/order_single_page.txt').writeAsString(actual);
     } else {
       final expected =
@@ -171,7 +171,7 @@ void main() {
     final article = await _model.article(link);
 
     final actual = article.comments.map((e) => e.article).join("\n\n");
-    if (_rewrite) {
+    if (_update) {
       await File('test/assets/order_triple_page.txt').writeAsString(actual);
     } else {
       final expected =
@@ -181,16 +181,28 @@ void main() {
     }
   });
 
-  test('titles order any', () async {
-    await _testTitlesOrder(Tag.any);
-  });
+  group('titles order ', () {
+    Future _testTitlesOrder(Tag tag) async {
+      _loadFile('single_page');
 
-  test('titles order others', () async {
-    await _testTitlesOrder(Tag.others);
-  });
+      await _model.loadMore();
+      final actual = _model[tag].join("\n\n");
+      final expected = await _asset('order_titles_$tag.txt');
 
-  test('titles order letters', () async {
-    await _testTitlesOrder(Tag.letters);
+      expect(actual, equals(expected));
+    }
+
+    test('any', () async {
+      await _testTitlesOrder(Tag.any);
+    });
+
+    test('others', () async {
+      await _testTitlesOrder(Tag.others);
+    });
+
+    test('letters', () async {
+      await _testTitlesOrder(Tag.letters);
+    });
   });
 }
 
@@ -201,13 +213,8 @@ void _loadFile(String id) {
       .thenAnswer((_) => Future.value(_files['thread']));
 }
 
-Future _testTitlesOrder(Tag tag) async {
-  _loadFile('single_page');
+String _path(String name) => 'test/assets/$name';
 
-  await _model.loadMore();
-  final actual = _model[tag].join("\n\n");
-  final expected =
-      await File('test/assets/order_titles_$tag.txt').readAsString();
-
-  expect(actual, equals(expected));
+Future<String> _asset(String name) {
+  return File(_path(name)).readAsString();
 }
