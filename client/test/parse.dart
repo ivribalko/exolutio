@@ -47,20 +47,6 @@ void main() {
     _model.dispose();
   });
 
-  test('first comment text', () async {
-    _loadFile('single_page');
-
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
-
-    expect(
-        article.comments[0].article,
-        equals('Предыдущее письмо автора: <a href=\'https://evo-lutio.'
-            'livejournal.com/903296.html\'>https://evo-lutio.livejournal.'
-            'com/903296.html</a> '));
-  });
-
   group('comments count on ', () {
     Future _test(String name, int count) async {
       _loadFile(name);
