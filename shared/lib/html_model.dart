@@ -81,8 +81,8 @@ class HtmlModel {
 
   bool get any => _articlePageCache.isNotEmpty;
 
-  Future<List<Link>> loadMore() async {
-    return _page(_articlePageCache.length).then((value) => this[Tag.any]);
+  Future loadMore() async {
+    return _page(_articlePageCache.length);
   }
 
   void refresh() {
@@ -97,7 +97,7 @@ class HtmlModel {
   List<Link> _articles(bool test(element)) => _articlePageCache.isEmpty
       ? []
       : _articlePageCache
-          .reduce((value, element) => value..addAll(element))
+          .fold<List<dom.Element>>([], (v, element) => v..addAll(element))
           .map(_hrefAndDateEntry)
           .where((e) => test(e.key))
           .where((e) => e.key.text.isNotEmpty)

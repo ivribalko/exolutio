@@ -11,8 +11,11 @@ void main() async {
     auth: await _firebaseAuth(),
   ).collection('links');
 
-  final current = await HtmlModel(Loader()).loadMore();
-  final earlier = (await links.get()).map((e) => Link.fromMap(e.map));
+  final current = (await HtmlModel(Loader())
+    ..loadMore())[Tag.any];
+  final earlier = (await links.get()).map(
+    (e) => Link.fromMap(e.map),
+  );
 
   final notifier = FirebaseCloudMessagingServer(
     _credentials(),
