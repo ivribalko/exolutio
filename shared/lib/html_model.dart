@@ -81,8 +81,8 @@ class HtmlModel {
 
   bool get any => _articlePageCache.isNotEmpty;
 
-  Future<List<Link>> loadMore() async {
-    return _page(_articlePageCache.length).then((value) => this[Tag.any]);
+  Future loadMore() async {
+    return _page(_articlePageCache.length);
   }
 
   void refresh() {
