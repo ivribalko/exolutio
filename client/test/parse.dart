@@ -61,24 +61,19 @@ void main() {
             'com/903296.html</a> '));
   });
 
-  test('comments count on single_page', () async {
-    _loadFile('single_page');
+  group('comments count on ', () {
+    Future _test(String name, int count) async {
+      _loadFile(name);
 
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
+      await _model.loadMore();
+      final link = _model[Tag.letters].first;
+      final article = await _model.article(link);
 
-    expect(article.comments.length, equals(30));
-  });
+      expect(article.comments.length, equals(count));
+    }
 
-  test('comments count on triple_page', () async {
-    _loadFile('triple_page');
-
-    await _model.loadMore();
-    final link = _model[Tag.letters].first;
-    final article = await _model.article(link);
-
-    expect(article.comments.length, equals(40));
+    test('single_page', () async => await _test('single_page', 30));
+    test('triple_page', () async => await _test('triple_page', 40));
   });
 
   group('quotes count', () {
