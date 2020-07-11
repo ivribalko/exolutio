@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:share/share.dart';
 import 'package:shared/html_model.dart';
@@ -19,9 +18,8 @@ import '../common.dart';
 import '../routes.dart';
 import '../view_model.dart';
 import 'comment_view.dart';
+import 'jumper.dart';
 import 'progress_view.dart';
-
-const _jumpDuration = Duration(milliseconds: 300);
 
 class ReadScreen extends StatefulWidget {
   ReadScreen(this.context);
@@ -39,7 +37,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
 
   StreamSubscription _loading;
   ScrollPosition _lastScroll;
-  _Jumper _jumper;
+  Jumper _jumper;
   Article _data;
   String _title;
 
@@ -48,7 +46,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
     final link = _getRouteArguments(widget.context) as Link;
     _title = link.title;
     _loading = _articleAsFuture(link).asStream().listen(_initStateWithData);
-    _jumper = _Jumper(this);
+    _jumper = Jumper(_scroll);
     _jumper.mode.listen((value) => setState(() {}));
     _jumper.position.listen(_animateTo);
 
@@ -207,7 +205,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
     if (position != null) {
       _scroll.animateTo(
         position,
-        duration: _jumpDuration,
+        duration: jumpDuration,
         curve: Curves.easeOutExpo,
       );
     }
@@ -340,94 +338,4 @@ class _BottomBarState extends State<_BottomBar> {
           '${_article.link.title}: '
           '${await firebase.getArticleLink(_article.link)}',
         );
-}
-
-enum JumpMode {
-  none,
-  start,
-  comment,
-  back,
-}
-
-class _Jumper {
-  bool _jumpedUp;
-  double _jumpedFrom;
-  final _ReadScreenState reading;
-  final mode = BehaviorSubject<JumpMode>()..add(JumpMode.none);
-  final position = PublishSubject<double>();
-
-  _Jumper(this.reading);
-
-  void dispose() {
-    mode.close();
-    position.close();
-  }
-
-  double get _offset => reading._scroll.offset;
-
-  bool get jumped => mode.value != JumpMode.none;
-
-  bool get returned {
-    if (!jumped) {
-      return true;
-    } else {
-      return _jumpedUp ? _offset >= _jumpedFrom : _offset <= _jumpedFrom;
-    }
-  }
-
-  set _modeSetter(JumpMode event) {
-    mode.add(event);
-    switch (event) {
-      case JumpMode.none:
-        position.add(null);
-        break;
-      case JumpMode.start:
-        position.add(0);
-        break;
-      case JumpMode.comment:
-        // controlled by plugin
-        break;
-      case JumpMode.back:
-        position.add(_jumpedFrom);
-        break;
-      default:
-        throw UnsupportedError(event.toString());
-    }
-  }
-
-  void goStart() {
-    _jumpedUp = true;
-    _jumpedFrom = _offset;
-    _modeSetter = JumpMode.start;
-  }
-
-  void goComment(int index) {
-    _jumpedUp = false;
-    _jumpedFrom = _offset;
-    _modeSetter = JumpMode.comment;
-    reading._scroll.scrollToIndex(
-      index,
-      duration: _jumpDuration,
-      preferPosition: AutoScrollPosition.begin,
-    );
-    // ignore: invalid_use_of_protected_member
-    reading.setState(() {}); // TODO
-  }
-
-  bool goBack() {
-    if (jumped) {
-      _modeSetter = JumpMode.back;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  void clear() {
-    if (jumped) {
-      _jumpedUp = null;
-      _jumpedFrom = null;
-      _modeSetter = JumpMode.none;
-    }
-  }
 }
