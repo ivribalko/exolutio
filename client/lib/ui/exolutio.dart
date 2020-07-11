@@ -16,20 +16,8 @@ class Exolutio extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Exolutio',
-      theme: ThemeData(
-        brightness: Brightness.light,
-        fontFamily: font,
-      ),
-      darkTheme: ThemeData(
-        primaryColor: Colors.black,
-        cardColor: Colors.white10,
-        scaffoldBackgroundColor: Colors.black,
-        canvasColor: Colors.black,
-        bottomAppBarColor: Colors.black,
-        backgroundColor: Colors.black,
-        brightness: Brightness.dark,
-        fontFamily: font,
-      ),
+      theme: _buildLightTheme(),
+      darkTheme: _buildDarkTheme(),
       initialRoute: Routes.home,
       routes: {
         Routes.home: (context) => _multiProviderHome(),
@@ -40,6 +28,26 @@ class Exolutio extends StatelessWidget {
         data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
         child: child,
       ),
+    );
+  }
+
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      brightness: Brightness.light,
+      fontFamily: font,
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      primaryColor: Colors.black,
+      cardColor: Colors.white10,
+      scaffoldBackgroundColor: Colors.black,
+      canvasColor: Colors.black,
+      bottomAppBarColor: Colors.black,
+      backgroundColor: Colors.black,
+      brightness: Brightness.dark,
+      fontFamily: font,
     );
   }
 
