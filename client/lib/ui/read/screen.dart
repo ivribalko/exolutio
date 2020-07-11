@@ -124,7 +124,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
     }
   }
 
-  SliverAppBar _buildAppBar() {
+  Widget _buildAppBar() {
     return SliverAppBar(
       expandedHeight: AppBarHeight,
       flexibleSpace: FlexibleSpaceBar(
@@ -142,7 +142,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
     );
   }
 
-  AutoScrollTag _buildComment(CommentData e) {
+  Widget _buildComment(CommentData e) {
     return AutoScrollTag(
       index: _data.comments.indexOf(e),
       controller: _scroll,
