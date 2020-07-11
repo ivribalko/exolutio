@@ -168,21 +168,29 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
 
   double get _fontSize => _meta.fontSize;
 
-  Map<String, Style> get _htmlStyle => {
-        'article': Style(fontSize: FontSize(_fontSize)),
-        '.quote': Style(fontSize: FontSize(_fontSize), color: _accentColor),
-      };
+  Map<String, Style> get _htmlStyle {
+    return {
+      'article': Style(fontSize: FontSize(_fontSize)),
+      '.quote': Style(fontSize: FontSize(_fontSize), color: _accentColor),
+    };
+  }
 
-  Map<String, Style> get _authorStyle => {
-        'article': Style(fontSize: FontSize(_fontSize), color: Colors.white),
-        '.quote': Style(fontSize: FontSize(_fontSize), color: _accentColor),
-      };
+  Map<String, Style> get _authorStyle {
+    return {
+      'article': Style(fontSize: FontSize(_fontSize), color: Colors.white),
+      '.quote': Style(fontSize: FontSize(_fontSize), color: _accentColor),
+    };
+  }
 
-  Color get _authorColor => Theme.of(context).brightness == Brightness.dark
-      ? _accentColor.withAlpha(100)
-      : _accentColor;
+  Color get _authorColor {
+    return Theme.of(context).brightness == Brightness.dark
+        ? _accentColor.withAlpha(100)
+        : _accentColor;
+  }
 
-  Color get _accentColor => Theme.of(context).accentColor;
+  Color get _accentColor {
+    return Theme.of(context).accentColor;
+  }
 
   void _onLinkTap(String url) {
     if (url.startsWith(CommentLink)) {
