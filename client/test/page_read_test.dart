@@ -14,22 +14,22 @@ class MockPreferences extends Mock implements SharedPreferences {}
 
 final files = <String, String>{
   'page': File(
-    'test/evo-lutio.livejournal.com.htm',
+    'test/assets/evo-lutio.livejournal.com.htm',
   ).readAsStringSync(),
   'thread': File(
-    'test/evo-lutio.livejournal.com__single_page_thread=add_two.htm',
+    'test/assets/evo-lutio.livejournal.com__single_page_thread=add_two.htm',
   ).readAsStringSync(),
   'single_page': File(
-    'test/evo-lutio.livejournal.com__single_page.htm',
+    'test/assets/evo-lutio.livejournal.com__single_page.htm',
   ).readAsStringSync(),
   'triple_page': File(
-    'test/evo-lutio.livejournal.com__triple_page.htm',
+    'test/assets/evo-lutio.livejournal.com__triple_page.htm',
   ).readAsStringSync(),
   'quotes_with_quotes': File(
-    'test/evo-lutio.livejournal.com__quotes_with_quotes.htm',
+    'test/assets/evo-lutio.livejournal.com__quotes_with_quotes.htm',
   ).readAsStringSync(),
   'multiline_quotes': File(
-    'test/evo-lutio.livejournal.com__multiline_quotes.htm',
+    'test/assets/evo-lutio.livejournal.com__multiline_quotes.htm',
   ).readAsStringSync(),
 };
 
@@ -161,9 +161,10 @@ void main() {
 
     final actual = article.comments.map((e) => e.article).join("\n\n");
     if (rewrite) {
-      await File('test/order_single_page.txt').writeAsString(actual);
+      await File('test/assets/order_single_page.txt').writeAsString(actual);
     } else {
-      final expected = await File('test/order_single_page.txt').readAsString();
+      final expected =
+          await File('test/assets/order_single_page.txt').readAsString();
 
       expect(actual, equals(expected));
     }
@@ -178,9 +179,10 @@ void main() {
 
     final actual = article.comments.map((e) => e.article).join("\n\n");
     if (rewrite) {
-      await File('test/order_triple_page.txt').writeAsString(actual);
+      await File('test/assets/order_triple_page.txt').writeAsString(actual);
     } else {
-      final expected = await File('test/order_triple_page.txt').readAsString();
+      final expected =
+          await File('test/assets/order_triple_page.txt').readAsString();
 
       expect(actual, equals(expected));
     }
@@ -191,7 +193,8 @@ void main() {
 
     await model.loadMore();
     final actual = model[tag].join("\n\n");
-    final expected = await File('test/order_titles_$tag.txt').readAsString();
+    final expected =
+        await File('test/assets/order_titles_$tag.txt').readAsString();
 
     expect(actual, equals(expected));
   }
