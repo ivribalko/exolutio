@@ -33,7 +33,10 @@ void main() async {
         provide<HtmlViewModel>(),
         provide<MetaModel>(),
       ],
-      child: Exolutio(),
+      child: Selector<MetaModel, String>(
+        selector: (_, model) => model.font,
+        builder: (_, font, __) => Exolutio(font),
+      ),
     ),
   );
 }

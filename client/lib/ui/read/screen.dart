@@ -404,6 +404,7 @@ class _BottomBarState extends State<_BottomBar> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _flatButton(Icons.share, _shareLink),
+            _flatButton(Icons.text_format, _meta.nextFont),
             _flatButton(Icons.format_size, _meta.nextFontSize),
           ],
         ),
