@@ -107,7 +107,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
                 ),
               ),
               if (_data != null) BottomBar(_data, _jumper, _scroll),
-              ProgressView(this._scroll),
+              if (_data != null) ProgressView(this._scroll),
             ],
           ),
         ),
