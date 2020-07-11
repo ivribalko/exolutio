@@ -6,6 +6,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:shared/comment_data.dart';
 import 'package:shared/html_model.dart';
 import 'package:shared/loader.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -136,22 +137,22 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
   Widget _buildComments() {
     return SliverList(
       delegate: SliverChildListDelegate(
-        _data.comments
-            .map(
-              (e) => AutoScrollTag(
-                index: _data.comments.indexOf(e),
-                controller: _scroll,
-                key: ValueKey(_data.comments.indexOf(e)),
-                child: CommentView(
-                  data: e,
-                  authorColor: _authorColor,
-                  context: context,
-                  authorStyle: _authorStyle,
-                  htmlStyle: _htmlStyle,
-                ),
-              ),
-            )
-            .toList(),
+        _data.comments.map(_buildComment).toList(),
+      ),
+    );
+  }
+
+  AutoScrollTag _buildComment(CommentData e) {
+    return AutoScrollTag(
+      index: _data.comments.indexOf(e),
+      controller: _scroll,
+      key: ValueKey(_data.comments.indexOf(e)),
+      child: CommentView(
+        data: e,
+        authorColor: _authorColor,
+        context: context,
+        authorStyle: _authorStyle,
+        htmlStyle: _htmlStyle,
       ),
     );
   }
@@ -166,7 +167,9 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
     );
   }
 
-  double get _fontSize => _meta.fontSize;
+  double get _fontSize {
+    return _meta.fontSize;
+  }
 
   Map<String, Style> get _htmlStyle {
     return {
