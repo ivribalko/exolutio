@@ -135,9 +135,12 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildComments() {
-    return SliverList(
-      delegate: SliverChildListDelegate(
-        _data.comments.map(_buildComment).toList(),
+    return Selector<MetaModel, double>(
+      selector: (_, data) => data.fontSize,
+      builder: (_, __, ___) => SliverList(
+        delegate: SliverChildListDelegate(
+          _data.comments.map(_buildComment).toList(),
+        ),
       ),
     );
   }
