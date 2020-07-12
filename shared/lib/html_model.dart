@@ -36,7 +36,7 @@ class HtmlModel {
     caseSensitive: false,
   );
 
-  List<Link> cached(Tag tag) {
+  List<LinkData> cached(Tag tag) {
     switch (tag) {
       case Tag.any:
         return _articles((_) => true);
@@ -49,7 +49,7 @@ class HtmlModel {
     }
   }
 
-  List<Link> operator [](Tag tag) => cached(tag);
+  List<LinkData> operator [](Tag tag) => cached(tag);
 
   Future<List<dom.Element>> _page(int index) {
     if (_articlePageCache.length > index) {
@@ -69,7 +69,7 @@ class HtmlModel {
     return e;
   }
 
-  FutureOr<Article> article(Link link) =>
+  FutureOr<Article> article(LinkData link) =>
       _articleCache[link.url] ??
       _fetchArticle(link.url)
           .then((value) => _getArticle(link, value))
@@ -94,7 +94,7 @@ class HtmlModel {
   bool _isNotLetter(e) => !_isLetter(e);
   bool _isLetter(e) => e.text.contains('Письмо:');
 
-  List<Link> _articles(bool test(element)) => _articlePageCache.isEmpty
+  List<LinkData> _articles(bool test(element)) => _articlePageCache.isEmpty
       ? []
       : _articlePageCache
           .fold<List<dom.Element>>([], (v, element) => v..addAll(element))
@@ -102,7 +102,7 @@ class HtmlModel {
           .where((e) => test(e.key))
           .where((e) => e.key.text.isNotEmpty)
           .where((e) => e.key.text != 'ПРАВИЛА БЛОГА')
-          .map((e) => Link.fromHtml(e.key, e.value))
+          .map((e) => LinkData.fromHtml(e.key, e.value))
           .toList();
 
   MapEntry<dom.Element, dom.Element> _hrefAndDateEntry(e) {
@@ -112,7 +112,7 @@ class HtmlModel {
     );
   }
 
-  Future<Article> _getArticle(Link link, dom.Document value) async {
+  Future<Article> _getArticle(LinkData link, dom.Document value) async {
     final comments = await _getUndynamicComments(link, value);
     final article = _colored(value, comments);
     return Article(
@@ -180,7 +180,7 @@ class HtmlModel {
 
   // if where() directly in _getComments it doesn't work TODO
   Future<List<CommentData>> _getUndynamicComments(
-    Link link,
+    LinkData link,
     dom.Document firstPage,
   ) async {
     final commentsPagesCount = firstPage
@@ -263,14 +263,14 @@ class HtmlModel {
   }
 }
 
-class Link {
+class LinkData {
   final String url;
   final String date;
   final String title;
 
-  Link({this.url, this.date, this.title});
+  LinkData({this.url, this.date, this.title});
 
-  Link.fromMap(
+  LinkData.fromMap(
     Map map,
   ) : this(
           url: map[urlKey],
@@ -278,7 +278,7 @@ class Link {
           title: map[titleKey],
         );
 
-  Link.fromHtml(
+  LinkData.fromHtml(
     dom.Element a,
     dom.Element abbr,
   ) : this(
@@ -300,7 +300,7 @@ class Article {
     this.comments,
   );
 
-  final Link link;
+  final LinkData link;
   final String text;
   final List<CommentData> comments;
 }

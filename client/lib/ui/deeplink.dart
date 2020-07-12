@@ -31,7 +31,7 @@ class DeepRouter {
     var deep = data?.link;
     if (deep != null) {
       final map = deep.queryParameters;
-      final link = Link(url: map[urlKey], title: map[titleKey]);
+      final link = LinkData(url: map[urlKey], title: map[titleKey]);
       print('following link to ${deep.path}: '
           'of title: ${link.title} '
           'and url: ${link.url}');

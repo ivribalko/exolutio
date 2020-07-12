@@ -42,7 +42,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    final link = _getRouteArguments(widget.context) as Link;
+    final link = _getRouteArguments(widget.context) as LinkData;
     _title = link.title;
     _loading = _articleAsFuture(link).asStream().listen(_initStateWithData);
     _jumper = Jumper(_scroll);
@@ -203,7 +203,8 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
       final index = url.substring(CommentLink.length);
       _jumper.goComment(int.parse(index));
     } else if (url.startsWith(Root)) {
-      safePushNamed(context, Routes.read, Link(url: url, date: '', title: ''));
+      safePushNamed(
+          context, Routes.read, LinkData(url: url, date: '', title: ''));
     } else {
       launch(url);
     }
@@ -227,7 +228,7 @@ class _ReadScreenState extends State<ReadScreen> with WidgetsBindingObserver {
     return ModalRoute.of(context).settings.arguments;
   }
 
-  Future<Article> _articleAsFuture(Link argument) {
+  Future<Article> _articleAsFuture(LinkData argument) {
     var futureOr = _html.article(argument);
     if (futureOr is Article) {
       return Future.value(futureOr);

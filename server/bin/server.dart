@@ -14,7 +14,7 @@ void main() async {
   final current = (await HtmlModel(Loader())
     ..loadMore())[Tag.any];
   final earlier = (await links.get()).map(
-    (e) => Link.fromMap(e.map),
+    (e) => LinkData.fromMap(e.map),
   );
 
   final notifier = FirebaseCloudMessagingServer(
@@ -41,7 +41,8 @@ void main() async {
   exit(0);
 }
 
-Iterable<Link> _missing({Iterable<Link> from, Iterable<Link> list}) {
+Iterable<LinkData> _missing(
+    {Iterable<LinkData> from, Iterable<LinkData> list}) {
   return list.where((e) => _notAny(from, e));
 }
 
@@ -55,7 +56,7 @@ Future<FirebaseAuth> _firebaseAuth() async {
 }
 
 Future _notify(
-  Link link,
+  LinkData link,
   CollectionReference links,
   FirebaseCloudMessagingServer notifier,
 ) async {
@@ -66,7 +67,7 @@ Future _notify(
   print('Users notified');
 }
 
-Future _delete(Link link, CollectionReference links) async {
+Future _delete(LinkData link, CollectionReference links) async {
   final document = await links.where('url', isEqualTo: link.url).get();
   await document.first.reference.delete();
   print('Removed old link: $link');
@@ -85,7 +86,7 @@ JWTClaim _credentials() {
 
 Future<ServerResult> _send(
   FirebaseCloudMessagingServer server,
-  Link link,
+  LinkData link,
 ) {
   return server.send(
     Send(
@@ -104,6 +105,6 @@ Future<ServerResult> _send(
   );
 }
 
-bool _notAny(Iterable<Link> list, Link link) {
+bool _notAny(Iterable<LinkData> list, LinkData link) {
   return !list.any((e) => e.url == link.url);
 }

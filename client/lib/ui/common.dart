@@ -22,7 +22,7 @@ class SliverProgressIndicator extends StatelessWidget {
   }
 }
 
-void safePushNamed(BuildContext context, String path, Link link) {
+void safePushNamed(BuildContext context, String path, LinkData link) {
   try {
     Navigator.of(context).pushNamed(
       path,

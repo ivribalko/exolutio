@@ -3,7 +3,7 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:shared/html_model.dart';
 
 class Firebase {
-  Future<String> getArticleLink(Link link) async {
+  Future<String> getArticleLink(LinkData link) async {
     final parameters = DynamicLinkParameters(
       uriPrefix: 'https://exolutio.page.link',
       link: Uri.parse('https://exolutio${Routes.read}?'

@@ -1,4 +1,3 @@
-import 'package:client/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +7,7 @@ import 'package:shared/html_model.dart';
 import '../../locator.dart';
 import '../routes.dart';
 import '../view_model.dart';
+import 'link_view.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -102,96 +102,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildList(BuildContext context, List<Link> data) {
+  Widget _buildList(BuildContext context, List<LinkData> data) {
     assert(data.map((e) => e.url).toSet().toList().length == data.length);
     return SliverPadding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
       sliver: SliverList(
         delegate: SliverChildListDelegate(data
             .map(
-              (e) => Padding(
+              (linkData) => Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: _buildLinkView(context, e),
+                child: LinkView(
+                  linkData,
+                  () => Navigator.of(context).pushNamed(
+                    Routes.read,
+                    arguments: linkData,
+                  ),
+                ),
               ),
             )
             .toList()),
       ),
     );
-  }
-
-  Widget _buildLinkView(BuildContext context, Link link) {
-    return _LinkView(
-      link,
-      () => Navigator.of(context).pushNamed(
-        Routes.read,
-        arguments: link,
-      ),
-    );
-  }
-}
-
-class _LinkView extends StatelessWidget {
-  _LinkView(this.data, this.onTap);
-
-  final Link data;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Selector<MetaModel, double>(
-      selector: (_, model) => model.getProgress(data),
-      builder: (BuildContext context, double progress, __) {
-        return Row(
-          children: <Widget>[
-            Flexible(
-              child: ListTile(
-                dense: true,
-                onTap: onTap,
-                title: Text(
-                  data.title.replaceFirst('Письмо: ', '').replaceAll('"', ''),
-                  style: TextStyle(
-                    color: _desaturateCompleted(progress, context),
-                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
-                  ),
-                ),
-                subtitle: Text(data.date),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: _Progress(progress),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Color _desaturateCompleted(double progress, BuildContext context) {
-    return progress != null && progress >= 1
-        ? Theme.of(context).disabledColor
-        : null;
-  }
-}
-
-class _Progress extends StatelessWidget {
-  final progress;
-
-  const _Progress(this.progress);
-
-  @override
-  Widget build(BuildContext context) {
-    if ((progress ?? 0) >= 1) {
-      return Icon(
-        Icons.check,
-        size: 35,
-        color: Theme.of(context).accentColor,
-      );
-    } else {
-      return CircularProgressIndicator(
-        backgroundColor: Theme.of(context).disabledColor,
-        value: progress ?? 0,
-      );
-    }
   }
 }

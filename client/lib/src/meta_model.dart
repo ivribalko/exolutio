@@ -18,7 +18,7 @@ class MetaModel extends ChangeNotifier {
     _fontSize = prefs.getDouble(fontSizeKey) ?? _fontSizes[0];
   }
 
-  double getProgress(Link link) {
+  double getProgress(LinkData link) {
     if (prefs.containsKey(link.url)) {
       final save = _loadSave(link);
       return save.currentPosition / save.maximumPosition;
@@ -27,7 +27,7 @@ class MetaModel extends ChangeNotifier {
     }
   }
 
-  double getPosition(Link link) {
+  double getPosition(LinkData link) {
     if (prefs.containsKey(link.url)) {
       return _loadSave(link).currentPosition;
     } else {
@@ -35,7 +35,7 @@ class MetaModel extends ChangeNotifier {
     }
   }
 
-  void savePosition(Link link, double at, double max) {
+  void savePosition(LinkData link, double at, double max) {
     prefs.setString(
       link.url,
       jsonEncode(
@@ -65,7 +65,7 @@ class MetaModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  _Save _loadSave(Link link) {
+  _Save _loadSave(LinkData link) {
     return _Save.fromJson(jsonDecode(prefs.getString(link.url)));
   }
 }

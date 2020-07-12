@@ -26,7 +26,8 @@ class PushRouter {
   }
 
   Future<dynamic> _onNotification(Map<String, dynamic> message) async {
-    final link = Link.fromMap(Platform.isAndroid ? message['data'] : message);
+    final link =
+        LinkData.fromMap(Platform.isAndroid ? message['data'] : message);
     print('Opening link from push notification: $link');
     safePushNamed(context, Routes.read, link);
   }
