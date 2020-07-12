@@ -41,8 +41,10 @@ void main() async {
   exit(0);
 }
 
-Iterable<LinkData> _missing(
-    {Iterable<LinkData> from, Iterable<LinkData> list}) {
+Iterable<LinkData> _missing({
+  Iterable<LinkData> from,
+  Iterable<LinkData> list,
+}) {
   return list.where((e) => _notAny(from, e));
 }
 
