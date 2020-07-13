@@ -1,6 +1,7 @@
 import 'package:client/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:splashscreen/splashscreen.dart';
 
 import '../locator.dart';
 import 'deeplink.dart';
@@ -26,7 +27,7 @@ class Exolutio extends StatelessWidget {
           darkTheme: _buildDarkTheme(font),
           initialRoute: Routes.home,
           routes: {
-            Routes.home: (context) => _multiProviderHome(),
+            Routes.home: (context) => _multiProviderHome(context),
             Routes.read: (context) => ReadScreen(context),
           },
           // https://github.com/Sub6Resources/flutter_html/issues/294#issuecomment-637318948
@@ -66,7 +67,7 @@ class Exolutio extends StatelessWidget {
     );
   }
 
-  Widget _multiProviderHome() {
+  Widget _multiProviderHome(context) {
     return MultiProvider(
       providers: [
         Provider<DeepRouter>(
@@ -78,7 +79,20 @@ class Exolutio extends StatelessWidget {
           lazy: false,
         ),
       ],
-      child: HomeScreen(),
+      child: SplashScreen(
+        seconds: 2,
+        title: Text(
+          'Здравствуйте,\nЭволюция!',
+          textAlign: TextAlign.center,
+          style: new TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: Theme.of(context).textTheme.headline3.fontSize,
+          ),
+        ),
+        loaderColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).backgroundColor,
+        navigateAfterSeconds: HomeScreen(),
+      ),
     );
   }
 }
