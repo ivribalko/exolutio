@@ -32,10 +32,7 @@ class DeepRouter {
     if (deep != null) {
       final map = deep.queryParameters;
       final link = LinkData(url: map[urlKey], title: map[titleKey]);
-      print('following link to ${deep.path}: '
-          'of title: ${link.title} '
-          'and url: ${link.url}');
-
+      print('following $link to ${deep.path}');
       safePushNamed(context, deep.path, link);
     }
   }

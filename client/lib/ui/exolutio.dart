@@ -37,8 +37,9 @@ class Exolutio extends StatelessWidget {
           title: 'Exolutio',
           theme: _buildLightTheme(font),
           darkTheme: _buildDarkTheme(font),
-          initialRoute: Routes.home,
+          initialRoute: Routes.load,
           routes: {
+            Routes.load: (context) => _buildSplashScreen(context),
             Routes.home: (context) => _multiProviderHome(context),
             Routes.read: (context) => ReadScreen(context),
           },
@@ -49,6 +50,23 @@ class Exolutio extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  SplashScreen _buildSplashScreen(BuildContext context) {
+    return SplashScreen(
+      seconds: 2,
+      title: Text(
+        _messages[_index],
+        textAlign: TextAlign.center,
+        style: new TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: Theme.of(context).textTheme.headline3.fontSize,
+        ),
+      ),
+      loaderColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      navigateAfterSeconds: Routes.home,
     );
   }
 
@@ -91,20 +109,7 @@ class Exolutio extends StatelessWidget {
           lazy: false,
         ),
       ],
-      child: SplashScreen(
-        seconds: 2,
-        title: Text(
-          _messages[_index],
-          textAlign: TextAlign.center,
-          style: new TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: Theme.of(context).textTheme.headline3.fontSize,
-          ),
-        ),
-        loaderColor: Theme.of(context).scaffoldBackgroundColor,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        navigateAfterSeconds: HomeScreen(),
-      ),
+      child: HomeScreen(),
     );
   }
 }
