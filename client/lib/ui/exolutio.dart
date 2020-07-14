@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:client/src/meta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +14,16 @@ import 'routes.dart';
 import 'view_model.dart';
 
 class Exolutio extends StatelessWidget {
+  static final _messages = [
+    'Здравствуйте,\nЭволюция!',
+    'Здравствуйте,\nУважаемая Эволюция.',
+    'Здравствуйте!',
+    'Здравствуйте,\nЭволюция.',
+    'Уважаемая Эволюция,\nдобрый день!',
+    'Здравствуйте,\nдорогая Эволюция!',
+  ];
+  final _index = new Random().nextInt(_messages.length);
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -82,7 +94,7 @@ class Exolutio extends StatelessWidget {
       child: SplashScreen(
         seconds: 2,
         title: Text(
-          'Здравствуйте,\nЭволюция!',
+          _messages[_index],
           textAlign: TextAlign.center,
           style: new TextStyle(
             fontWeight: FontWeight.bold,
