@@ -89,8 +89,8 @@ class Exolutio extends StatelessWidget {
             fontSize: Theme.of(context).textTheme.headline3.fontSize,
           ),
         ),
-        loaderColor: Theme.of(context).backgroundColor,
-        backgroundColor: Theme.of(context).backgroundColor,
+        loaderColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         navigateAfterSeconds: HomeScreen(),
       ),
     );
