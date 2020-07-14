@@ -17,34 +17,32 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _model = locator<HtmlViewModel>();
   final _refresh = RefreshController(initialRefresh: false);
+  final _tabs = <MapEntry<String, IconData>>[
+    MapEntry('Письма', Icons.mail),
+    MapEntry('Прочее', Icons.info),
+  ];
 
   @override
   void initState() {
-    _model.loadMore();
     super.initState();
+    _model.loadMore();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: DefaultTabController(
-        length: 2,
+        length: _tabs.length,
         child: NestedScrollView(
           headerSliverBuilder: (context, value) {
             return [
               SliverAppBar(
-                title: Text(
-                  'Эволюция',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.headline4.fontSize,
-                  ),
-                ),
+                title: _TabTitle(_tabs),
                 centerTitle: true,
                 bottom: TabBar(
                   tabs: [
-                    Tab(icon: Icon(Icons.mail)),
-                    Tab(icon: Icon(Icons.info)),
+                    Tab(icon: Icon(_tabs[0].value)),
+                    Tab(icon: Icon(_tabs[1].value)),
                   ],
                 ),
               ),
@@ -121,6 +119,45 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             )
             .toList()),
+      ),
+    );
+  }
+}
+
+class _TabTitle extends StatefulWidget {
+  final List<MapEntry<String, IconData>> _tabs;
+
+  const _TabTitle(this._tabs);
+
+  @override
+  _TabTitleState createState() => _TabTitleState();
+}
+
+class _TabTitleState extends State<_TabTitle> {
+  bool _subscribed = false;
+
+  TabController get _tabController {
+    return DefaultTabController.of(context);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_subscribed) {
+      _tabController.addListener(() {
+        setState(() {});
+      });
+      _subscribed = true;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      widget._tabs[_tabController.index].key,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: Theme.of(context).textTheme.headline4.fontSize,
       ),
     );
   }
