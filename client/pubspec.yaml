@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_html: ^1.0.2
+  get: ^3.5.1
   get_it: ^4.0.4
   html: ^0.14.0+3
   http: ^0.12.2
