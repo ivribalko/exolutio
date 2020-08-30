@@ -1,5 +1,6 @@
 import 'package:client/src/meta_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:shared/html_model.dart';
 
@@ -24,7 +25,7 @@ class LinkView extends StatelessWidget {
                   data.title.replaceFirst('Письмо: ', '').replaceAll('"', ''),
                   style: TextStyle(
                     color: _desaturateCompleted(progress, context),
-                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                    fontSize: Get.textTheme.headline6.fontSize,
                   ),
                 ),
                 subtitle: Text(data.date),

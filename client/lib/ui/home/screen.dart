@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared/html_model.dart';
@@ -157,7 +158,7 @@ class _TabTitleState extends State<_TabTitle> {
       widget._tabs[_tabController.index].key,
       textAlign: TextAlign.center,
       style: TextStyle(
-        fontSize: Theme.of(context).textTheme.headline4.fontSize,
+        fontSize: Get.textTheme.headline4.fontSize,
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
+import 'package:get/get.dart';
 import 'package:shared/comment_data.dart';
 
 class CommentView extends StatelessWidget {
@@ -106,7 +107,7 @@ class CommentView extends StatelessWidget {
           child: Text(
             '${_data.level}↳ ${_data.dname}',
             style: TextStyle(
-              fontSize: Theme.of(context).textTheme.subtitle2.fontSize,
+              fontSize: Get.textTheme.subtitle2.fontSize,
               color: _data.dname == _data.poster
                   ? Colors.white
                   : Theme.of(context).disabledColor,

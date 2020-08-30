@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:client/src/meta_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:splashscreen/splashscreen.dart';
 
@@ -62,11 +63,11 @@ class Exolutio extends StatelessWidget {
         textAlign: TextAlign.center,
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: Theme.of(context).textTheme.headline3.fontSize,
+          fontSize: Get.textTheme.headline3.fontSize,
         ),
       ),
-      loaderColor: Theme.of(context).scaffoldBackgroundColor,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      loaderColor: Get.theme.scaffoldBackgroundColor,
+      backgroundColor: Get.theme.scaffoldBackgroundColor,
       navigateAfterSeconds: Routes.home,
     );
   }
