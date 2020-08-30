@@ -11,6 +11,7 @@ import 'home/screen.dart';
 import 'messages.dart';
 import 'read/screen.dart';
 import 'routes.dart';
+import 'theme.dart';
 import 'view_model.dart';
 
 class Exolutio extends StatelessWidget {
@@ -35,8 +36,8 @@ class Exolutio extends StatelessWidget {
         selector: (_, model) => model.font,
         builder: (_, font, __) => MaterialApp(
           title: 'Exolutio',
-          theme: _buildLightTheme(font),
-          darkTheme: _buildDarkTheme(font),
+          theme: lightTheme(font),
+          darkTheme: darkTheme(font),
           initialRoute: Routes.load,
           routes: {
             Routes.load: (context) => _buildSplashScreen(context),
@@ -72,29 +73,6 @@ class Exolutio extends StatelessWidget {
 
   ChangeNotifierProvider<T> provide<T extends ChangeNotifier>() {
     return ChangeNotifierProvider<T>(create: (_) => locator<T>());
-  }
-
-  ThemeData _buildLightTheme(String font) {
-    return ThemeData(
-      primaryColor: Color.fromRGBO(1, 67, 89, 1),
-      accentColor: Color.fromRGBO(1, 67, 89, 1),
-      highlightColor: Color.fromRGBO(1, 67, 89, 1),
-      brightness: Brightness.light,
-      fontFamily: font,
-    );
-  }
-
-  ThemeData _buildDarkTheme(String font) {
-    return ThemeData(
-      primaryColor: Colors.black,
-      cardColor: Colors.white10,
-      scaffoldBackgroundColor: Colors.black,
-      canvasColor: Colors.black,
-      bottomAppBarColor: Colors.black,
-      backgroundColor: Colors.black,
-      brightness: Brightness.dark,
-      fontFamily: font,
-    );
   }
 
   Widget _multiProviderHome(context) {
