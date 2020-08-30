@@ -23,7 +23,7 @@ class Exolutio extends StatelessWidget {
     'Уважаемая Эволюция,\nдобрый день!',
     'Здравствуйте,\nдорогая Эволюция!',
   ];
-  final _index = new Random().nextInt(_messages.length);
+  final _index = Random().nextInt(_messages.length);
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +60,7 @@ class Exolutio extends StatelessWidget {
       title: Text(
         _messages[_index],
         textAlign: TextAlign.center,
-        style: new TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: Theme.of(context).textTheme.headline3.fontSize,
         ),
