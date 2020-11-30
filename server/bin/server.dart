@@ -5,17 +5,45 @@ import 'package:firedart/firedart.dart';
 import 'package:shared/html_model.dart';
 import 'package:shared/loader.dart';
 
-void main() async {
+const dryRunArg = '--dry-run';
+const noNotifyArg = '--no-notify';
+
+var dryRun = false;
+var noNotify = false;
+
+void main(List<String> args) async {
+  if (args.isNotEmpty) {
+    switch (args[0]) {
+      case dryRunArg:
+        dryRun = true;
+        break;
+      case noNotifyArg:
+        noNotify = true;
+        break;
+      case '?':
+      case '-h':
+      case '--help':
+        print('$dryRunArg\n$noNotifyArg');
+        return;
+    }
+  }
+
+  final html = HtmlModel(Loader());
+  await html.loadMore();
+
   final links = Firestore(
     'exolutio',
     auth: await _firebaseAuth(),
   ).collection('links');
 
-  final current = (await HtmlModel(Loader())
-    ..loadMore())[Tag.any];
+  final current = html[Tag.any];
   final earlier = (await links.get()).map(
     (e) => LinkData.fromMap(e.map),
   );
+
+  if (current.isEmpty) {
+    throw Exception('no articles found');
+  }
 
   final notifier = FirebaseCloudMessagingServer(
     _credentials(),
@@ -25,20 +53,35 @@ void main() async {
   final added = _missing(
     from: earlier,
     list: current,
-  ).map((e) => _notify(e, links, notifier));
+  ).map(printLink).where((e) => !dryRun).map(
+    (e) {
+      return _addLink(e, links).then(
+        (_) {
+          if (!noNotify) {
+            return _notify(e, notifier);
+          }
+        },
+      );
+    },
+  );
 
   final clean = _missing(
     from: current,
     list: earlier,
-  ).map((e) => _delete(e, links));
+  ).where((e) => !dryRun).map((e) => _delete(e, links));
 
   if ((await Future.wait([...added, ...clean])).length > 0) {
     print('Firestore updated');
   } else {
-    print('No changes found');
+    print('No changes were made');
   }
 
   exit(0);
+}
+
+LinkData printLink(e) {
+  print('Found new link: $e');
+  return e;
 }
 
 Iterable<LinkData> _missing({
@@ -49,24 +92,28 @@ Iterable<LinkData> _missing({
 }
 
 Future<FirebaseAuth> _firebaseAuth() async {
-  return await FirebaseAuth(
+  final auth = await FirebaseAuth(
     // Firebase : Settings : General
     Platform.environment['FIREBASE_WEB_API_KEY'],
     await VolatileStore(),
-  )
-    ..signInAnonymously();
+  );
+
+  await auth.signInAnonymously();
+
+  return auth;
 }
 
 Future _notify(
   LinkData link,
-  CollectionReference links,
   FirebaseCloudMessagingServer notifier,
 ) async {
-  print('Found new link: $link');
-  await links.add(link.toMap());
-  print('Link added to database');
   await _send(notifier, link);
   print('Users notified');
+}
+
+Future _addLink(LinkData link, CollectionReference links) async {
+  await links.add(link.toMap());
+  print('Link added to database');
 }
 
 Future _delete(LinkData link, CollectionReference links) async {
