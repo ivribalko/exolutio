@@ -39,6 +39,10 @@ void main(List<String> args) async {
     (e) => LinkData.fromMap(e.map),
   );
 
+  if (current.isEmpty) {
+    throw Exception('no articles found');
+  }
+
   final notifier = FirebaseCloudMessagingServer(
     _credentials(),
     'exolutio',
