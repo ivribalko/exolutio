@@ -28,13 +28,15 @@ void main(List<String> args) async {
     }
   }
 
+  final html = HtmlModel(Loader());
+  await html.loadMore();
+
   final links = Firestore(
     'exolutio',
     auth: await _firebaseAuth(),
   ).collection('links');
 
-  final current = (await HtmlModel(Loader())
-    ..loadMore())[Tag.any];
+  final current = html[Tag.any];
   final earlier = (await links.get()).map(
     (e) => LinkData.fromMap(e.map),
   );
