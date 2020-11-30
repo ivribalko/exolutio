@@ -86,12 +86,15 @@ Iterable<LinkData> _missing({
 }
 
 Future<FirebaseAuth> _firebaseAuth() async {
-  return await FirebaseAuth(
+  final auth = await FirebaseAuth(
     // Firebase : Settings : General
     Platform.environment['FIREBASE_WEB_API_KEY'],
     await VolatileStore(),
-  )
-    ..signInAnonymously();
+  );
+
+  await auth.signInAnonymously();
+
+  return auth;
 }
 
 Future _notify(
