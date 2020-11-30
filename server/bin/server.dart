@@ -12,18 +12,20 @@ var dryRun = false;
 var noNotify = false;
 
 void main(List<String> args) async {
-  switch (args[0]) {
-    case dryRunArg:
-      dryRun = true;
-      break;
-    case noNotifyArg:
-      noNotify = true;
-      break;
-    case '?':
-    case '-h':
-    case '--help':
-      print('$dryRunArg\n$noNotifyArg');
-      return;
+  if (args.isNotEmpty) {
+    switch (args[0]) {
+      case dryRunArg:
+        dryRun = true;
+        break;
+      case noNotifyArg:
+        noNotify = true;
+        break;
+      case '?':
+      case '-h':
+      case '--help':
+        print('$dryRunArg\n$noNotifyArg');
+        return;
+    }
   }
 
   final links = Firestore(
