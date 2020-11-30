@@ -45,20 +45,35 @@ void main(List<String> args) async {
   final added = _missing(
     from: earlier,
     list: current,
-  ).map((e) => _notify(e, links, notifier));
+  ).map(printLink).where((e) => !dryRun).map(
+    (e) {
+      return _addLink(e, links).then(
+        (_) {
+          if (!noNotify) {
+            return _notify(e, notifier);
+          }
+        },
+      );
+    },
+  );
 
   final clean = _missing(
     from: current,
     list: earlier,
-  ).map((e) => _delete(e, links));
+  ).where((e) => !dryRun).map((e) => _delete(e, links));
 
   if ((await Future.wait([...added, ...clean])).length > 0) {
     print('Firestore updated');
   } else {
-    print('No changes found');
+    print('No changes were made');
   }
 
   exit(0);
+}
+
+LinkData printLink(e) {
+  print('Found new link: $e');
+  return e;
 }
 
 Iterable<LinkData> _missing({
@@ -79,14 +94,15 @@ Future<FirebaseAuth> _firebaseAuth() async {
 
 Future _notify(
   LinkData link,
-  CollectionReference links,
   FirebaseCloudMessagingServer notifier,
 ) async {
-  print('Found new link: $link');
-  await links.add(link.toMap());
-  print('Link added to database');
   await _send(notifier, link);
   print('Users notified');
+}
+
+Future _addLink(LinkData link, CollectionReference links) async {
+  await links.add(link.toMap());
+  print('Link added to database');
 }
 
 Future _delete(LinkData link, CollectionReference links) async {
