@@ -8,6 +8,7 @@
 .buildlog/
 .history
 .svn/
+.gradle/
 
 # IntelliJ related
 *.iml
@@ -45,3 +46,7 @@ app.*.map.json
 # Private
 android/key.properties
 android/app/google-services.json
+
+# dart2native
+local.properties
+server/bin/server.exe

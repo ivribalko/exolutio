@@ -5,7 +5,27 @@ import 'package:firedart/firedart.dart';
 import 'package:shared/html_model.dart';
 import 'package:shared/loader.dart';
 
-void main() async {
+const dryRunArg = '--dry-run';
+const noNotifyArg = '--no-notify';
+
+var dryRun = false;
+var noNotify = false;
+
+void main(List<String> args) async {
+  switch (args[0]) {
+    case dryRunArg:
+      dryRun = true;
+      break;
+    case noNotifyArg:
+      noNotify = true;
+      break;
+    case '?':
+    case '-h':
+    case '--help':
+      print('$dryRunArg\n$noNotifyArg');
+      return;
+  }
+
   final links = Firestore(
     'exolutio',
     auth: await _firebaseAuth(),
