@@ -1,32 +1,21 @@
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:firebase_cloud_messaging_backend/firebase_cloud_messaging_backend.dart';
 import 'package:firedart/firedart.dart';
 import 'package:shared/html_model.dart';
 import 'package:shared/loader.dart';
 
-const dryRunArg = '--dry-run';
-const noNotifyArg = '--no-notify';
+// https://cloud.google.com/kubernetes-engine/docs/tutorials/authenticating-to-cloud-platform
+var googleCredentials = Platform.environment['GOOGLE_APPLICATION_CREDENTIALS'];
+// Firebase : Settings : General
+var firebaseWebApiKey = Platform.environment['FIREBASE_WEB_API_KEY'];
 
 var dryRun = false;
 var noNotify = false;
 
 void main(List<String> args) async {
-  if (args.isNotEmpty) {
-    switch (args[0]) {
-      case dryRunArg:
-        dryRun = true;
-        break;
-      case noNotifyArg:
-        noNotify = true;
-        break;
-      case '?':
-      case '-h':
-      case '--help':
-        print('$dryRunArg\n$noNotifyArg');
-        return;
-    }
-  }
+  setParameters(args);
 
   final html = HtmlModel(Loader());
   await html.loadMore();
@@ -79,6 +68,33 @@ void main(List<String> args) async {
   exit(0);
 }
 
+void setParameters(List<String> args) {
+  const dryRunArg = 'dry-run';
+  const noNotifyArg = 'no-notify';
+  const googleArg = 'google-acc-path';
+  const firebaseArg = 'firebase-web-key';
+
+  var parsed = (ArgParser()
+        ..addFlag(dryRunArg, defaultsTo: false)
+        ..addFlag(noNotifyArg, defaultsTo: false)
+        ..addOption(googleArg)
+        ..addOption(firebaseArg))
+      .parse(args);
+
+  dryRun = parsed[dryRunArg];
+  noNotify = parsed[noNotifyArg];
+  googleCredentials = parsed[googleArg] ?? googleCredentials;
+  firebaseWebApiKey = parsed[firebaseArg] ?? firebaseWebApiKey;
+
+  if (googleCredentials?.isEmpty ?? true) {
+    throw Exception('googleAppCredentials is null or empty');
+  }
+
+  if (firebaseWebApiKey?.isEmpty ?? true) {
+    throw Exception('firebaseWebApiKey is null or empty');
+  }
+}
+
 LinkData printLink(e) {
   print('Found new link: $e');
   return e;
@@ -93,8 +109,7 @@ Iterable<LinkData> _missing({
 
 Future<FirebaseAuth> _firebaseAuth() async {
   final auth = await FirebaseAuth(
-    // Firebase : Settings : General
-    Platform.environment['FIREBASE_WEB_API_KEY'],
+    firebaseWebApiKey,
     await VolatileStore(),
   );
 
@@ -126,8 +141,7 @@ JWTClaim _credentials() {
   return JWTClaim.from(
     File.fromUri(
       Uri.file(
-        // https://cloud.google.com/kubernetes-engine/docs/tutorials/authenticating-to-cloud-platform
-        Platform.environment['GOOGLE_APPLICATION_CREDENTIALS'],
+        googleCredentials,
       ),
     ),
   );
