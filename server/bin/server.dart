@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -71,7 +72,7 @@ void main(List<String> args) async {
 void setParameters(List<String> args) {
   const dryRunArg = 'dry-run';
   const noNotifyArg = 'no-notify';
-  const googleArg = 'google-acc-path';
+  const googleArg = 'google-acc';
   const firebaseArg = 'firebase-web-key';
 
   var parsed = (ArgParser()
@@ -138,12 +139,8 @@ Future _delete(LinkData link, CollectionReference links) async {
 }
 
 JWTClaim _credentials() {
-  return JWTClaim.from(
-    File.fromUri(
-      Uri.file(
-        googleCredentials,
-      ),
-    ),
+  return JWTClaim.fromJson(
+    json.decode(googleCredentials),
   );
 }
 

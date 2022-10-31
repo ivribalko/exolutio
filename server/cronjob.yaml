@@ -1,9 +1,9 @@
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: new-content-notifier
 spec:
-  schedule: "0 * * * *"
+  schedule: "@hourly"
   jobTemplate:
     spec:
       template:
@@ -14,16 +14,16 @@ spec:
                 secretName: pubsub-key
           containers:
             - name: new-content-notifier
-              image: gcr.io/exolutio/new-content-notifier:latest
-              volumeMounts:
-                - name: google-cloud-key
-                  mountPath: /var/secrets/google
+              image: ivribalko/new-content-notifier:latest
               env:
                 - name: FIREBASE_WEB_API_KEY
                   valueFrom:
                     secretKeyRef:
-                      name: web-api-key
-                      key: web-api-key
+                      name: firebase
+                      key: api-key
                 - name: GOOGLE_APPLICATION_CREDENTIALS
-                  value: /var/secrets/google/key.json
+                  valueFrom:
+                    secretKeyRef:
+                      name: google
+                      key: account
           restartPolicy: Never

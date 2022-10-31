@@ -1,14 +1,29 @@
-# server
+# Server job
 
-A new Flutter package project.
+## Build and push image
 
-## Getting Started
+```bash
+docker tag $(docker build . -q) ivribalko/new-content-notifier
+docker push ivribalko/new-content-notifier
+```
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+## Update Firestore
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+Put `account.json` into `server` folder, remove `--dry-run` and run:
+
+```bash
+docker run -it --rm $(docker build -q .) /root/server/bin/server.exe --dry-run --no-notify --google-acc $(cat account.json) --firebase-web-key KEY
+```
+
+## Secrets
+
+```bash
+kubectl create secret generic firebase --from-literal=api-key=KEY
+kubectl create secret generic google --from-file=account=account.json
+```
+
+## Deploy
+
+```bash
+kubectl create -f server/cronjob.yaml
+```
