@@ -9,10 +9,10 @@ docker push ivribalko/new-content-notifier
 
 ## Update Firestore
 
-Put `account.json` into `server` folder, remove `--dry-run` and run:
+Put `account.json` into root folder and run without `--dry-run`:
 
 ```bash
-docker run -it --rm $(docker build -q .) /root/server/bin/server.exe --dry-run --no-notify --google-acc $(cat account.json) --firebase-web-key KEY
+docker run -it --rm $(docker build -q .) /root/server/bin/server.exe --dry-run --no-notify --google-acc $(cat account.json | tr -d '[:space:]') --firebase-web-key KEY
 ```
 
 ## Secrets
